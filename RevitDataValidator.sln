@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitDataValidator", "RevitDataValidator\RevitDataValidator.csproj", "{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		2022|Any CPU = 2022|Any CPU
+		2023|Any CPU = 2023|Any CPU
+		2024|Any CPU = 2024|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2022|Any CPU.ActiveCfg = 2022|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2022|Any CPU.Build.0 = 2022|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2023|Any CPU.ActiveCfg = 2023|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2023|Any CPU.Build.0 = 2023|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2024|Any CPU.ActiveCfg = 2024|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2024|Any CPU.Build.0 = 2024|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D81C5E45-732F-49F8-BA49-BF76E2D346F9}
+	EndGlobalSection
+EndGlobal

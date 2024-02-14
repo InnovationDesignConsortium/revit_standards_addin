@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>RevitDataValidator</Name>
+    <Assembly>.\RevitDataValidator\RevitDataValidator.dll</Assembly>
+    <AddInId>12a8cb22-6d67-4842-aa1d-175781313b92</AddInId>
+    <FullClassName>RevitDataValidator.Ribbon</FullClassName>
+    <VendorId>BYBM</VendorId>
+  </AddIn>
+</RevitAddIns>
