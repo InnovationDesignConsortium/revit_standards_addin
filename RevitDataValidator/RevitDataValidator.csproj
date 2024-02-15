@@ -90,7 +90,8 @@ mkdir "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(ProjectDir)$(TargetName).addin "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\"
 copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
+copy /Y $(SolutionDir)DataValidationRules.xlsx C:\ProgramData\Autodesk\Revit\Addins
 
-"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
+REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
   </PropertyGroup>
 </Project>

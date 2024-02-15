@@ -3,3 +3,4 @@
 *.CopyComplete
 RevitDataValidator/obj
 .vs/
+RevitDataValidator-cache/
