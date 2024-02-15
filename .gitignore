@@ -1,0 +1,5 @@
+
+*.xml
+*.CopyComplete
+RevitDataValidator/obj
+.vs/
