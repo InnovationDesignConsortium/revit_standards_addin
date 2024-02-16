@@ -54,6 +54,9 @@
     <ROW Component="EPPlus.dll" ComponentId="{796F2CE3-3063-4971-AAB0-E1525F3A8B11}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="EPPlus.dll"/>
     <ROW Component="EPPlus.dll_1" ComponentId="{F1374AD0-BB88-4802-871D-1C012355FB8E}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="EPPlus.dll_1"/>
     <ROW Component="EPPlus.dll_2" ComponentId="{AD9EEE22-61CA-4419-A529-D07E24851710}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="EPPlus.dll_2"/>
+    <ROW Component="MathParser.orgmXparser.dll" ComponentId="{7A111CCD-BB63-43ED-92BE-7DD53D542EE1}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll"/>
+    <ROW Component="MathParser.orgmXparser.dll_1" ComponentId="{5F064E64-59DC-4B8F-89D1-A10C60553623}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll_1"/>
+    <ROW Component="MathParser.orgmXparser.dll_2" ComponentId="{2513A341-89C6-4170-AFB3-EE9137015C98}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll_2"/>
     <ROW Component="ProductInformation" ComponentId="{33AF353B-E245-44C8-934C-10AD69395E2A}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="RevitDataValidator.dll" ComponentId="{AD93D057-42CD-4788-B947-7F1E33FDF84A}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitDataValidator.dll"/>
     <ROW Component="RevitDataValidator.dll_1" ComponentId="{2199FE8A-2271-40CB-9730-3F965EC1288B}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_1"/>
@@ -74,6 +77,9 @@
     <ROW File="RevitDataValidator.addin" Component_="BoostYourBIMTerrificTools.addin" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin_1" Component_="BoostYourBIMTerrificTools.addin_7" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin_2" Component_="BoostYourBIMTerrificTools.addin_8" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
+    <ROW File="MathParser.orgmXparser.dll" Component_="MathParser.orgmXparser.dll" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
+    <ROW File="MathParser.orgmXparser.dll_1" Component_="MathParser.orgmXparser.dll_1" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
+    <ROW File="MathParser.orgmXparser.dll_2" Component_="MathParser.orgmXparser.dll_2" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -163,6 +169,9 @@
     <ROW Feature_="MainFeature" Component_="RevitDataValidator.dll_2"/>
     <ROW Feature_="MainFeature" Component_="EPPlus.dll_2"/>
     <ROW Feature_="MainFeature" Component_="DataValidationRules.xlsx"/>
+    <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll"/>
+    <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="BoostYourBIMlogo.exe" SourcePath="..\..\Boost Your BIM\BoostYourBIMlogo.ico" Index="0"/>

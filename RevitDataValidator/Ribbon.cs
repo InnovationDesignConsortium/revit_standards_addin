@@ -101,7 +101,7 @@ namespace RevitDataValidator
                 }
                 FailureDefinition.CreateFailureDefinition(
                     failureId,
-                    FailureSeverity.Warning,
+                    FailureSeverity.Error,
                     message);
 
                 rule.FailureId = failureId;

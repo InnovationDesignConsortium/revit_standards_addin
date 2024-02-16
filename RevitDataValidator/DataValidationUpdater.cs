@@ -1,11 +1,15 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using org.mariuszgromada.math.mxparser;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
 {
+
     public class DataValidationUpdater : IUpdater
     {
         private static readonly string PARAMETER_PARSE_PATTERN = "\\<(.*?)\\>";
@@ -21,114 +25,126 @@ namespace RevitDataValidator
 
         public void Execute(UpdaterData data)
         {
-            Document doc = data.GetDocument();
-            List<ElementId> ids = new List<ElementId>();
-            ids.AddRange(data.GetModifiedElementIds());
-
-            var modifiedElements = ids.Select(q => doc.GetElement(q)).ToList();
-
-            foreach (var rule in Utils.allRules)
+            try
             {
-                if (rule.DocumentPath != null &&
-                    rule.DocumentPath != doc.PathName)
+                Document doc = data.GetDocument();
+                List<ElementId> ids = new List<ElementId>();
+                ids.AddRange(data.GetModifiedElementIds());
+
+
+                foreach (var rule in Utils.allRules)
                 {
-                    continue;
-                }
-
-                if (rule.RuleType == RuleType.FromHostInstance)
-                {
-                    var idsFromHost = new FilteredElementCollector(doc)
-                        .OfClass(typeof(FamilyInstance))
-                        .Cast<FamilyInstance>()
-                        .Where(q => ids.Contains(q.Host.Id))
-                        .Select(q => q.Id)
-                        .ToList();
-                    ids.AddRange(idsFromHost);
-                }
-                else if (rule.RuleType == RuleType.FromHostType)
-                {
-                    var hostTypeIds = new FilteredElementCollector(doc, ids)
-                        .OfClass(typeof(HostObjAttributes))
-                        .ToElementIds()
-                        .ToList();
-
-                    var hostIds = new FilteredElementCollector(doc)
-                        .OfClass(typeof(HostObject))
-                        .Cast<HostObject>()
-                        .Where(q => hostTypeIds.Contains(q.GetTypeId()))
-                        .Select(q => q.Id)
-                        .ToList();
-
-                    var idsFromHostType = new FilteredElementCollector(doc)
-                        .OfClass(typeof(FamilyInstance))
-                        .Cast<FamilyInstance>()
-                        .Where(q => hostIds.Contains(q.Host.Id))
-                        .Select(q => q.Id)
-                        .ToList();
-
-                    ids.AddRange(idsFromHostType);
-                }
-
-                foreach (ElementId id in ids)
-                {
-                    var element = doc.GetElement(id);
-
-                    if (element.Category != null &&
-                        ((rule.Categories.Count() == 1 && rule.Categories.First() == Utils.ALL) ||
-                        Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                    if (rule.DocumentPath != null &&
+                        rule.DocumentPath != doc.PathName)
                     {
-                        var parameter = element.LookupParameter(rule.ParameterName);
-                        if (parameter == null)
-                            continue;
+                        continue;
+                    }
 
-                        var paramString = GetParamAsString(parameter);
+                    if (rule.RuleType == RuleType.FromHostInstance)
+                    {
+                        var idsFromHost = new FilteredElementCollector(doc)
+                            .OfClass(typeof(FamilyInstance))
+                            .Cast<FamilyInstance>()
+                            .Where(q => q.Host != null && ids.Contains(q.Host.Id))
+                            .Select(q => q.Id)
+                            .ToList();
+                        ids.AddRange(idsFromHost);
+                    }
+                    else if (rule.RuleType == RuleType.FromHostType)
+                    {
+                        var hostTypeIds = new FilteredElementCollector(doc, ids)
+                            .OfClass(typeof(HostObjAttributes))
+                            .ToElementIds()
+                            .ToList();
 
-                        if (!rule.IsRequired && paramString == null)
-                        {
-                            continue;
-                        }
+                        var hostIds = new FilteredElementCollector(doc)
+                            .OfClass(typeof(HostObject))
+                            .Cast<HostObject>()
+                            .Where(q => hostTypeIds.Contains(q.GetTypeId()))
+                            .Select(q => q.Id)
+                            .ToList();
 
-                        if (rule.RuleType == RuleType.List)
+                        var idsFromHostType = new FilteredElementCollector(doc)
+                            .OfClass(typeof(FamilyInstance))
+                            .Cast<FamilyInstance>()
+                            .Where(q => q.Host != null && hostIds.Contains(q.Host.Id))
+                            .Select(q => q.Id)
+                            .ToList();
+
+                        ids = idsFromHostType;
+                    }
+
+                    foreach (ElementId id in ids)
+                    {
+                        var element = doc.GetElement(id);
+
+                        if (element.Category != null &&
+                            ((rule.Categories.Count() == 1 && rule.Categories.First() == Utils.ALL) ||
+                            Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                         {
-                            if (paramString == null ||
-                                !rule.RuleData.Split(Utils.LIST_SEP).ToList().Contains(paramString))
+                            var parameter = element.LookupParameter(rule.ParameterName);
+                            if (parameter == null)
+                                continue;
+
+                            var paramString = GetParamAsString(parameter);
+
+                            if (!rule.IsRequired && paramString == null)
                             {
-                                PostFailure(doc, id, rule.FailureId);
+                                continue;
                             }
-                        }
-                        else if (rule.RuleType == RuleType.Regex)
-                        {
-                            if (paramString == null ||
-                                !Regex.IsMatch(paramString, rule.RuleData))
+
+                            if (rule.RuleType == RuleType.List)
                             {
-                                PostFailure(doc, id, rule.FailureId);
+                                if (paramString == null ||
+                                    !rule.RuleData.Split(Utils.LIST_SEP).ToList().Contains(paramString))
+                                {
+                                    PostFailure(doc, id, rule.FailureId);
+                                }
                             }
-                        }
-                        else if (rule.RuleType == RuleType.PreventDuplicates)
-                        {
-                            var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
-                            var others = new FilteredElementCollector(doc)
-                                .OfCategory(bic)
-                                .WhereElementIsNotElementType()
-                                .Where(q => q.Id != element.Id);
-                            List<string> othersParams =
-                                others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
-                            if (othersParams.Contains(paramString))
+                            else if (rule.RuleType == RuleType.Regex)
                             {
-                                PostFailure(doc, id, rule.FailureId);
+                                if (paramString == null ||
+                                    !Regex.IsMatch(paramString, rule.RuleData))
+                                {
+                                    PostFailure(doc, id, rule.FailureId);
+                                }
                             }
-                        }
-                        else if (rule.RuleType == RuleType.FromHostType ||
-                            rule.RuleType == RuleType.FromHostInstance)
-                        {
-                            ParseAndSetParameter(rule, element);
-                        }
-                        else
-                        {
-                            Utils.errors.Add($"Not Implmented for {rule.RuleType}");
+                            else if (rule.RuleType == RuleType.PreventDuplicates)
+                            {
+                                var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
+                                var others = new FilteredElementCollector(doc)
+                                    .OfCategory(bic)
+                                    .WhereElementIsNotElementType()
+                                    .Where(q => q.Id != element.Id);
+                                List<string> othersParams =
+                                    others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
+                                if (othersParams.Contains(paramString))
+                                {
+                                    PostFailure(doc, id, rule.FailureId);
+                                }
+                            }
+                            else if (rule.RuleType == RuleType.FromHostType ||
+                                rule.RuleType == RuleType.FromHostInstance ||
+                                rule.RuleType == RuleType.Calculated)
+                            {
+                                ParseAndSetParameter(rule, element);
+                            }
+                            else
+                            {
+                                Utils.errors.Add($"Not Implmented for {rule.RuleType}");
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                TaskDialog td = new TaskDialog("Error")
+                {
+                    MainInstruction = ex.Message,
+                    MainContent = ex.StackTrace
+                };
+                td.Show();
             }
         }
 
@@ -170,37 +186,68 @@ namespace RevitDataValidator
 
         private static void ParseAndSetParameter(Rule rule, Element element)
         {
+            var elementOrHostOrHostType = element;
             if (element is FamilyInstance fi)
             {
                 var host = fi.Host;
-                var hostOrHostType = host;
-                if (rule.RuleType == RuleType.FromHostType)
+                if (rule.RuleType == RuleType.FromHostInstance)
                 {
-                    hostOrHostType = element.Document.GetElement(host.GetTypeId());
+                    elementOrHostOrHostType = host;
                 }
-                var matches = Regex.Matches(rule.RuleData, PARAMETER_PARSE_PATTERN);
-                var s = string.Empty;
-
-                for (int i = 0; i < matches.Count; i++)
+                else if (rule.RuleType == RuleType.FromHostType)
                 {
-                    var match = matches[i];
-                    var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
-                    var paramValue = GetParamAsValueString(
-                        hostOrHostType.LookupParameter(matchValueCleaned));
-                    s += paramValue;
-                    var matchEnd = match.Index + match.Length;
-                    if (i == matches.Count - 1)
-                    {
-                        s += rule.RuleData.Substring(matchEnd);
-                    }
-                    else
-                    {
-                        var nextMatch = matches[i + 1];
-                        s += rule.RuleData.Substring(matchEnd, rule.RuleData.Length - matchEnd - nextMatch.Index - 2);
-                    }
+                    elementOrHostOrHostType = element.Document.GetElement(host.GetTypeId());
                 }
-                SetParam(element.LookupParameter(rule.ParameterName), s);
             }
+            var matches = Regex.Matches(rule.RuleData, PARAMETER_PARSE_PATTERN);
+
+            var parameter = element.LookupParameter(rule.ParameterName);
+            if (parameter == null)
+            {
+                return;
+            }
+
+            var s = string.Empty;
+            for (int i = 0; i < matches.Count; i++)
+            {
+                var match = matches[i];
+                var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
+                var matchEnd = match.Index + match.Length;
+
+                string paramValue;
+                if (parameter.StorageType == StorageType.String)
+                {
+                    paramValue = GetParamAsValueString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
+                }
+                else 
+                {
+                    paramValue = GetParamAsDoubleString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
+                }   
+
+                s += paramValue;
+                if (i == matches.Count - 1)
+                {
+                    s += rule.RuleData.Substring(matchEnd);
+                }
+                else
+                {
+                    s += GetStringAfterParsedParameterName(rule, matchEnd, matches[i + 1].Index);
+                }
+            }
+
+            if (parameter.StorageType == StorageType.Double)
+            {
+                var expression = new Expression(s);
+                s = expression.calculate().ToString();
+            }
+
+            SetParam(parameter, s);
+        }
+
+        private static string GetStringAfterParsedParameterName(Rule rule, int matchEnd, int nextMatchIndex)
+        {
+            var length = nextMatchIndex - matchEnd;
+            return rule.RuleData.Substring(matchEnd, length);
         }
 
         private static void PostFailure(Document doc, ElementId id, FailureDefinitionId failureId)
@@ -215,6 +262,13 @@ namespace RevitDataValidator
             if (p == null)
                 return null;
             return p.AsValueString();
+        }
+
+        private static string GetParamAsDoubleString(Parameter p)
+        {
+            if (p == null)
+                return null;
+            return p.AsDouble().ToString();
         }
 
         private static void SetParam(Parameter p, string s)
@@ -243,7 +297,11 @@ namespace RevitDataValidator
             else if (p.StorageType == StorageType.Double &&
                 double.TryParse(s, out double d))
             {
-                p.Set(d);
+                if (!double.IsInfinity(d) &&
+                    !double.IsNaN(d))
+                {
+                    p.Set(d);
+                }
             }
         }
     }

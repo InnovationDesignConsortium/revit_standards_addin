@@ -6,6 +6,7 @@
         Regex,
         PreventDuplicates,
         FromHostType,
-        FromHostInstance
+        FromHostInstance,
+        Calculated
     }
 }

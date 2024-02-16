@@ -15,6 +15,7 @@ namespace RevitDataValidator
     {
         { BuiltInCategory.OST_Doors, new List<BuiltInCategory> {BuiltInCategory.OST_Walls } },
         { BuiltInCategory.OST_Windows, new List<BuiltInCategory> {BuiltInCategory.OST_Walls, BuiltInCategory.OST_Roofs } },
+        { BuiltInCategory.OST_Rooms, new List<BuiltInCategory> {BuiltInCategory.OST_Walls, BuiltInCategory.OST_RoomSeparationLines } },
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
@@ -29,7 +30,8 @@ namespace RevitDataValidator
             {
                 var builtInCats = rule.Categories.Select(q => catMap[q]).ToList();
                 if (rule.RuleType == RuleType.FromHostInstance ||
-                    rule.RuleType == RuleType.FromHostType)
+                    rule.RuleType == RuleType.FromHostType ||
+                    rule.RuleType == RuleType.Calculated)
                 {
                     var hostCats = new List<BuiltInCategory>();
                     foreach (var bic in builtInCats)

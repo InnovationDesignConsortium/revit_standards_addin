@@ -81,6 +81,9 @@
     <PackageReference Include="EPPlus">
       <Version>4.5.3.3</Version>
     </PackageReference>
+    <PackageReference Include="MathParser.org-mXparser">
+      <Version>5.2.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -92,6 +95,6 @@ copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(T
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(SolutionDir)DataValidationRules.xlsx C:\ProgramData\Autodesk\Revit\Addins
 
-REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
+"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
   </PropertyGroup>
 </Project>
