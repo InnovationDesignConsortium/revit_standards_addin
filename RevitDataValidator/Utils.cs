@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.ApplicationServices;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,8 @@ namespace RevitDataValidator
 {
     public static class Utils
     {
+        public static ControlledApplication app;
+        public static string PRODUCT_NAME = "RevitValidator";
         public static readonly string ALL = "<all>";
         public static readonly char LIST_SEP = ',';
         public static List<Rule> allRules;
@@ -19,6 +22,12 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
+
+        public static void LogError(string error)
+        {
+            Utils.errors.Add(error);
+            Utils.app.WriteJournalComment(PRODUCT_NAME + " " + error, true);
+        }
 
         public static List<BuiltInCategory> GetBuiltInCats(Rule rule)
         {

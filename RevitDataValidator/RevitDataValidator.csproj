@@ -59,6 +59,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataValidationUpdater.cs" />
+    <Compile Include="FormEnterValue.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormEnterValue.Designer.cs">
+      <DependentUpon>FormEnterValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormSelectFromList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSelectFromList.Designer.cs">
+      <DependentUpon>FormSelectFromList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -85,6 +97,14 @@
       <Version>5.2.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FormEnterValue.resx">
+      <DependentUpon>FormEnterValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSelectFromList.resx">
+      <DependentUpon>FormSelectFromList.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" sign /f "C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx" /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)
@@ -95,6 +115,6 @@ copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(T
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(SolutionDir)DataValidationRules.xlsx C:\ProgramData\Autodesk\Revit\Addins
 
-"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
+ "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" C:\Users\harry\Documents\rvt\MyBuilding.rvt</PostBuildEvent>
   </PropertyGroup>
 </Project>

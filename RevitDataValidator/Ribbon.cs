@@ -25,6 +25,7 @@ namespace RevitDataValidator
 
         public Result OnStartup(UIControlledApplication application)
         {
+            Utils.app = application.ControlledApplication;
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
             applicationId = application.ActiveAddInId;
@@ -79,6 +80,7 @@ namespace RevitDataValidator
 
         private void RegisterRule(Rule rule, string docPath)
         {
+            Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Registering rule " + rule.ToString(), true);
             try
             {
                 UpdaterRegistry.AddTrigger(
@@ -88,7 +90,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                Utils.errors.Add($"Cannot add trigger for rule: {rule} because of exception {ex.Message}");
+                Utils.LogError($"Cannot add trigger for rule: {rule} because of exception {ex.Message}");
             }
 
             if (docPath == null)
@@ -112,6 +114,7 @@ namespace RevitDataValidator
                 rule.FailureId = genericFailureId;
                 rule.DocumentPath = docPath;
             }
+            Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Completed registering rule " + rule.ToString(), true);
         }
 
         private List<Rule> GetRules(string file)
@@ -160,16 +163,20 @@ namespace RevitDataValidator
                             }
                             else
                             {
-                                Utils.errors.Add($"Invalid rule type: {ruleTypeString}");
+                                Utils.LogError($"Invalid rule type: {ruleTypeString}");
                             }
                             ret.Add(rule);
                         }
                         catch (Exception ex)
                         {
-                            Utils.errors.Add($"Exception loading rule on row {row} {ex.Message}");
+                            Utils.LogError($"Exception loading rule on row {row} {ex.Message}");
                         }
                     }
                 }
+            }
+            else
+            {
+                Utils.LogError("File not found: " + file);
             }
             return ret;
         }

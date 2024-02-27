@@ -95,10 +95,17 @@ namespace RevitDataValidator
 
                             if (rule.RuleType == RuleType.List)
                             {
+                                var validValues = rule.RuleData.Split(Utils.LIST_SEP).ToList();
                                 if (paramString == null ||
-                                    !rule.RuleData.Split(Utils.LIST_SEP).ToList().Contains(paramString))
+                                    !validValues.Contains(paramString))
                                 {
-                                    PostFailure(doc, id, rule.FailureId);
+                                    using (var form = new FormSelectFromList(validValues, rule.UserMessage))
+                                    {
+                                        form.ShowDialog();
+                                        var v = form.GetValue();
+                                        SetParam(parameter, v);
+                                    }
+                                   // PostFailure(doc, id, rule.FailureId);
                                 }
                             }
                             else if (rule.RuleType == RuleType.Regex)
@@ -106,7 +113,14 @@ namespace RevitDataValidator
                                 if (paramString == null ||
                                     !Regex.IsMatch(paramString, rule.RuleData))
                                 {
-                                    PostFailure(doc, id, rule.FailureId);
+                                    using (var form = new FormEnterValue(rule.UserMessage, rule.RuleData))
+                                    {
+                                        form.ShowDialog();
+                                        var v = form.GetValue();
+                                        SetParam(parameter, v);
+                                    }
+
+                                    //PostFailure(doc, id, rule.FailureId);
                                 }
                             }
                             else if (rule.RuleType == RuleType.PreventDuplicates)
