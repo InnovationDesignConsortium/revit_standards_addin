@@ -1,0 +1,59 @@
+{
+    "Parameter Packs": 
+    [
+        {
+            "Name": "Wall Fire Rating",
+            "Category": "Walls",
+            "Parameters":
+            [    
+                "Rating", "Fire/Smoke"
+            ],
+            "URL": "www.revit.com",
+            "PDF": "\\drive\\help\\files\\FireRating.pdf",
+            "Video": "\\drive\\help\\files\\FireRating.mp4"
+        },
+        {
+            "Name": "Wall Height",
+            "Category": "Walls",
+            "Parameters":
+            [    
+                "Unconnected Height", "Braced"
+            ]
+        },
+        {
+            "Name": "Room Occ",
+            "Category": "Rooms",
+            "Parameters":
+            [    
+                "Occupancy", "Name", "Number"
+            ]
+        }
+    ],
+    "Pack Sets":
+    [
+        {
+            "Name": "Wall Tools 1",
+            "Category": "Walls",
+            "Parameter Packs":
+            [
+                "Wall Height", "Wall Fire Rating"
+            ]
+        },
+        {
+            "Name": "Room Tools 1",
+            "Category": "Rooms",
+            "Parameter Packs":
+            [
+                "Room Occ"
+            ]
+        },
+        {
+            "Name": "Room Tools 2",
+            "Category": "Rooms",
+            "Parameter Packs":
+            [
+                "Egress"
+            ]
+        }
+    ] 
+}
