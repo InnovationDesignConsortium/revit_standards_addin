@@ -20,6 +20,7 @@ namespace RevitDataValidator
         public static ISet<ElementId> selectedIds;
         public static Document doc;
         public static EventHandlerWithProperty eventHandlerWithProperty;
+        public static EventHandlerWithParameterValue eventHandlerWithParameterValue;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {

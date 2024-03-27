@@ -34,6 +34,7 @@ namespace RevitDataValidator
             applicationId = application.ActiveAddInId;
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             Utils.eventHandlerWithProperty = new EventHandlerWithProperty();
+            Utils.eventHandlerWithParameterValue = new EventHandlerWithParameterValue();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             GetParameterPacks();

@@ -58,7 +58,9 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ParameterValue.cs" />
     <Compile Include="DataValidationUpdater.cs" />
+    <Compile Include="EventHandlerWithParameterValue.cs" />
     <Compile Include="EventHandlerWithProperty.cs" />
     <Compile Include="Forms\FormEnterValue.cs">
       <SubType>Form</SubType>

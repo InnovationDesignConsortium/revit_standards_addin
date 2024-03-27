@@ -45,7 +45,7 @@
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type local:TextStateParameter}">
                                     <TextBox 
-                                        Tag="{Binding Name}"
+                                        Tag="{Binding Parameter}"
                                         Text="{Binding Value}" 
                                         GotKeyboardFocus="TextBox_GotKeyboardFocus"
                                         LostFocus="TextBox_LostFocus"

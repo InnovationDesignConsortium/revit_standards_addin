@@ -43,8 +43,21 @@ namespace RevitDataValidator
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var control = sender as System.Windows.Controls.TextBox;
-            var item = new Property(control.Tag.ToString(), control.Text);
-            Utils.eventHandlerWithProperty.Raise(item);
+            var param = control.Tag as Parameter;
+            if (param.StorageType == StorageType.Double)
+            {
+                var units = Utils.doc.GetUnits();
+                var specTypeId = param.Definition.GetDataType();
+
+                if (UnitFormatUtils.TryParse(units, specTypeId, control.Text, out double d))
+                {
+                    var parsed = UnitFormatUtils.Format(units, param.Definition.GetDataType(), d, true);
+                    control.Text = parsed;
+                }
+            }
+            
+            var item = new ParameterValue(param, control.Text);
+            Utils.eventHandlerWithParameterValue.Raise(item);
         }
 
         private void ComboBox_LostFocus(object sender, RoutedEventArgs e)

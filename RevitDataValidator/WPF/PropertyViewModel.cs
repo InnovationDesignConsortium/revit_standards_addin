@@ -52,6 +52,7 @@ namespace RevitDataValidator
                             new TextStateParameter
                             {
                                 Name = pname,
+                                Parameter = GetParameter(pname),
                                 Value = GetParameterValue(pname)
                             }
                             );
@@ -62,6 +63,34 @@ namespace RevitDataValidator
                     ParameterName = parameterPack.Name,
                     StateParametersList = stateParametersList
                 });
+            }
+        }
+
+        private Parameter GetParameter(string parameterName)
+        {
+            if (Utils.doc == null)
+            {
+                return null;
+            }
+
+            var list = new List<Parameter>();
+            foreach (var id in Utils.selectedIds)
+            {
+                var element = Utils.doc.GetElement(id);
+                var parameter = element.LookupParameter(parameterName);
+                if (parameter == null)
+                    continue;
+                list.Add(parameter);
+            }
+
+            var distinct = list.Distinct();
+            if (distinct.Count() == 1)
+            {
+                return list.First();
+            }
+            else
+            {
+                return null;
             }
         }
 
