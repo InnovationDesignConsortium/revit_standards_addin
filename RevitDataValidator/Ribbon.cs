@@ -83,8 +83,7 @@ namespace RevitDataValidator
             Utils.doc = doc;
             var app = doc.Application;
             var uiapp = new UIApplication(app);
-            var pane = uiapp.GetDockablePane(Utils.paneId);
-
+            var pane = uiapp.GetDockablePane(Utils.paneId);;
             if (e.GetSelectedElements().Count() == 0)
             {
                 pane.Hide();
@@ -92,6 +91,13 @@ namespace RevitDataValidator
             }
 
             Utils.selectedIds = e.GetSelectedElements();
+            var element = doc.GetElement(Utils.selectedIds.First());
+            if (element.Category != null)
+            {
+                var catName = element.Category.Name;
+                var packSetName = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Category == catName).Name;
+                Utils.propertiesPanel.cbo.SelectedItem = packSetName;
+            }
             pane.Show();
         }
 

@@ -58,10 +58,13 @@ namespace RevitDataValidator
                             );
                     }
                 }
+
                 PackData.Add(new PackData
                 {
                     ParameterName = parameterPack.Name,
-                    StateParametersList = stateParametersList
+                    StateParametersList = stateParametersList,
+                    LinkURL = parameterPack.URL,
+                    PdfPath = parameterPack.PDF
                 });
             }
         }
