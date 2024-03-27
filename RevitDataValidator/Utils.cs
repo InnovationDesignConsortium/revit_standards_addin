@@ -2,6 +2,7 @@
 using Autodesk.Revit.ApplicationServices;
 using System.Collections.Generic;
 using System.Linq;
+using Autodesk.Revit.UI;
 
 namespace RevitDataValidator
 {
@@ -13,6 +14,12 @@ namespace RevitDataValidator
         public static readonly char LIST_SEP = ',';
         public static List<Rule> allRules;
         public static List<string> errors;
+        public static PropertiesPanel propertiesPanel;
+        public static DockablePaneId paneId;
+        public static ParameterUIData parameterUIData;
+        public static ISet<ElementId> selectedIds;
+        public static Document doc;
+        public static EventHandlerWithProperty eventHandlerWithProperty;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -38,20 +45,20 @@ namespace RevitDataValidator
             else
             {
                 var builtInCats = rule.Categories.Select(q => catMap[q]).ToList();
-                if (rule.RuleType == RuleType.FromHostInstance ||
-                    rule.RuleType == RuleType.FromHostType ||
-                    rule.RuleType == RuleType.Calculated)
-                {
-                    var hostCats = new List<BuiltInCategory>();
-                    foreach (var bic in builtInCats)
-                    {
-                        if (CatToHostCatMap.ContainsKey(bic))
-                        {
-                            hostCats.AddRange(CatToHostCatMap[bic]);
-                        }
-                    }
-                    builtInCats.AddRange(hostCats);
-                }
+                //if (rule.RuleType == RuleType.FromHostInstance ||
+                //    rule.RuleType == RuleType.FromHostType ||
+                //    rule.RuleType == RuleType.Calculated)
+                //{
+                //    var hostCats = new List<BuiltInCategory>();
+                //    foreach (var bic in builtInCats)
+                //    {
+                //        if (CatToHostCatMap.ContainsKey(bic))
+                //        {
+                //            hostCats.AddRange(CatToHostCatMap[bic]);
+                //        }
+                //    }
+                //    builtInCats.AddRange(hostCats);
+                //}
                 return builtInCats;
             }
         }

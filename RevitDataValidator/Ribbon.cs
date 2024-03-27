@@ -1,14 +1,16 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using OfficeOpenXml;
+using Autodesk.Revit.UI.Events;
+using Markdig;
+using Markdig.Helpers;
+using Markdig.Syntax;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-
-// Calculated on Instance - Room Occupany * some other parameter = value of this parameter
-// TypeCheck - Room From:Name = if Office & Room To:Name=Corridor, then DoorType = Flush1
+using System.Runtime.InteropServices;
 
 namespace RevitDataValidator
 {
@@ -17,11 +19,12 @@ namespace RevitDataValidator
         private static FailureDefinitionId failureId;
         private static FailureDefinitionId genericFailureId;
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
-        private readonly string RULE_FILE_NAME = "DataValidationRules.xlsx";
-        private readonly string RULE_FILE_SEP = "-";
+        private readonly string RULE_FILE_NAME = "projectrules.md";
+        private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
         private readonly string RULE_DEFAULT_MESSAGE = "This value is not allowed";
         private AddInId applicationId;
-        private UpdaterId updaterId;
+        public static UpdaterId updaterId;
+
 
         public Result OnStartup(UIControlledApplication application)
         {
@@ -30,6 +33,15 @@ namespace RevitDataValidator
             Utils.allRules = new List<Rule>();
             applicationId = application.ActiveAddInId;
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            Utils.eventHandlerWithProperty = new EventHandlerWithProperty();
+
+            Utils.paneId = new DockablePaneId(Guid.NewGuid());
+            GetParameterPacks();
+            Utils.propertiesPanel = new PropertiesPanel();
+
+            application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
+            application.ViewActivated += HideDockablePanelOnStartup;
+            application.SelectionChanged += Application_SelectionChanged;
 
             foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
             {
@@ -51,11 +63,6 @@ namespace RevitDataValidator
                 FailureSeverity.Error,
                 RULE_DEFAULT_MESSAGE);
 
-            var file = Path.Combine(ADDINS_FOLDER, RULE_FILE_NAME);
-            var rules = GetRules(file);
-
-            RegisterRules(rules, null);
-
             if (Utils.errors.Any())
             {
                 var errorfile = Path.Combine(Path.GetDirectoryName(Path.GetTempPath()), @"..\RevitValidator-ErrorLog-" + DateTime.Now.ToString().Replace(":", "-").Replace("/", "_") + ".txt");
@@ -69,16 +76,66 @@ namespace RevitDataValidator
             return Result.Succeeded;
         }
 
-        private void RegisterRules(List<Rule> rules, string docPath)
+        private void Application_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (var rule in rules)
+            var doc = e.GetDocument();
+            Utils.doc = doc;
+            var app = doc.Application;
+            var uiapp = new UIApplication(app);
+            var pane = uiapp.GetDockablePane(Utils.paneId);
+
+            if (e.GetSelectedElements().Count() == 0)
             {
-                RegisterRule(rule, docPath);
+                pane.Hide();
+                return;
+            }
+
+            Utils.selectedIds = e.GetSelectedElements();
+            pane.Show();
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out POINT lpPoint);
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        private void HideDockablePanelOnStartup(object sender, ViewActivatedEventArgs e)
+        {
+            var uiapp = sender as UIApplication;
+            try
+            {
+                var window = uiapp.GetDockablePane(Utils.paneId);
+                window.Hide();
+                uiapp.ViewActivated -= HideDockablePanelOnStartup;
+            }
+            catch
+            { }
+        }
+
+        private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
+        {
+            RegisterRules(e.Document.PathName);
+        }
+
+        public void RegisterRules(string filename)
+        {
+            UpdaterRegistry.RemoveAllTriggers(updaterId);
+            Utils.allRules.Clear();
+
+            var rules = GetRules();
+            foreach (var rule in rules.Where(q =>
+                q.RevitFileNames == null ||
+                q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(filename))))
+            {
+                RegisterRule(rule);
                 Utils.allRules.Add(rule);
             }
         }
 
-        private void RegisterRule(Rule rule, string docPath)
+        private void RegisterRule(Rule rule)
         {
             Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Registering rule " + rule.ToString(), true);
             try
@@ -93,111 +150,121 @@ namespace RevitDataValidator
                 Utils.LogError($"Cannot add trigger for rule: {rule} because of exception {ex.Message}");
             }
 
-            if (docPath == null)
-            {
-                failureId = new FailureDefinitionId(Guid.NewGuid());
-                var message = rule.UserMessage;
-                if (string.IsNullOrEmpty(message))
-                {
-                    message = RULE_DEFAULT_MESSAGE;
-                }
-                FailureDefinition.CreateFailureDefinition(
-                    failureId,
-                    FailureSeverity.Error,
-                    message);
+            //if (rule.RevitFileNames == null)
+            //{
+            //    failureId = new FailureDefinitionId(Guid.NewGuid());
+            //    var message = "";
+            //    if (string.IsNullOrEmpty(message))
+            //    {
+            //        message = RULE_DEFAULT_MESSAGE;
+            //    }
+            //    FailureDefinition.CreateFailureDefinition(
+            //        failureId,
+            //        FailureSeverity.Error,
+            //        message);
 
-                rule.FailureId = failureId;
-                rule.DocumentPath = docPath;
-            }
-            else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
-            {
-                rule.FailureId = genericFailureId;
-                rule.DocumentPath = docPath;
-            }
+            //    rule.FailureId = failureId;
+            //}
+            //else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
+            //{
+            //    rule.FailureId = genericFailureId;
+            //}
             Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Completed registering rule " + rule.ToString(), true);
         }
 
-        private List<Rule> GetRules(string file)
+        private void GetParameterPacks()
         {
             var ret = new List<Rule>();
+            var file = Path.Combine(ADDINS_FOLDER, PARAMETER_PACK_FILE_NAME);
+            if (!File.Exists(file))
+                return;
+            var json = File.ReadAllText(file);
+            Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json);
+        }
+
+        private List<Rule> GetRules()
+        {
+            var ret = new List<Rule>();
+            var file = Path.Combine(ADDINS_FOLDER, RULE_FILE_NAME);
             if (File.Exists(file))
             {
-                using (var package = new ExcelPackage(new FileInfo(file)))
+                var markdown = File.ReadAllText(file);
+                MarkdownDocument document = Markdown.Parse(markdown);
+                var descendents = document.Descendants();
+                var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+                foreach (var block in codeblocks)
                 {
-                    var sheet = package.Workbook.Worksheets[1];
-                    for (var row = 2; row < sheet.Dimension.End.Row + 1; row++)
+                    var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
+                    var json = string.Join(string.Empty, lines.Where(q => !q.StartsWith("//")).ToList());
+                    RuleData rules = null;
+                    try
                     {
-                        try
-                        {
-                            var categoryString = GetCellString(sheet.Cells[row, 1].Value);
-                            if (categoryString == string.Empty)
-                                break;
+                        rules = JsonConvert.DeserializeObject<RuleData>(json);
+                    }
+                    catch (Exception ex)
+                    {
 
-                            var rule = new Rule
-                            {
-                                ParameterName = GetCellString(sheet.Cells[row, 2].Value),
-                                RuleData = GetCellString(sheet.Cells[row, 4].Value),
-                                UserMessage = GetCellString(sheet.Cells[row, 6].Value),
-                            };
-
-                            if (GetCellString(sheet.Cells[row, 5].Value).ToLower().StartsWith("y"))
-                            {
-                                rule.IsRequired = true;
-                            }
-                            else
-                            {
-                                rule.IsRequired = false;
-                            }
-
-                            var categories = new List<string>();
-                            foreach (var cat in categoryString.Split(Utils.LIST_SEP))
-                            {
-                                categories.Add(cat);
-                            }
-                            rule.Categories = categories;
-
-                            var ruleTypeString = GetCellString(sheet.Cells[row, 3].Value);
-                            if (Enum.TryParse(ruleTypeString, out RuleType ruleType))
-                            {
-                                rule.RuleType = ruleType;
-                            }
-                            else
-                            {
-                                Utils.LogError($"Invalid rule type: {ruleTypeString}");
-                            }
-                            ret.Add(rule);
-                        }
-                        catch (Exception ex)
-                        {
-                            Utils.LogError($"Exception loading rule on row {row} {ex.Message}");
-                        }
+                    }
+                    foreach (var rule in rules.Rules)
+                    {
+                        ret.Add(rule);
                     }
                 }
+
+                //for (var row = 2; row < sheet.Dimension.End.Row + 1; row++)
+                //    {
+                //        try
+                //        {
+                //            var categoryString = GetCellString(sheet.Cells[row, 1].Value);
+                //            if (categoryString == string.Empty)
+                //                break;
+
+                //            var rule = new Rule
+                //            {
+                //                ParameterName = GetCellString(sheet.Cells[row, 2].Value),
+                //                RuleData = GetCellString(sheet.Cells[row, 4].Value),
+                //                UserMessage = GetCellString(sheet.Cells[row, 6].Value),
+                //            };
+
+                //            if (GetCellString(sheet.Cells[row, 5].Value).ToLower().StartsWith("y"))
+                //            {
+                //                rule.IsRequired = true;
+                //            }
+                //            else
+                //            {
+                //                rule.IsRequired = false;
+                //            }
+
+                //            var categories = new List<string>();
+                //            foreach (var cat in categoryString.Split(Utils.LIST_SEP))
+                //            {
+                //                categories.Add(cat);
+                //            }
+                //            rule.Categories = categories;
+
+                //            var ruleTypeString = GetCellString(sheet.Cells[row, 3].Value);
+                //            if (Enum.TryParse(ruleTypeString, out RuleType ruleType))
+                //            {
+                //                rule.RuleType = ruleType;
+                //            }
+                //            else
+                //            {
+                //                Utils.LogError($"Invalid rule type: {ruleTypeString}");
+                //            }
+                //            ret.Add(rule);
+                //        }
+                //        catch (Exception ex)
+                //        {
+                //            Utils.LogError($"Exception loading rule on row {row} {ex.Message}");
+                //        }
+
+                //}
             }
             else
             {
                 Utils.LogError("File not found: " + file);
             }
             return ret;
-        }
-
-        private string GetCellString(object range)
-        {
-            if (range == null)
-                return string.Empty;
-
-            return range.ToString();
-        }
-
-        private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
-        {
-            var doc = e.Document;
-            var path = doc.PathName;
-            var folder = Path.GetDirectoryName(path);
-            var rvtfilename = Path.GetFileNameWithoutExtension(path);
-            var rulefile = Path.Combine(folder, rvtfilename + RULE_FILE_SEP + RULE_FILE_NAME);
-            var rules = GetRules(rulefile);
-            RegisterRules(rules, path);
         }
 
         public Result OnShutdown(UIControlledApplication application)

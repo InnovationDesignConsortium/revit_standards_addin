@@ -52,8 +52,8 @@
     <ROW Component="BoostYourBIMTerrificTools.addin_8" ComponentId="{B0FC7AB0-DC71-4312-B8C4-F750A208D08A}" Directory_="__8_Dir" Attributes="0" KeyPath="RevitDataValidator.addin_2" Type="0"/>
     <ROW Component="DataValidationRules.xlsx" ComponentId="{1EE07138-4AA1-4B4B-94E2-65B50E5B42B1}" Directory_="Addins_Dir" Attributes="0" KeyPath="DataValidationRules.xlsx" Type="0"/>
     <ROW Component="EPPlus.dll" ComponentId="{796F2CE3-3063-4971-AAB0-E1525F3A8B11}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="EPPlus.dll"/>
-    <ROW Component="EPPlus.dll_1" ComponentId="{F1374AD0-BB88-4802-871D-1C012355FB8E}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="EPPlus.dll_1"/>
-    <ROW Component="EPPlus.dll_2" ComponentId="{AD9EEE22-61CA-4419-A529-D07E24851710}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="EPPlus.dll_2"/>
+    <ROW Component="Markdig.dll" ComponentId="{4BF2C555-F028-4C36-A81E-E26644DEC495}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Markdig.dll"/>
+    <ROW Component="Markdig.dll_1" ComponentId="{7027736B-03BE-46F3-B382-551F43762A1D}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="Markdig.dll_1"/>
     <ROW Component="MathParser.orgmXparser.dll" ComponentId="{7A111CCD-BB63-43ED-92BE-7DD53D542EE1}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll"/>
     <ROW Component="MathParser.orgmXparser.dll_1" ComponentId="{5F064E64-59DC-4B8F-89D1-A10C60553623}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll_1"/>
     <ROW Component="MathParser.orgmXparser.dll_2" ComponentId="{2513A341-89C6-4170-AFB3-EE9137015C98}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll_2"/>
@@ -70,9 +70,7 @@
     <ROW File="RevitDataValidator.dll" Component_="RevitDataValidator.dll" FileName="REVITD~1.DLL|RevitDataValidator.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\RevitDataValidator.dll" SelfReg="false"/>
     <ROW File="EPPlus.dll" Component_="EPPlus.dll" FileName="EPPlus.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\EPPlus.dll" SelfReg="false"/>
     <ROW File="RevitDataValidator.dll_1" Component_="RevitDataValidator.dll_1" FileName="REVITD~1.DLL|RevitDataValidator.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2022\RevitDataValidator.dll" SelfReg="false"/>
-    <ROW File="EPPlus.dll_1" Component_="EPPlus.dll_1" FileName="EPPlus.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2022\EPPlus.dll" SelfReg="false"/>
     <ROW File="RevitDataValidator.dll_2" Component_="RevitDataValidator.dll_2" FileName="REVITD~1.DLL|RevitDataValidator.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\RevitDataValidator.dll" SelfReg="false"/>
-    <ROW File="EPPlus.dll_2" Component_="EPPlus.dll_2" FileName="EPPlus.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\EPPlus.dll" SelfReg="false"/>
     <ROW File="DataValidationRules.xlsx" Component_="DataValidationRules.xlsx" FileName="DATAVA~1.XLS|DataValidationRules.xlsx" Attributes="0" SourcePath="DataValidationRules.xlsx" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin" Component_="BoostYourBIMTerrificTools.addin" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin_1" Component_="BoostYourBIMTerrificTools.addin_7" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
@@ -80,6 +78,8 @@
     <ROW File="MathParser.orgmXparser.dll" Component_="MathParser.orgmXparser.dll" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
     <ROW File="MathParser.orgmXparser.dll_1" Component_="MathParser.orgmXparser.dll_1" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
     <ROW File="MathParser.orgmXparser.dll_2" Component_="MathParser.orgmXparser.dll_2" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
+    <ROW File="Markdig.dll" Component_="Markdig.dll" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Markdig.dll" SelfReg="false"/>
+    <ROW File="Markdig.dll_1" Component_="Markdig.dll_1" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2022\Markdig.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -162,16 +162,16 @@
     <ROW Feature_="MainFeature" Component_="BoostYourBIMTerrificTools.addin_7"/>
     <ROW Feature_="MainFeature" Component_="BoostYourBIMTerrificTools.addin_8"/>
     <ROW Feature_="MainFeature" Component_="BoostYourBIMTerrificTools.addin"/>
-    <ROW Feature_="MainFeature" Component_="EPPlus.dll_1"/>
     <ROW Feature_="MainFeature" Component_="EPPlus.dll"/>
     <ROW Feature_="MainFeature" Component_="RevitDataValidator.dll"/>
     <ROW Feature_="MainFeature" Component_="RevitDataValidator.dll_1"/>
     <ROW Feature_="MainFeature" Component_="RevitDataValidator.dll_2"/>
-    <ROW Feature_="MainFeature" Component_="EPPlus.dll_2"/>
     <ROW Feature_="MainFeature" Component_="DataValidationRules.xlsx"/>
     <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll"/>
     <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll_1"/>
     <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="Markdig.dll"/>
+    <ROW Feature_="MainFeature" Component_="Markdig.dll_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="BoostYourBIMlogo.exe" SourcePath="..\..\Boost Your BIM\BoostYourBIMlogo.ico" Index="0"/>

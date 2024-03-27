@@ -2,6 +2,7 @@
 {
     public enum RuleType
     {
+        INVALID,
         List,
         Regex,
         PreventDuplicates,
