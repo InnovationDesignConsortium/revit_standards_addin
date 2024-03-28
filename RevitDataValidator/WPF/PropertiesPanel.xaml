@@ -38,7 +38,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Label Grid.Row="0"
-                               Content="{Binding ParameterName}"
+                               Content="{Binding PackName}"
                                Margin="2" />
                         <DataGrid Grid.Row="1"
                                   AutoGenerateColumns="False"
@@ -50,10 +50,15 @@
                                   HorizontalContentAlignment="Stretch"
                                   VerticalAlignment="Top"
                                   HeadersVisibility="None"
-                                  ItemsSource="{Binding StateParametersList}">
+                                  ItemsSource="{Binding PackParameters}">
                             <DataGrid.Resources>
                                 <DataTemplate DataType="{x:Type local:BoolStateParameter}">
-                                    <CheckBox IsChecked="{Binding Value}" />
+                                    <CheckBox 
+                                        Tag="{Binding Parameter}"
+                                        IsChecked="{Binding Value}" 
+                                        Checked="CheckBox_Checked"
+                                        Unchecked="CheckBox_Unchecked"
+                                        />
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type local:TextStateParameter}">
                                     <TextBox

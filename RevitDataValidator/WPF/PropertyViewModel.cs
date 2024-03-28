@@ -27,7 +27,7 @@ namespace RevitDataValidator
             foreach (var parameterPack in Utils.parameterUIData.ParameterPacks
                 .Where(q => packs.Contains(q.Name)))
             {
-                var stateParametersList = new ObservableCollection<IStateParameter>();
+                var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
                 {
                     bool foundRule = false;
@@ -36,7 +36,7 @@ namespace RevitDataValidator
                         if (rule.Categories.Contains(parameterPack.Category) &&
                             rule.ParameterName == pname)
                         {
-                            stateParametersList.Add(new ChoiceStateParameter
+                            packParameters.Add(new ChoiceStateParameter
                             {
                                 Name = pname,
                                 Choices = rule.ListOptions.Select(q => q.Name).ToList(),
@@ -48,21 +48,45 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        stateParametersList.Add(
-                            new TextStateParameter
+                        var parameter = GetParameter(pname);
+                        if (parameter != null)
+                        {
+                            var value = GetParameterValue(pname);
+                            if (parameter.StorageType == StorageType.Integer &&
+                                parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
                             {
-                                Name = pname,
-                                Parameter = GetParameter(pname),
-                                Value = GetParameterValue(pname)
+                                var boolValue = false;
+                                if (value == "Yes")
+                                    boolValue = true;
+
+                                packParameters.Add(
+                                   new BoolStateParameter
+                                   {
+                                       Name = pname,
+                                       Parameter = parameter,
+                                       Value = boolValue
+                                   }
+                                   );
                             }
-                            );
+                            else
+                            {
+                                packParameters.Add(
+                                    new TextStateParameter
+                                    {
+                                        Name = pname,
+                                        Parameter = parameter,
+                                        Value = value
+                                    }
+                                    );
+                            }
+                        }
                     }
                 }
 
                 PackData.Add(new PackData
                 {
-                    ParameterName = parameterPack.Name,
-                    StateParametersList = stateParametersList,
+                    PackName = parameterPack.Name,
+                    PackParameters = packParameters,
                     LinkURL = parameterPack.URL,
                     PdfPath = parameterPack.PDF
                 });

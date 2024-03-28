@@ -162,7 +162,7 @@ namespace RevitDataValidator
                             //        .WhereElementIsNotElementType()
                             //        .Where(q => q.Id != element.Id);
                             //    List<string> othersParams =
-                            //        others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
+                            //        others.Select(q => GetParamAsString(q.LookupParameter(rule.PackName))).ToList();
                             //    if (othersParams.Contains(paramString))
                             //    {
                             //        PostFailure(doc, id, rule.FailureId);
@@ -246,7 +246,7 @@ namespace RevitDataValidator
         //    }
         //    var matches = Regex.Matches(rule.RuleData, PARAMETER_PARSE_PATTERN);
 
-        //    var parameter = element.LookupParameter(rule.ParameterName);
+        //    var parameter = element.LookupParameter(rule.PackName);
         //    if (parameter == null)
         //    {
         //        return;

@@ -23,10 +23,23 @@ namespace RevitDataValidator
                     {
                         parameter.Set(args.Value);
                     }
-                    else if (parameter.StorageType == StorageType.Integer &&
-                        int.TryParse(args.Value, out int i))
+                    else if (parameter.StorageType == StorageType.Integer)
                     {
-                        parameter.Set(i);
+                        if (int.TryParse(args.Value, out int i))
+                        {
+                            parameter.Set(i);
+                        }
+                        else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
+                        {
+                            if (args.Value=="True")
+                            {
+                                parameter.Set(1);
+                            }
+                            else
+                            {
+                                parameter.Set(0);
+                            }
+                        }
                     }
                     else if (parameter.StorageType == StorageType.Double)
                     {

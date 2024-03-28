@@ -6,7 +6,7 @@ namespace RevitDataValidator
     {
         private string _linkURL;
         private string _PdfPath;
-        public string ParameterName { get; set; }
+        public string PackName { get; set; }
 
         public string LinkText
         {
@@ -52,6 +52,6 @@ namespace RevitDataValidator
             }
         }
 
-        public ObservableCollection<IStateParameter> StateParametersList { get; set; }
+        public ObservableCollection<IStateParameter> PackParameters { get; set; }
     }
 }

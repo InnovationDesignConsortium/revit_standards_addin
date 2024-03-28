@@ -41,6 +41,11 @@ namespace RevitDataValidator
             DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
         }
 
+        public void Refresh()
+        {
+            DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
+        }
+
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var control = sender as System.Windows.Controls.TextBox;
@@ -61,6 +66,23 @@ namespace RevitDataValidator
             Utils.eventHandlerWithParameterValue.Raise(item);
         }
 
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SetCheckboxValue(sender as CheckBox);
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SetCheckboxValue(sender as CheckBox);
+        }
+
+        private void SetCheckboxValue(CheckBox control)
+        {
+            var parameter = control.Tag as Parameter;
+            var item = new ParameterValue(parameter, control.IsChecked.ToString());
+            Utils.eventHandlerWithParameterValue.Raise(item);
+        }
+
         private void ComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var control = sender as System.Windows.Controls.ComboBox;
@@ -77,7 +99,6 @@ namespace RevitDataValidator
             tb.Dispatcher.BeginInvoke(new Action(() => tb.SelectAll()));
         }
 
-
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
             // for .NET Core you need to add UseShellExecute = true
@@ -91,5 +112,6 @@ namespace RevitDataValidator
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
+
     }
 }

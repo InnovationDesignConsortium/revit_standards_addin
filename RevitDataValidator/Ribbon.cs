@@ -38,7 +38,10 @@ namespace RevitDataValidator
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             GetParameterPacks();
-            Utils.propertiesPanel = new PropertiesPanel();
+            if (Utils.parameterUIData != null)
+            {
+                Utils.propertiesPanel = new PropertiesPanel();
+            }
 
             application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
             application.ViewActivated += HideDockablePanelOnStartup;
@@ -83,8 +86,9 @@ namespace RevitDataValidator
             Utils.doc = doc;
             var app = doc.Application;
             var uiapp = new UIApplication(app);
-            var pane = uiapp.GetDockablePane(Utils.paneId);;
-            if (e.GetSelectedElements().Count() == 0)
+            var pane = uiapp.GetDockablePane(Utils.paneId);
+            var selectedElements = e.GetSelectedElements().Select(q => doc.GetElement(q)).ToList();
+            if (selectedElements.Count() == 0)
             {
                 pane.Hide();
                 return;
@@ -95,18 +99,23 @@ namespace RevitDataValidator
             if (element.Category != null)
             {
                 var catName = element.Category.Name;
-                var packSetName = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Category == catName).Name;
-                Utils.propertiesPanel.cbo.SelectedItem = packSetName;
+                var packSet = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Category == catName);
+                if (packSet != null)
+                {
+                    var packSetName = packSet.Name;
+                    Utils.propertiesPanel.cbo.SelectedItem = packSetName;
+                    Utils.propertiesPanel.Refresh();
+                    pane.Show();
+                }
+                else
+                {
+                    pane.Hide();
+                }
             }
-            pane.Show();
-        }
-
-        [DllImport("user32.dll")]
-        static extern bool GetCursorPos(out POINT lpPoint);
-        public struct POINT
-        {
-            public int X;
-            public int Y;
+            else
+            {
+                pane.Hide();
+            }
         }
 
         private void HideDockablePanelOnStartup(object sender, ViewActivatedEventArgs e)
@@ -181,7 +190,6 @@ namespace RevitDataValidator
 
         private void GetParameterPacks()
         {
-            var ret = new List<Rule>();
             var file = Path.Combine(ADDINS_FOLDER, PARAMETER_PACK_FILE_NAME);
             if (!File.Exists(file))
                 return;
@@ -228,7 +236,7 @@ namespace RevitDataValidator
 
                 //            var rule = new Rule
                 //            {
-                //                ParameterName = GetCellString(sheet.Cells[row, 2].Value),
+                //                PackName = GetCellString(sheet.Cells[row, 2].Value),
                 //                RuleData = GetCellString(sheet.Cells[row, 4].Value),
                 //                UserMessage = GetCellString(sheet.Cells[row, 6].Value),
                 //            };
