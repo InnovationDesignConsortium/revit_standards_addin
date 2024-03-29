@@ -2,7 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace RevitDataValidator
 {
@@ -18,15 +22,26 @@ namespace RevitDataValidator
 
         public PropertyViewModel(string name)
         {
-            cboData = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
+            var element = Utils.doc.GetElement(Utils.selectedIds.First());
+            if (element.Category == null)
+                return;
+
+            var catName = element.Category.Name;
+            
+            cboData = new ObservableCollection<string>(
+                Utils.parameterUIData.PackSets
+                .Where(q => q.Category == catName).Select(q => q.Name));
 
             var packs = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Name == name).ParameterPacks;
 
             PackData = new ObservableCollection<PackData>();
 
-            foreach (var parameterPack in Utils.parameterUIData.ParameterPacks
-                .Where(q => packs.Contains(q.Name)))
+            foreach (var packName in packs)
             {
+                var parameterPack = Utils.parameterUIData.ParameterPacks.FirstOrDefault(q => q.Name == packName);
+                if (parameterPack == null)
+                    continue;
+
                 var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
                 {
@@ -34,6 +49,7 @@ namespace RevitDataValidator
                     foreach (var rule in Utils.allRules)
                     {
                         if (rule.Categories.Contains(parameterPack.Category) &&
+                            rule.ListOptions != null && 
                             rule.ParameterName == pname)
                         {
                             packParameters.Add(new ChoiceStateParameter
@@ -149,4 +165,5 @@ namespace RevitDataValidator
             }
         }
     }
+
 }

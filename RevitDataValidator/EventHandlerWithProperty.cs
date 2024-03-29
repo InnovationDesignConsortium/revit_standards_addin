@@ -25,6 +25,7 @@ namespace RevitDataValidator
                 }
                 t.Commit();
             }
+            Utils.propertiesPanel.Refresh();
         }
     }
 }

@@ -138,7 +138,8 @@ mkdir "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(ProjectDir)$(TargetName).addin "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\"
 copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
-copy /Y $(SolutionDir)projectrules.md C:\ProgramData\Autodesk\Revit\Addins
+copy /Y $(SolutionDir)ProjectRules.md C:\ProgramData\Autodesk\Revit\Addins
+copy /Y $(SolutionDir)ParameterPacks.json C:\ProgramData\Autodesk\Revit\Addins
 
 "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>

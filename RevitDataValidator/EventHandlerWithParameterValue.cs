@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using org.mariuszgromada.math.mxparser.mathcollection;
 
 namespace RevitDataValidator
 {
@@ -51,6 +50,7 @@ namespace RevitDataValidator
                 }
                 t.Commit();
             }
+            Utils.propertiesPanel.Refresh();
         }
     }
 }

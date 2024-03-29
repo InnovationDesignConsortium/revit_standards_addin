@@ -2,15 +2,12 @@
     "Parameter Packs": 
     [
         {
-            "Name": "Wall Fire Rating",
+            "Name": "Structure",
             "Category": "Walls",
             "Parameters":
-            [    
-                "Rating", "Fire/Smoke"
-            ],
-            "URL": "www.revit.com",
-            "PDF": "\\drive\\help\\files\\FireRating.pdf",
-            "Video": "\\drive\\help\\files\\FireRating.mp4"
+            [
+                "Structural", "Structural Usage", "Rebar Cover - Exterior Face"
+            ]
         },
         {
             "Name": "Wall Height",
@@ -42,11 +39,11 @@
     "Pack Sets":
     [
         {
-            "Name": "Wall Tools",
+            "Name": "My Wall Tools",
             "Category": "Walls",
             "Parameter Packs":
             [
-                "Wall Height", "Wall Identity"
+                "Wall Height", "Wall Identity", "Structure"
             ]
         },
         {
@@ -71,14 +68,6 @@
             "Parameter Packs":
             [
                 "Room Occ"
-            ]
-        },
-        {
-            "Name": "Room Tools 2",
-            "Category": "Rooms",
-            "Parameter Packs":
-            [
-                "Egress"
             ]
         }
     ] 

@@ -8,6 +8,7 @@
              Background="LightGray"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid
+        x:Name="OverallGrid"
         Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -31,6 +32,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid
+                        x:Name="WrapperGrid"
                         HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -50,6 +52,7 @@
                                   HorizontalContentAlignment="Stretch"
                                   VerticalAlignment="Top"
                                   HeadersVisibility="None"
+                                  Width="{Binding Path=ActualWidth, ElementName=WrapperGrid}"
                                   ItemsSource="{Binding PackParameters}">
                             <DataGrid.Resources>
                                 <DataTemplate DataType="{x:Type local:BoolStateParameter}">
@@ -98,7 +101,7 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                        <TextBlock
+                            <TextBlock
                             Grid.Column="0">
                             <Hyperlink
                                 NavigateUri="{Binding LinkURL}"
@@ -107,7 +110,7 @@
                                     Text="{Binding LinkText}" />
                             </Hyperlink>
                         </TextBlock>
-                        <TextBlock
+                            <TextBlock
                             Grid.Column="1">
                             <Hyperlink
                                 NavigateUri="{Binding PdfPath}"

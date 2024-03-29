@@ -100,13 +100,12 @@ namespace RevitDataValidator
                                 if (paramString == null ||
                                     !validValues.Contains(paramString))
                                 {
-                                    using (var form = new FormSelectFromList(validValues, ""))
+                                    using (var form = new FormSelectFromList(validValues, rule.UserMessage))
                                     {
                                         form.ShowDialog();
                                         var v = form.GetValue();
                                         SetParam(parameter, v);
                                     }
-                                   // PostFailure(doc, id, rule.FailureId);
                                 }
                             }
                             else if (rule.Requirement != null)
@@ -137,37 +136,43 @@ namespace RevitDataValidator
                                         }
                                     }
                                 }
-
                             }
-                            //else if (rule.RuleType == RuleType.Regex)
-                            //{
-                                //if (paramString == null ||
-                                //    !Regex.IsMatch(paramString, rule.RuleData))
-                                //{
-                                //    using (var form = new FormEnterValue(rule.UserMessage, rule.RuleData))
-                                //    {
-                                //        form.ShowDialog();
-                                //        var v = form.GetValue();
-                                //        SetParam(parameter, v);
-                                //    }
-
-                                //    //PostFailure(doc, id, rule.FailureId);
-                                //}
-                            //}
-                            //else if (rule.RuleType == RuleType.PreventDuplicates)
-                            //{
-                            //    var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
-                            //    var others = new FilteredElementCollector(doc)
-                            //        .OfCategory(bic)
-                            //        .WhereElementIsNotElementType()
-                            //        .Where(q => q.Id != element.Id);
-                            //    List<string> othersParams =
-                            //        others.Select(q => GetParamAsString(q.LookupParameter(rule.PackName))).ToList();
-                            //    if (othersParams.Contains(paramString))
-                            //    {
-                            //        PostFailure(doc, id, rule.FailureId);
-                            //    }
-                            //}
+                            else if (
+                                rule.Regex != null && 
+                                paramString != null)
+                            {
+                                if (paramString == null ||
+                                    !Regex.IsMatch(paramString, rule.Regex))
+                                {
+                                    using (var form = new FormEnterValue(rule.UserMessage, rule.Regex))
+                                    {
+                                        form.ShowDialog();
+                                        var v = form.GetValue();
+                                        SetParam(parameter, v);
+                                        Utils.propertiesPanel.Refresh();
+                                    }
+                                }
+                            }
+                            else if (rule.PreventDuplicates != null)
+                            {
+                                var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
+                                var others = new FilteredElementCollector(doc)
+                                    .OfCategory(bic)
+                                    .WhereElementIsNotElementType()
+                                    .Where(q => q.Id != element.Id);
+                                List<string> othersParams =
+                                    others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
+                                if (othersParams.Contains(paramString))
+                                {
+                                    using (var form = new FormEnterValue(rule.UserMessage, null))
+                                    {
+                                        form.ShowDialog();
+                                        var v = form.GetValue();
+                                        SetParam(parameter, v);
+                                        Utils.propertiesPanel.Refresh();
+                                    }
+                                }
+                            }
                             //else if (rule.RuleType == RuleType.FromHostType ||
                             //    rule.RuleType == RuleType.FromHostInstance ||
                             //    rule.RuleType == RuleType.Calculated)

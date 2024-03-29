@@ -28,7 +28,7 @@ namespace RevitDataValidator
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if (_pattern != null && Regex.IsMatch(textBox1.Text, _pattern))
+            if (_pattern == null || Regex.IsMatch(textBox1.Text, _pattern))
             {
                 Close();
             }

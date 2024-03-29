@@ -1,16 +1,16 @@
-# Fire Protection
+# Sample Rule Documentation
 
 ```json
 {
   "Rules": 
   [
-        {
+    {
       "Rule Name": "Comments a b c",
-      "When Run": "",
       "Categories": [
         "Walls"
       ],
       "Parameter Name": "Comments",
+      "User Message": "Comments must be a, b, or c",
       "List Options":
       [
         {"name": "a", "description": ""},
@@ -19,54 +19,22 @@
       ]
     },
     {
-      "Rule Name": "Fire Protection Wall Instance Options",
-      "When Run": "",
+      "Rule Name": "Mark is Number",
+      "User Message": "Mark must be a number",
       "Categories": [
-        "Walls"
+        "<all>"
       ],
-      "Parameter Name": "ASSEMBLY FIRE PROTECTION",
-      "List Options":
-      [
-        {"name": "EX", "description": ""},
-        {"name": "FB", "description": ""},
-        {"name": "FP", "description": ""},
-        {"name": "FW", "description": ""},
-        {"name": "SB", "description": ""},
-        {"name": "SP", "description": ""}
-      ]
+      "Parameter Name": "Mark",
+      "Regex": "^[0-9]+$"
     },
     {
-      "Rule Name": "Assembly Height Options",
-      "When Run": "",
+      "Rule Name": "Room Name Dup",
       "Categories": [
-        "Walls"
+        "Rooms"
       ],
-      "Parameter Name": "ASSEMBLY HEIGHT CONDITION (ASSIGNED)",
-      "List Options":
-      [
-        {"name": "S", "description": ""},
-        {"name": "A", "description": ""}
-      ]
-    },
-    {
-      "Rule Name": "Fire Rating Less Than Wall Type Potential",
-      "When Run": "",
-      "Categories": [
-        "Walls"
-      ],
-      "Parameter Name": "ASSEMBLY FIRE RATING (ASSIGNED) HOURS",
-      "Requirement": "<= {ASSEMBLY FIRE RATING (POTENTIAL) HOURS}",
-      "User Message": "Assigned hours must be less than or equal to potential hours"
-    },
-    {
-      "Rule Name": "If wall is fire rated, AHC must be S",
-      "When Run": "",
-      "Categories": [
-        "Walls"
-      ],
-      "Parameter Name": "ASSEMBLY HEIGHT CONDITION (ASSIGNED)",
-      "Requirement": "IF {ASSEMBLY FIRE RATING (ASSIGNED) HOURS} >= 0 THEN {ASSEMBLY HEIGHT CONDITION (ASSIGNED)} = S",
-      "User Message": "If wall is fire rated, AHC must be S"
+      "User Message": "Room Name cannot duplicate an existing value",
+      "Parameter Name": "Name",
+      "Prevent Duplicates": "True"
     }
   ]
 }

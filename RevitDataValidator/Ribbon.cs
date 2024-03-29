@@ -16,22 +16,16 @@ namespace RevitDataValidator
 {
     internal class Ribbon : IExternalApplication
     {
-        private static FailureDefinitionId failureId;
-        private static FailureDefinitionId genericFailureId;
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
-        private readonly string RULE_FILE_NAME = "projectrules.md";
+        private readonly string RULE_FILE_NAME = "ProjectRules.md";
         private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
-        private readonly string RULE_DEFAULT_MESSAGE = "This value is not allowed";
-        private AddInId applicationId;
-        public static UpdaterId updaterId;
-
+        public static UpdaterId DataValidationUpdaterId;
 
         public Result OnStartup(UIControlledApplication application)
         {
             Utils.app = application.ControlledApplication;
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
-            applicationId = application.ActiveAddInId;
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             Utils.eventHandlerWithProperty = new EventHandlerWithProperty();
             Utils.eventHandlerWithParameterValue = new EventHandlerWithParameterValue();
@@ -43,9 +37,12 @@ namespace RevitDataValidator
                 Utils.propertiesPanel = new PropertiesPanel();
             }
 
-            application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
-            application.ViewActivated += HideDockablePanelOnStartup;
-            application.SelectionChanged += Application_SelectionChanged;
+            if (Utils.propertiesPanel != null)
+            {
+                application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
+                application.ViewActivated += HideDockablePanelOnStartup;
+                application.SelectionChanged += Application_SelectionChanged;
+            }
 
             foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
             {
@@ -57,15 +54,9 @@ namespace RevitDataValidator
                 { }
             }
 
-            DataValidationUpdater dataValidationUpdater = new DataValidationUpdater(applicationId);
-            updaterId = dataValidationUpdater.GetUpdaterId();
+            DataValidationUpdater dataValidationUpdater = new DataValidationUpdater(application.ActiveAddInId);
+            DataValidationUpdaterId = dataValidationUpdater.GetUpdaterId();
             UpdaterRegistry.RegisterUpdater(dataValidationUpdater, true);
-
-            genericFailureId = new FailureDefinitionId(Guid.NewGuid());
-            FailureDefinition.CreateFailureDefinition(
-                genericFailureId,
-                FailureSeverity.Error,
-                RULE_DEFAULT_MESSAGE);
 
             if (Utils.errors.Any())
             {
@@ -99,7 +90,13 @@ namespace RevitDataValidator
             if (element.Category != null)
             {
                 var catName = element.Category.Name;
-                var packSet = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Category == catName);
+                var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
+                if (validPacks.Count() == 0)
+                {
+                    pane.Hide();
+                    return;
+                }
+                var packSet = validPacks.FirstOrDefault();
                 if (packSet != null)
                 {
                     var packSetName = packSet.Name;
@@ -138,7 +135,7 @@ namespace RevitDataValidator
 
         public void RegisterRules(string filename)
         {
-            UpdaterRegistry.RemoveAllTriggers(updaterId);
+            UpdaterRegistry.RemoveAllTriggers(DataValidationUpdaterId);
             Utils.allRules.Clear();
 
             var rules = GetRules();
@@ -157,7 +154,7 @@ namespace RevitDataValidator
             try
             {
                 UpdaterRegistry.AddTrigger(
-                    updaterId,
+                    DataValidationUpdaterId,
                     new ElementMulticategoryFilter(Utils.GetBuiltInCats(rule)),
                     Element.GetChangeTypeAny());
             }

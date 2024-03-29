@@ -33,6 +33,11 @@ namespace RevitDataValidator
         [JsonProperty("Requirement")]
         public string Requirement { get; set; }
 
+        public string Regex { get; set; }
+
+        [JsonProperty("Prevent Duplicates")]
+        public string PreventDuplicates { get; set; }
+
         [JsonProperty("User Message")]
         public string UserMessage { get; set; }
     }

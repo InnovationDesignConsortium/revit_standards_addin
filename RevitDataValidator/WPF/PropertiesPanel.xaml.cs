@@ -43,6 +43,9 @@ namespace RevitDataValidator
 
         public void Refresh()
         {
+            if (cbo.SelectedItem == null)
+                return;
+
             DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
         }
 
