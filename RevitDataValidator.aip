@@ -12,7 +12,6 @@
     <ROW Property="ALLUSERS" Value="1" MultiBuildValue="DefaultBuild:2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="boostyourbim@gmail.com"/>
-    <ROW Property="ARPPRODUCTICON" Value="BoostYourBIMlogo.exe" Type="8"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:7"/>
     <ROW Property="Manufacturer" Value="Boost Your BIM"/>
     <ROW Property="ProductCode" Value="1033:{91B2E8DC-4052-4AE2-95F1-C04AC1EA5C89} " Type="16"/>
