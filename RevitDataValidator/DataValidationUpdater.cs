@@ -89,10 +89,10 @@ namespace RevitDataValidator
 
                             var paramString = GetParamAsString(parameter);
 
-                            //if (!rule.IsRequired && paramString == null)
-                            //{
-                            //    continue;
-                            //}
+                            if (paramString == null)
+                            {
+                                continue;
+                            }
 
                             if (rule.ListOptions != null)
                             {

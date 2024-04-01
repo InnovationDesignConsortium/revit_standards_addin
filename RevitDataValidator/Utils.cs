@@ -1,8 +1,8 @@
-﻿using Autodesk.Revit.DB;
-using Autodesk.Revit.ApplicationServices;
+﻿using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using System.Collections.Generic;
 using System.Linq;
-using Autodesk.Revit.UI;
 
 namespace RevitDataValidator
 {
@@ -19,8 +19,7 @@ namespace RevitDataValidator
         public static ParameterUIData parameterUIData;
         public static ISet<ElementId> selectedIds;
         public static Document doc;
-        public static EventHandlerWithProperty eventHandlerWithProperty;
-        public static EventHandlerWithParameterValue eventHandlerWithParameterValue;
+        public static EventHandlerWithParameterObject eventHandlerWithParameterObject;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {

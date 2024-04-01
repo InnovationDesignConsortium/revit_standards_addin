@@ -19,7 +19,7 @@ namespace RevitDataValidator
 
     public class ChoiceStateParameter : StateParameter<object>
     {
-        public List<string> Choices { get; set; }
-        public string SelectedChoice { get; set; }
+        public List<StringInt> Choices { get; set; }
+        public StringInt SelectedChoice { get; set; }
     }
 }

@@ -72,8 +72,9 @@
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type local:ChoiceStateParameter}">
                                     <ComboBox
-                                        Tag="{Binding Name}"
+                                        Tag="{Binding Parameter}"
                                         LostFocus="ComboBox_LostFocus"
+                                        DisplayMemberPath="String"
                                         SelectedItem="{Binding SelectedChoice}"
                                         ItemsSource="{Binding Choices}" />
                                 </DataTemplate>

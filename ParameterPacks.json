@@ -2,6 +2,46 @@
     "Parameter Packs": 
     [
         {
+            "Name": "Windows 1",
+            "Category": "Windows",
+            "Parameters":
+            [
+                "Level"
+            ]
+        },
+        {
+            "Name": "Stairs 1",
+            "Category": "Stairs",
+            "Parameters":
+            [
+                "Base Level", "Top Level"
+            ]
+        },
+        {
+            "Name": "Columns 1",
+            "Category": "Columns",
+            "Parameters":
+            [
+                "Base Level", "Top Level"
+            ]
+        },
+        {
+            "Name": "Roofs 1",
+            "Category": "Roofs",
+            "Parameters":
+            [
+                "Base Level", "Cutoff Level"
+            ]
+        },
+        {
+            "Name": "Phasing",
+            "Category": "Walls",
+            "Parameters":
+            [
+                "Phase Created", "Phase Demolished"
+            ]
+        },
+        {
             "Name": "Structure",
             "Category": "Walls",
             "Parameters":
@@ -39,11 +79,43 @@
     "Pack Sets":
     [
         {
+            "Name": "My Window Tools",
+            "Category": "Windows",
+            "Parameter Packs":
+            [
+                    "Windows 1"
+            ]
+        },
+        {
+            "Name": "My Column Tools",
+            "Category": "Columns",
+            "Parameter Packs":
+            [
+                    "Columns 1"
+            ]
+        },
+        {
+            "Name": "My Roof Tools",
+            "Category": "Roofs",
+            "Parameter Packs":
+            [
+                    "Roofs 1"
+            ]
+        },
+        {
+            "Name": "My Stair Tools",
+            "Category": "Stairs",
+            "Parameter Packs":
+            [
+                    "Stairs 1"
+            ]
+        },
+        {
             "Name": "My Wall Tools",
             "Category": "Walls",
             "Parameter Packs":
             [
-                "Wall Height", "Wall Identity", "Structure"
+                "Phasing"
             ]
         },
         {

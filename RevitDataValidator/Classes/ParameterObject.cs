@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace RevitDataValidator
 {
     [DebuggerDisplay("{Name} {Value}")]
-    public class ParameterValue
+    public class ParameterObject
     {
-        public ParameterValue(Parameter parameter, string value)
+        public ParameterObject(Parameter parameter, object value)
         {
             Parameter = parameter;
             Value = value;
@@ -15,6 +15,6 @@ namespace RevitDataValidator
         public string Name => Parameter.Definition.Name;
 
         public Parameter Parameter { get; set; }
-        public string Value { get; set; }
+        public object Value { get; set; }
     }
 }

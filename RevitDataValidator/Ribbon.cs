@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace RevitDataValidator
 {
@@ -27,8 +26,7 @@ namespace RevitDataValidator
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
-            Utils.eventHandlerWithProperty = new EventHandlerWithProperty();
-            Utils.eventHandlerWithParameterValue = new EventHandlerWithParameterValue();
+            Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             GetParameterPacks();

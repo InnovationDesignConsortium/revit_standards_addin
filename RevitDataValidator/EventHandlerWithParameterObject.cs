@@ -1,11 +1,12 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using System;
 
 namespace RevitDataValidator
 {
-    public class EventHandlerWithParameterValue : RevitEventWrapper<ParameterValue>
+    public class EventHandlerWithParameterObject : RevitEventWrapper<ParameterObject>
     {
-        public override void Execute(UIApplication uiApp, ParameterValue args)
+        public override void Execute(UIApplication uiApp, ParameterObject args)
         {
             using (Transaction t = new Transaction(Utils.doc, "Update Parameter"))
             {
@@ -13,24 +14,26 @@ namespace RevitDataValidator
                 foreach (var id in Utils.selectedIds)
                 {
                     var element = Utils.doc.GetElement(id);
-                    var parameter = element.LookupParameter(args.Parameter.Definition.Name);
+                    var parameter = args.Parameter;
                     if (parameter == null)
                     {
                         continue;
                     }
-                    if (parameter.StorageType == StorageType.String)
+                    if (parameter.StorageType == StorageType.String &&
+                        args.Value is string s)
                     {
-                        parameter.Set(args.Value);
+                        parameter.Set(s);
                     }
                     else if (parameter.StorageType == StorageType.Integer)
                     {
-                        if (int.TryParse(args.Value, out int i))
+                        if (args.Value is int i)
                         {
                             parameter.Set(i);
                         }
-                        else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
+                        else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo && 
+                            args.Value is string ss)
                         {
-                            if (args.Value=="True")
+                            if (ss == "True")
                             {
                                 parameter.Set(1);
                             }
@@ -42,9 +45,22 @@ namespace RevitDataValidator
                     }
                     else if (parameter.StorageType == StorageType.Double)
                     {
-                        if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value, out double d))
+                        if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed))
                         {
-                            parameter.Set(d);
+                            parameter.Set(dparsed);
+                        }
+                    }
+                    else if (parameter.StorageType == StorageType.ElementId &&
+                        args.Value is int i)
+                    {
+                        var elementid = new ElementId(i);
+                        try
+                        {
+                            bool didSet = parameter.Set(elementid);
+                        }
+                        catch (Exception ex)
+                        {
+
                         }
                     }
                 }

@@ -58,10 +58,10 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\ParameterValue.cs" />
+    <Compile Include="Classes\StringInt.cs" />
+    <Compile Include="Classes\ParameterObject.cs" />
     <Compile Include="DataValidationUpdater.cs" />
-    <Compile Include="EventHandlerWithParameterValue.cs" />
-    <Compile Include="EventHandlerWithProperty.cs" />
+    <Compile Include="EventHandlerWithParameterObject.cs" />
     <Compile Include="Forms\FormEnterValue.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,7 +91,6 @@
     <Compile Include="Classes\Rule.cs" />
     <Compile Include="Classes\RuleType.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Classes\Property.cs" />
     <Compile Include="WPF\PropertyViewModel.cs" />
     <Compile Include="Classes\StateParameter.cs" />
   </ItemGroup>
@@ -141,6 +140,6 @@ copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Co
 copy /Y $(SolutionDir)ProjectRules.md C:\ProgramData\Autodesk\Revit\Addins
 copy /Y $(SolutionDir)ParameterPacks.json C:\ProgramData\Autodesk\Revit\Addins
 
-"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
+REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

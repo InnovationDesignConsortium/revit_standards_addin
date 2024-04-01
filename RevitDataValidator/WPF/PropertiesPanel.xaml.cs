@@ -65,8 +65,8 @@ namespace RevitDataValidator
                 }
             }
             
-            var item = new ParameterValue(param, control.Text);
-            Utils.eventHandlerWithParameterValue.Raise(item);
+            var item = new ParameterObject(param, control.Text);
+            Utils.eventHandlerWithParameterObject.Raise(item);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -81,9 +81,11 @@ namespace RevitDataValidator
 
         private void SetCheckboxValue(CheckBox control)
         {
-            var parameter = control.Tag as Parameter;
-            var item = new ParameterValue(parameter, control.IsChecked.ToString());
-            Utils.eventHandlerWithParameterValue.Raise(item);
+            if (control.Tag is Parameter parameter)
+            {
+                var item = new ParameterObject(parameter, control.IsChecked.ToString());
+                Utils.eventHandlerWithParameterObject.Raise(item);
+            }
         }
 
         private void ComboBox_LostFocus(object sender, RoutedEventArgs e)
@@ -91,9 +93,22 @@ namespace RevitDataValidator
             var control = sender as System.Windows.Controls.ComboBox;
             if (control.IsDropDownOpen)
                 return;
-
-            var item = new Property(control.Tag.ToString(), control.Text);
-            Utils.eventHandlerWithProperty.Raise(item);
+            if (control.Tag is Parameter parameter)
+            {
+                ParameterObject po = null;
+                if (control.SelectedItem is StringInt stringInt)
+                {
+                    if (stringInt.Int == 0)
+                    {
+                        po = new ParameterObject(parameter, stringInt.String);
+                    }
+                    else
+                    {
+                        po = new ParameterObject(parameter, stringInt.Int);
+                    }
+                }
+                Utils.eventHandlerWithParameterObject.Raise(po);
+            }
         }
 
         private void TextBox_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
