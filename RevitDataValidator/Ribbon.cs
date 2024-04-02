@@ -22,6 +22,7 @@ namespace RevitDataValidator
 
         public Result OnStartup(UIControlledApplication application)
         {
+            Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.app = application.ControlledApplication;
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
@@ -94,7 +95,13 @@ namespace RevitDataValidator
                     pane.Hide();
                     return;
                 }
-                var packSet = validPacks.FirstOrDefault();
+
+                PackSet packSet = null;
+                if (Utils.dictCategoryPackSet.ContainsKey(catName))
+                    packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
+                else
+                    packSet = validPacks.FirstOrDefault();
+
                 if (packSet != null)
                 {
                     var packSetName = packSet.Name;

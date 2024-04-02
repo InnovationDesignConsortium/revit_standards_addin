@@ -25,6 +25,11 @@ namespace RevitDataValidator
 
             var catName = element.Category.Name;
 
+            if (Utils.dictCategoryPackSet.ContainsKey(catName))
+                Utils.dictCategoryPackSet[catName] = Utils.propertiesPanel.cbo.SelectedItem.ToString();
+            else
+                Utils.dictCategoryPackSet.Add(catName, Utils.propertiesPanel.cbo.SelectedItem.ToString());
+
             cboData = new ObservableCollection<string>(
                 Utils.parameterUIData.PackSets
                 .Where(q => q.Category == catName).Select(q => q.Name));
