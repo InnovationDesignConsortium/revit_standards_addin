@@ -1,7 +1,9 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -39,6 +41,22 @@ namespace RevitDataValidator
         private void cbo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
+
+            var element = Utils.doc.GetElement(Utils.selectedIds.First());
+            if (element.Category == null)
+                return;
+
+            var catName = element.Category.Name;
+
+            if (Utils.dictCategoryPackSet.ContainsKey(catName))
+                Utils.dictCategoryPackSet[catName] = Utils.propertiesPanel.cbo.SelectedItem.ToString();
+            else
+                Utils.dictCategoryPackSet.Add(catName, Utils.propertiesPanel.cbo.SelectedItem.ToString());
+        }
+
+        public void Refresh(string packSetName)
+        {
+            DataContext = new PropertyViewModel(packSetName);
         }
 
         public void Refresh()
@@ -52,21 +70,23 @@ namespace RevitDataValidator
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var control = sender as System.Windows.Controls.TextBox;
-            var param = control.Tag as Parameter;
-            if (param.StorageType == StorageType.Double)
+            if (control.Tag is List<Parameter> parameters)
             {
-                var units = Utils.doc.GetUnits();
-                var specTypeId = param.Definition.GetDataType();
-
-                if (UnitFormatUtils.TryParse(units, specTypeId, control.Text, out double d))
+                var parameter = parameters.First();
+                if (parameter.StorageType == StorageType.Double)
                 {
-                    var parsed = UnitFormatUtils.Format(units, param.Definition.GetDataType(), d, true);
-                    control.Text = parsed;
+                    var units = Utils.doc.GetUnits();
+                    var specTypeId = parameter.Definition.GetDataType();
+
+                    if (UnitFormatUtils.TryParse(units, specTypeId, control.Text, out double d))
+                    {
+                        var parsed = UnitFormatUtils.Format(units, parameter.Definition.GetDataType(), d, true);
+                        control.Text = parsed;
+                    }
                 }
+                var item = new ParameterObject(parameters, control.Text);
+                Utils.eventHandlerWithParameterObject.Raise(item);
             }
-            
-            var item = new ParameterObject(param, control.Text);
-            Utils.eventHandlerWithParameterObject.Raise(item);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -81,9 +101,9 @@ namespace RevitDataValidator
 
         private void SetCheckboxValue(CheckBox control)
         {
-            if (control.Tag is Parameter parameter)
+            if (control.Tag is List<Parameter> parameters)
             {
-                var item = new ParameterObject(parameter, control.IsChecked.ToString());
+                var item = new ParameterObject(parameters, control.IsChecked.ToString());
                 Utils.eventHandlerWithParameterObject.Raise(item);
             }
         }
@@ -93,18 +113,18 @@ namespace RevitDataValidator
             var control = sender as System.Windows.Controls.ComboBox;
             if (control.IsDropDownOpen)
                 return;
-            if (control.Tag is Parameter parameter)
+            if (control.Tag is List<Parameter> parameters)
             {
                 ParameterObject po = null;
                 if (control.SelectedItem is StringInt stringInt)
                 {
                     if (stringInt.Int == 0)
                     {
-                        po = new ParameterObject(parameter, stringInt.String);
+                        po = new ParameterObject(parameters, stringInt.String);
                     }
                     else
                     {
-                        po = new ParameterObject(parameter, stringInt.Int);
+                        po = new ParameterObject(parameters, stringInt.Int);
                     }
                 }
                 Utils.eventHandlerWithParameterObject.Raise(po);
@@ -130,6 +150,5 @@ namespace RevitDataValidator
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
-
     }
 }

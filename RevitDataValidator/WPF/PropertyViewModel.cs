@@ -25,11 +25,6 @@ namespace RevitDataValidator
 
             var catName = element.Category.Name;
 
-            if (Utils.dictCategoryPackSet.ContainsKey(catName))
-                Utils.dictCategoryPackSet[catName] = Utils.propertiesPanel.cbo.SelectedItem.ToString();
-            else
-                Utils.dictCategoryPackSet.Add(catName, Utils.propertiesPanel.cbo.SelectedItem.ToString());
-
             cboData = new ObservableCollection<string>(
                 Utils.parameterUIData.PackSets
                 .Where(q => q.Category == catName).Select(q => q.Name));
@@ -47,7 +42,7 @@ namespace RevitDataValidator
                 var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
                 {
-                    var parameter = GetParameter(pname);
+                    var parameters = GetParameter(pname);
                     bool foundRule = false;
                     foreach (var rule in Utils.allRules)
                     {
@@ -60,7 +55,7 @@ namespace RevitDataValidator
                             var selected = choices.FirstOrDefault(q => q.String == paramValue);
                             packParameters.Add(new ChoiceStateParameter
                             {
-                                Parameter = parameter,
+                                Parameters = parameters,
                                 Name = pname,
                                 Choices = choices,
                                 SelectedChoice = selected
@@ -71,8 +66,9 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        if (parameter != null)
+                        if (parameters != null)
                         {
+                            var parameter = parameters.First();
                             var value = GetParameterValue(pname);
                             if (parameter.StorageType == StorageType.Integer &&
                                 parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
@@ -85,7 +81,7 @@ namespace RevitDataValidator
                                    new BoolStateParameter
                                    {
                                        Name = pname,
-                                       Parameter = parameter,
+                                       Parameters = parameters,
                                        Value = boolValue
                                    }
                                    );
@@ -137,7 +133,8 @@ namespace RevitDataValidator
                                     try
                                     {
                                         StringInt selected = null;
-                                        if (parameter.StorageType == StorageType.ElementId)
+                                        if (parameter.StorageType == StorageType.ElementId &&
+                                            value != string.Empty)
                                         {
                                             selected = choices.FirstOrDefault(q => q.Int == parameter.AsElementId().IntegerValue);
                                         }
@@ -147,7 +144,7 @@ namespace RevitDataValidator
                                         }
                                         packParameters.Add(new ChoiceStateParameter
                                         {
-                                            Parameter = parameter,
+                                            Parameters = parameters,
                                             Name = pname,
                                             Choices = choices,
                                             SelectedChoice = selected
@@ -164,7 +161,7 @@ namespace RevitDataValidator
                                     new TextStateParameter
                                     {
                                         Name = pname,
-                                        Parameter = parameter,
+                                        Parameters = parameters,
                                         Value = value
                                     }
                                     );
@@ -183,36 +180,16 @@ namespace RevitDataValidator
             }
         }
 
-        private Parameter GetParameter(string parameterName)
+        private List<Parameter> GetParameter(string parameterName)
         {
             if (Utils.doc == null)
             {
                 return null;
             }
 
-            var list = new List<Parameter>();
-            foreach (var id in Utils.selectedIds)
-            {
-                var element = Utils.doc.GetElement(id);
-                var parameters = element.Parameters.Cast<Parameter>().Where(q => q.Definition.Name == parameterName);
-                if (parameters == null || parameters.Count() == 0)
-                    continue;
-                var parameter = parameters.FirstOrDefault(q => IsParameterValid(q));
-                if (parameter != null)
-                {
-                    list.Add(parameter);
-                }
-            }
-
-            var distinct = list.Distinct();
-            if (distinct.Count() == 1)
-            {
-                return list.First();
-            }
-            else
-            {
-                return null;
-            }
+            return Utils.selectedIds.Select(w =>
+            Utils.doc.GetElement(w).Parameters.
+                Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q))).ToList();
         }
 
         private bool IsParameterValid(Parameter p)
@@ -244,38 +221,41 @@ namespace RevitDataValidator
                 return null;
             }
 
-            var list = new List<Parameter>();
-            Parameter parameter = null;
+            var parameters = new List<Parameter>();
             foreach (var id in Utils.selectedIds)
             {
                 var element = Utils.doc.GetElement(id);
-                parameter = element.LookupParameter(parameterName);
+                var parameter = element.LookupParameter(parameterName);
                 if (parameter == null)
                     continue;
-                list.Add(parameter);
+                parameters.Add(parameter);
             }
 
-            var distinct = list.Distinct();
-            if (distinct.Count() == 1)
-            {
+            var values = new List<string>();
+            foreach (var parameter in parameters)
+            { 
                 if (parameter.StorageType == StorageType.ElementId)
                 {
                     var id = parameter.AsElementId();
                     if (id == ElementId.InvalidElementId)
                     {
-                        return null;
+                        values.Add("None");
                     }
                     else
                     {
-                        return Utils.doc.GetElement(id).Name;
+                        values.Add(Utils.doc.GetElement(id).Name);
                     }
                 }
                 else
                 {
-                    var ret = list.First().AsValueString();
-                    return ret;
+                    values.Add(parameter.AsValueString());
                 }
             }
+            var valuesDistinct = values.Distinct().ToList();
+            if (valuesDistinct.Count == 1)
+            {
+                return valuesDistinct.First();
+            }    
             else
             {
                 return string.Empty;

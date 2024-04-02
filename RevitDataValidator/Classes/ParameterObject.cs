@@ -1,20 +1,22 @@
 ﻿using Autodesk.Revit.DB;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RevitDataValidator
 {
     [DebuggerDisplay("{Name} {Value}")]
     public class ParameterObject
     {
-        public ParameterObject(Parameter parameter, object value)
+        public ParameterObject(List<Parameter> parameters, object value)
         {
-            Parameter = parameter;
+            Parameters = parameters;
             Value = value;
         }
 
-        public string Name => Parameter.Definition.Name;
+        public string Name => Parameters.First().Definition.Name;
 
-        public Parameter Parameter { get; set; }
+        public List<Parameter> Parameters { get; set; }
         public object Value { get; set; }
     }
 }

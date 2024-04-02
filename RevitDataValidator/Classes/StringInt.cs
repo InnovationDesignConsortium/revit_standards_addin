@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace RevitDataValidator
 {
+    [DebuggerDisplay("{String} {Int}")]
     public class StringInt
     {
         public StringInt(string s, int i)

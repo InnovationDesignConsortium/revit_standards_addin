@@ -8,17 +8,14 @@ namespace RevitDataValidator
     {
         public override void Execute(UIApplication uiApp, ParameterObject args)
         {
-            using (Transaction t = new Transaction(Utils.doc, "Update Parameter"))
+            if (args.Parameters == null)
+                return;
+
+            using (Transaction t = new Transaction(Utils.doc, "Update Parameters"))
             {
                 t.Start();
-                foreach (var id in Utils.selectedIds)
+                foreach (var parameter in args.Parameters)
                 {
-                    var element = Utils.doc.GetElement(id);
-                    var parameter = args.Parameter;
-                    if (parameter == null)
-                    {
-                        continue;
-                    }
                     if (parameter.StorageType == StorageType.String &&
                         args.Value is string s)
                     {
@@ -30,7 +27,7 @@ namespace RevitDataValidator
                         {
                             parameter.Set(i);
                         }
-                        else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo && 
+                        else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo &&
                             args.Value is string ss)
                         {
                             if (ss == "True")
@@ -60,7 +57,6 @@ namespace RevitDataValidator
                         }
                         catch (Exception ex)
                         {
-
                         }
                     }
                 }

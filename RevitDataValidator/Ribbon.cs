@@ -99,14 +99,15 @@ namespace RevitDataValidator
                 PackSet packSet = null;
                 if (Utils.dictCategoryPackSet.ContainsKey(catName))
                     packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
-                else
-                    packSet = validPacks.FirstOrDefault();
+                
+                if (packSet == null)
+                    packSet = validPacks.First();
 
                 if (packSet != null)
                 {
                     var packSetName = packSet.Name;
                     Utils.propertiesPanel.cbo.SelectedItem = packSetName;
-                    Utils.propertiesPanel.Refresh();
+                    Utils.propertiesPanel.Refresh(packSetName);
                     pane.Show();
                 }
                 else

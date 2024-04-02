@@ -5,7 +5,7 @@ namespace RevitDataValidator
 {
     public abstract class StateParameter<T> : IStateParameter
     {
-        public Parameter Parameter { get; set; }
+        public List<Parameter> Parameters { get; set; }
         public object Value { get; set; }
         public string State { get; set; }
         public string Name { get; set; }

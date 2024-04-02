@@ -57,7 +57,7 @@
                             <DataGrid.Resources>
                                 <DataTemplate DataType="{x:Type local:BoolStateParameter}">
                                     <CheckBox 
-                                        Tag="{Binding Parameter}"
+                                        Tag="{Binding Parameters}"
                                         IsChecked="{Binding Value}" 
                                         Checked="CheckBox_Checked"
                                         Unchecked="CheckBox_Unchecked"
@@ -65,14 +65,14 @@
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type local:TextStateParameter}">
                                     <TextBox
-                                        Tag="{Binding Parameter}"
+                                        Tag="{Binding Parameters}"
                                         Text="{Binding Value}"
                                         GotKeyboardFocus="TextBox_GotKeyboardFocus"
                                         LostFocus="TextBox_LostFocus" />
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type local:ChoiceStateParameter}">
                                     <ComboBox
-                                        Tag="{Binding Parameter}"
+                                        Tag="{Binding Parameters}"
                                         LostFocus="ComboBox_LostFocus"
                                         DisplayMemberPath="String"
                                         SelectedItem="{Binding SelectedChoice}"
