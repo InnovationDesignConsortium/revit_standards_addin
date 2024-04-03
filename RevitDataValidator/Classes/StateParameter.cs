@@ -9,6 +9,7 @@ namespace RevitDataValidator
         public object Value { get; set; }
         public string State { get; set; }
         public string Name { get; set; }
+        public bool IsEnabled { get; set; }
     }
 
     public class BoolStateParameter : StateParameter<bool>

@@ -10,6 +10,14 @@
             ]
         },
         {
+            "Name": "Windows 2",
+            "Category": "Windows",
+            "Parameters":
+            [
+                "Comments", "Mark"
+            ]
+        },
+        {
             "Name": "Stairs 1",
             "Category": "Stairs",
             "Parameters":
@@ -62,7 +70,7 @@
             "Category": "Walls",
             "Parameters":
             [    
-                "Mark", "Comments"
+                "Mark", "Comments", "Location Line", "WallInt"
             ],
             "URL": "https://help.autodesk.com/view/RVT/2023/ENU/?guid=GUID-550F4B3E-7D49-4A4F-BEC7-4077D5B9FC85",
             "PDF":  "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
@@ -81,9 +89,14 @@
         {
             "Name": "My Window Tools",
             "Category": "Windows",
+            "Show All Other Parameters": true,
+            "Show All Other Parameters Excluding":
+            [
+                "IfcGUID"
+            ],
             "Parameter Packs":
             [
-                    "Windows 1"
+                    "Windows 1", "Windows 2"
             ]
         },
         {
@@ -115,7 +128,7 @@
             "Category": "Walls",
             "Parameter Packs":
             [
-                "Phasing"
+                "Phasing", "Structure"
             ]
         },
         {

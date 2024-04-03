@@ -10,6 +10,12 @@ namespace RevitDataValidator
 
         [JsonProperty("Parameter Packs")]
         public List<string> ParameterPacks { get; set; }
+
+        [JsonProperty("Show All Other Parameters")]
+        public bool ShowAllOtherParameters { get; set; }
+
+        [JsonProperty("Show All Other Parameters Excluding")]
+        public List<string> ShowAllOtherParametersExcluding { get; set; }
     }
 
     public class ParameterPack
