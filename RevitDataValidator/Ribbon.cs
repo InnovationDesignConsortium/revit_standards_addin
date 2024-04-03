@@ -80,6 +80,7 @@ namespace RevitDataValidator
             var selectedElements = e.GetSelectedElements().Select(q => doc.GetElement(q)).ToList();
             if (selectedElements.Count() == 0)
             {
+                Utils.propertiesPanel.SaveTextBoxValues();
                 pane.Hide();
                 return;
             }

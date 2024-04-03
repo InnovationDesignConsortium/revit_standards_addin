@@ -66,7 +66,7 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        if (parameters != null)
+                        if (parameters != null && parameters.Count() > 0 && parameters.First() != null)
                         {
                             var parameter = parameters.First();
                             var value = GetParameterValue(pname);

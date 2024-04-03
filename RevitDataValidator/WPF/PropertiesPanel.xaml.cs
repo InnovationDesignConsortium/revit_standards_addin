@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace RevitDataValidator
 {
@@ -67,10 +68,22 @@ namespace RevitDataValidator
             DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
         }
 
+        public void SaveTextBoxValues()
+        {
+            foreach (System.Windows.Controls.TextBox textBox in FindVisualChildren<System.Windows.Controls.TextBox>(this))
+            {
+                SaveTextBoxValue(textBox);
+            }
+        }
+
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var control = sender as System.Windows.Controls.TextBox;
-            if (control.Tag is List<Parameter> parameters)
+            SaveTextBoxValue(sender as System.Windows.Controls.TextBox);
+        }
+
+        private void SaveTextBoxValue(System.Windows.Controls.TextBox textBox)
+        {
+            if (textBox.Tag is List<Parameter> parameters)
             {
                 var parameter = parameters.First();
                 if (parameter.StorageType == StorageType.Double)
@@ -78,13 +91,13 @@ namespace RevitDataValidator
                     var units = Utils.doc.GetUnits();
                     var specTypeId = parameter.Definition.GetDataType();
 
-                    if (UnitFormatUtils.TryParse(units, specTypeId, control.Text, out double d))
+                    if (UnitFormatUtils.TryParse(units, specTypeId, textBox.Text, out double d))
                     {
                         var parsed = UnitFormatUtils.Format(units, parameter.Definition.GetDataType(), d, true);
-                        control.Text = parsed;
+                        textBox.Text = parsed;
                     }
                 }
-                var item = new ParameterObject(parameters, control.Text);
+                var item = new ParameterObject(parameters, textBox.Text);
                 Utils.eventHandlerWithParameterObject.Raise(item);
             }
         }
@@ -131,6 +144,7 @@ namespace RevitDataValidator
             }
         }
 
+
         private void TextBox_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
             System.Windows.Controls.TextBox tb = (System.Windows.Controls.TextBox)sender;
@@ -149,6 +163,18 @@ namespace RevitDataValidator
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
+        }
+
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null) yield return (T)Enumerable.Empty<T>();
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject ithChild = VisualTreeHelper.GetChild(depObj, i);
+                if (ithChild == null) continue;
+                if (ithChild is T t) yield return t;
+                foreach (T childOfChild in FindVisualChildren<T>(ithChild)) yield return childOfChild;
+            }
         }
     }
 }
