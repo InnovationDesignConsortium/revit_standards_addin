@@ -28,6 +28,7 @@ namespace RevitDataValidator
             Utils.allRules = new List<Rule>();
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
+            Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             GetParameterPacks();

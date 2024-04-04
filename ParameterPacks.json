@@ -76,11 +76,15 @@
             "PDF":  "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
-            "Name": "Room Occ",
+            "Name": "Room Tools 1",
             "Category": "Rooms",
             "Parameters":
             [    
                 "Occupancy", "Name", "Number"
+            ],
+            "Custom Tools":
+            [
+                "Place Furniture Instance In Room"
             ]
         }
     ],
@@ -148,11 +152,11 @@
             ]
         },
         {
-            "Name": "Room Tools 1",
+            "Name": "Room Stuff",
             "Category": "Rooms",
             "Parameter Packs":
             [
-                "Room Occ"
+                "Room Tools 1"
             ]
         }
     ] 

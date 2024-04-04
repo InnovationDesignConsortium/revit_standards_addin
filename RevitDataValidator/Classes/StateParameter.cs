@@ -23,4 +23,9 @@ namespace RevitDataValidator
         public List<StringInt> Choices { get; set; }
         public StringInt SelectedChoice { get; set; }
     }
+
+    public class PushButtonParameter : StateParameter<object>
+    {
+
+    }
 }

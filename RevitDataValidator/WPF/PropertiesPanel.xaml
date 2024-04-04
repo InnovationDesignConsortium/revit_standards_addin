@@ -82,6 +82,12 @@
                                         SelectedItem="{Binding SelectedChoice}"
                                         ItemsSource="{Binding Choices}" />
                                     </DataTemplate>
+                                    <DataTemplate DataType="{x:Type local:PushButtonParameter}">
+                                        <Button
+                                            Content="{Binding Name}"
+                                            PreviewMouseLeftButtonUp="Button_PreviewMouseLeftButtonUp"
+                                         />
+                                    </DataTemplate>
                                 </DataGrid.Resources>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn

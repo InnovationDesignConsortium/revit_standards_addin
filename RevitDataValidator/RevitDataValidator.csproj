@@ -61,6 +61,7 @@
     <Compile Include="Classes\StringInt.cs" />
     <Compile Include="Classes\ParameterObject.cs" />
     <Compile Include="DataValidationUpdater.cs" />
+    <Compile Include="EventHandlerCreateInstancesInRoom.cs" />
     <Compile Include="EventHandlerWithParameterObject.cs" />
     <Compile Include="Forms\FormEnterValue.cs">
       <SubType>Form</SubType>
@@ -78,6 +79,12 @@
     <Compile Include="Classes\RevitEventWrapper.cs" />
     <Compile Include="Classes\IStateParameter.cs" />
     <Compile Include="Classes\PackData.cs" />
+    <Compile Include="Forms\FormSelectElements.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormSelectElements.Designer.cs">
+      <DependentUpon>FormSelectElements.cs</DependentUpon>
+    </Compile>
     <Compile Include="WPF\PropertiesPanel.xaml.cs">
       <DependentUpon>PropertiesPanel.xaml</DependentUpon>
     </Compile>
@@ -121,6 +128,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormSelectFromList.resx">
       <DependentUpon>FormSelectFromList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormSelectElements.resx">
+      <DependentUpon>FormSelectElements.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

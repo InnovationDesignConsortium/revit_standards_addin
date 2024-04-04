@@ -220,6 +220,19 @@ namespace RevitDataValidator
                     }
                 }
 
+                if (parameterPack.CustomTools != null)
+                {
+                    foreach (var customToolName in parameterPack.CustomTools)
+                    {
+                        packParameters.Add(
+                        new PushButtonParameter
+                        {
+                            Name = customToolName,
+                        }
+                        );
+                    }
+                }
+
                 PackData.Add(new PackData
                 {
                     PackName = parameterPack.Name,

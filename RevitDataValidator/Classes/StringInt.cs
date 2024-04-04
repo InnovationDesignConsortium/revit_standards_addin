@@ -1,5 +1,4 @@
-﻿using Autodesk.Revit.DB;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace RevitDataValidator
 {

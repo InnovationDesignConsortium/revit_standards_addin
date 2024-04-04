@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -174,6 +175,38 @@ namespace RevitDataValidator
                 if (ithChild == null) continue;
                 if (ithChild is T t) yield return t;
                 foreach (T childOfChild in FindVisualChildren<T>(ithChild)) yield return childOfChild;
+            }
+        }
+
+        private void Button_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                if (button.Content.ToString() == "Place Furniture Instance In Room")
+                {
+                    List<StringInt> elements = new FilteredElementCollector(Utils.doc)
+                        .OfClass(typeof(FamilySymbol))
+                        .WherePasses(new ElementMulticategoryFilter(
+                            new List<BuiltInCategory> { 
+                                BuiltInCategory.OST_Furniture,
+                                BuiltInCategory.OST_SpecialityEquipment
+                            }))
+                        .Cast<FamilySymbol>()
+                        .OrderBy(q => q.Category.Name)
+                        .ThenBy(q => q.FamilyName)
+                        .ThenBy(q => q.Name)
+                        .Select(q => new StringInt(q.Family.FamilyCategory.Name + "-" + q.FamilyName + "-" + q.Name, q.Id.IntegerValue)).ToList();
+
+                    using (FormSelectElements form = new FormSelectElements(elements))
+                    {
+                        if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        {
+                            var ids = form.getIds();
+                            Utils.eventHandlerCreateInstancesInRoom.Raise(ids);
+                        }
+                    }
+                }
+
             }
         }
     }
