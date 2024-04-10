@@ -173,12 +173,34 @@ namespace RevitDataValidator
                                     }
                                 }
                             }
-                            //else if (rule.RuleType == RuleType.FromHostType ||
-                            //    rule.RuleType == RuleType.FromHostInstance ||
-                            //    rule.RuleType == RuleType.Calculated)
-                            //{
-                            //    ParseAndSetParameter(rule, element);
-                            //}
+                            else if (rule.FromHostInstance != null)
+                            {
+                                if (element is FamilyInstance fi)
+                                {
+                                    var host = fi.Host;
+                                    if (host != null)
+                                    {
+                                        var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                        if ((value ?? string.Empty) != (paramString ?? string.Empty))
+                                        {
+                                            SetParam(parameter, value);
+                                            TaskDialog.Show("Rule", $"{rule.UserMessage}");
+                                        }
+                                    }
+                                }
+                                else if (element is HostObject host)
+                                {
+                                    var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                    var inserts = new FilteredElementCollector(doc)
+                                        .OfClass(typeof(FamilyInstance))
+                                        .Cast<FamilyInstance>()
+                                        .Where(q => q.Host != null && q.Host.Id == host.Id);
+                                    foreach (var insert in inserts)
+                                    {
+                                        SetParam(insert.LookupParameter(rule.FromHostInstance), value);
+                                    }
+                                }
+                            }
                             else
                             {
                                 Utils.errors.Add($"Not Implmented");

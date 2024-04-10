@@ -40,6 +40,9 @@ namespace RevitDataValidator
 
         [JsonProperty("User Message")]
         public string UserMessage { get; set; }
+
+        [JsonProperty("From Host Instance")]
+        public string FromHostInstance { get; set; }
     }
 
     public partial class ListOption

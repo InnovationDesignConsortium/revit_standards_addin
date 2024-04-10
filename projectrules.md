@@ -5,6 +5,15 @@
   "Rules": 
   [
     {
+      "Rule Name": "Insert Orientation = Host Insert",
+      "Categories": [
+        "Doors", "Windows"
+      ],
+      "Parameter Name": "Orientation",
+      "From Host Instance": "Orientation",
+      "User Message": "The Orientation of an insert must equal the Orientation of its host"
+    },
+    {
       "Rule Name": "Comments a b c",
       "Categories": [
         "Walls"

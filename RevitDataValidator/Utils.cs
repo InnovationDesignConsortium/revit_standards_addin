@@ -47,20 +47,18 @@ namespace RevitDataValidator
             else
             {
                 var builtInCats = rule.Categories.Select(q => catMap[q]).ToList();
-                //if (rule.RuleType == RuleType.FromHostInstance ||
-                //    rule.RuleType == RuleType.FromHostType ||
-                //    rule.RuleType == RuleType.Calculated)
-                //{
-                //    var hostCats = new List<BuiltInCategory>();
-                //    foreach (var bic in builtInCats)
-                //    {
-                //        if (CatToHostCatMap.ContainsKey(bic))
-                //        {
-                //            hostCats.AddRange(CatToHostCatMap[bic]);
-                //        }
-                //    }
-                //    builtInCats.AddRange(hostCats);
-                //}
+                if (rule.FromHostInstance != null)
+                {
+                    var hostCats = new List<BuiltInCategory>();
+                    foreach (var bic in builtInCats)
+                    {
+                        if (CatToHostCatMap.ContainsKey(bic))
+                        {
+                            hostCats.AddRange(CatToHostCatMap[bic]);
+                        }
+                    }
+                    builtInCats.AddRange(hostCats);
+                }
                 return builtInCats;
             }
         }
