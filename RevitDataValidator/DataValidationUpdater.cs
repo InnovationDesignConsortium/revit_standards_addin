@@ -1,10 +1,12 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Flee.PublicTypes;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
@@ -31,7 +33,6 @@ namespace RevitDataValidator
                 List<ElementId> ids = new List<ElementId>();
                 ids.AddRange(data.GetModifiedElementIds());
 
-
                 foreach (var rule in Utils.allRules)
                 {
                     if (rule.RevitFileNames != null &&
@@ -39,6 +40,23 @@ namespace RevitDataValidator
                         rule.RevitFileNames.Contains(doc.PathName))
                     {
                         continue;
+                    }
+
+                    if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
+                    {
+                        Type type = Utils.dictCustomCode[rule.CustomCode];
+                        object obj = Activator.CreateInstance(type);
+                        object x = type.InvokeMember("Run",
+                                            BindingFlags.Default | BindingFlags.InvokeMethod,
+                                            null,
+                                            obj,
+                                            new object[] { Utils.doc });
+                        if (x is List<ElementId> failureIds)
+                        {
+                            FailureMessage failureMessage = new FailureMessage(rule.FailureId);
+                            failureMessage.SetFailingElements(failureIds);
+                            doc.PostFailure(failureMessage);
+                        }
                     }
 
                     //if (rule.RuleType == RuleType.FromHostInstance)
@@ -80,6 +98,7 @@ namespace RevitDataValidator
                         var element = doc.GetElement(id);
 
                         if (element.Category != null &&
+                            rule.Categories != null && 
                             ((rule.Categories.Count() == 1 && rule.Categories.First() == Utils.ALL) ||
                             Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                         {
@@ -110,18 +129,27 @@ namespace RevitDataValidator
                             }
                             else if (rule.Requirement != null)
                             {
-                                var expressionString = BuildExpressionString(element, rule.Requirement);
-                                if (expressionString.StartsWith("IF"))
+                                if (rule.Requirement.StartsWith("IF "))
                                 {
-                                    var thenIdx = expressionString.IndexOf("THEN");
+                                    var thenIdx = rule.Requirement.IndexOf("THEN ");
 
-                                    var ifClause = rule.Requirement.Substring(0, thenIdx - 1);
-                                    var thenClause = rule.Requirement.Substring(thenIdx + 5);
+                                    var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
+                                    var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
+
                                     var ifExp = BuildExpressionString(element, ifClause);
-                                    var thenExp = BuildExpressionString(element, thenClause);
+                                    var result = CSharpScript.EvaluateAsync<bool>(ifExp,
+                                         Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+                                         .WithImports("System")
+                                         ).Result;
+
+                                    if (result)
+                                    {
+                                        var thenExp = BuildExpressionString(element, thenClause);
+                                    }
                                 }
                                 else
                                 {
+                                    var expressionString = BuildExpressionString(element, rule.Requirement);
                                     var exp = paramString + expressionString;
                                     var context = new ExpressionContext();
                                     var e = context.CompileGeneric<bool>(exp);
@@ -336,8 +364,19 @@ namespace RevitDataValidator
                 var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
                 if (parameter != null)
                 {
-                    double paramValue = GetParamAsDouble(parameter);
-                    s += paramValue;
+                    if (parameter.StorageType == StorageType.Integer || parameter.StorageType == StorageType.Double)
+                    {
+                        double paramValue = GetParamAsDouble(parameter);
+                        s += paramValue;
+                    }
+                    else if (parameter.StorageType == StorageType.String)
+                    {
+                        s += "\"" + parameter.AsString() + "\"";
+                    }
+                    else if (parameter.StorageType == StorageType.ElementId)
+                    {
+                        s += "\"" + parameter.AsValueString() + "\"";
+                    }
                 }
 
                 if (i == matches.Count - 1)
@@ -349,7 +388,7 @@ namespace RevitDataValidator
                     s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
                 }
             }
-            return s;
+            return s + ";";
         }
 
 

@@ -22,7 +22,7 @@ namespace RevitDataValidator
         public PropertyViewModel(string name)
         {
             var element = Utils.doc.GetElement(Utils.selectedIds.First());
-            if (element.Category == null)
+            if (element == null || element.Category == null)
                 return;
 
             var catName = element.Category.Name;
@@ -71,7 +71,8 @@ namespace RevitDataValidator
                     bool foundRule = false;
                     foreach (var rule in Utils.allRules)
                     {
-                        if (rule.Categories.Contains(parameterPack.Category) &&
+                        if (rule.Categories != null && 
+                            rule.Categories.Contains(parameterPack.Category) &&
                             rule.ListOptions != null &&
                             rule.ParameterName == pname)
                         {

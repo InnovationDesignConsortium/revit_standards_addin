@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Classes\StringInt.cs" />
     <Compile Include="Classes\ParameterObject.cs" />
+    <Compile Include="Classes\ValidationService.cs" />
     <Compile Include="DataValidationUpdater.cs" />
     <Compile Include="EventHandlerCreateInstancesInRoom.cs" />
     <Compile Include="EventHandlerWithParameterObject.cs" />
@@ -118,6 +119,12 @@
     <PackageReference Include="MathParser.org-mXparser">
       <Version>5.2.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
+      <Version>4.9.2</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting">
+      <Version>4.9.2</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>
@@ -150,6 +157,6 @@ copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Co
 copy /Y $(SolutionDir)ProjectRules.md C:\ProgramData\Autodesk\Revit\Addins
 copy /Y $(SolutionDir)ParameterPacks.json C:\ProgramData\Autodesk\Revit\Addins
 
-REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
+"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

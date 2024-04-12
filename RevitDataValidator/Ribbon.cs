@@ -4,12 +4,14 @@ using Autodesk.Revit.UI.Events;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
+using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace RevitDataValidator
 {
@@ -18,11 +20,14 @@ namespace RevitDataValidator
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
         private readonly string RULE_FILE_NAME = "ProjectRules.md";
         private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
+        private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed.";
+        private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
 
         public Result OnStartup(UIControlledApplication application)
         {
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
+            Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = application.ControlledApplication;
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
@@ -57,6 +62,9 @@ namespace RevitDataValidator
             DataValidationUpdater dataValidationUpdater = new DataValidationUpdater(application.ActiveAddInId);
             DataValidationUpdaterId = dataValidationUpdater.GetUpdaterId();
             UpdaterRegistry.RegisterUpdater(dataValidationUpdater, true);
+
+            genericFailureId = new FailureDefinitionId(new Guid());
+            RegisterRules(null);
 
             if (Utils.errors.Any())
             {
@@ -101,7 +109,7 @@ namespace RevitDataValidator
                 PackSet packSet = null;
                 if (Utils.dictCategoryPackSet.ContainsKey(catName))
                     packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
-                
+
                 if (packSet == null)
                     packSet = validPacks.First();
 
@@ -138,21 +146,42 @@ namespace RevitDataValidator
 
         private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
+            Utils.doc = e.Document;
             RegisterRules(e.Document.PathName);
         }
 
         public void RegisterRules(string filename)
         {
-            UpdaterRegistry.RemoveAllTriggers(DataValidationUpdaterId);
-            Utils.allRules.Clear();
+            if (filename != null)
+            {
+                try
+                {
+                    UpdaterRegistry.RemoveDocumentTriggers(DataValidationUpdaterId, Utils.doc);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
 
             var rules = GetRules();
-            foreach (var rule in rules.Where(q =>
-                q.RevitFileNames == null ||
-                q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(filename))))
+            if (filename == null)
             {
-                RegisterRule(rule);
-                Utils.allRules.Add(rule);
+                foreach (var rule in rules.Where(q =>
+                    q.RevitFileNames == null))
+                {
+                    RegisterRule(rule);
+                    Utils.allRules.Add(rule);
+                }
+            }
+            else
+            {
+                foreach (var rule in rules.Where(q =>
+                    q.RevitFileNames != null &&
+                    q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(filename))))
+                {
+                    RegisterRule(rule);
+                    Utils.allRules.Add(rule);
+                }
             }
         }
 
@@ -161,38 +190,99 @@ namespace RevitDataValidator
             Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Registering rule " + rule.ToString(), true);
             try
             {
-                UpdaterRegistry.AddTrigger(
-                    DataValidationUpdaterId,
-                    new ElementMulticategoryFilter(Utils.GetBuiltInCats(rule)),
-                    Element.GetChangeTypeAny());
+                if (rule.CustomCode != null)
+                {
+                    var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var filename = Path.Combine(assemblyFolder, rule.CustomCode + ".txt");
+                    if (File.Exists(filename))
+                    {
+                        using (var sr = new StreamReader(filename))
+                        {
+                            var code = sr.ReadToEnd();
+                            var service = new ValidationService();
+                            var result = service.Execute(code, out MemoryStream ms);
+                            if (result == null)
+                            {
+                                ms.Seek(0, SeekOrigin.Begin);
+                                Assembly assembly = Assembly.Load(ms.ToArray());
+                                var type = assembly.GetType(rule.CustomCode);
+                                Utils.dictCustomCode[rule.CustomCode] = type;
+                            }
+                            else
+                            {
+                                foreach (var error in result)
+                                {
+                                    Utils.LogError($"{rule.CustomCode} compilation error: {error.GetMessage()}");
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if (rule.Categories != null)
+                {
+                    var builtInCats = Utils.GetBuiltInCats(rule);
+                    UpdaterRegistry.AddTrigger(
+                        DataValidationUpdaterId,
+                        new ElementMulticategoryFilter(builtInCats),
+                        Element.GetChangeTypeAny());
+                }
+                else if (rule.ElementClasses != null)
+                {
+                    var types = new List<Type>();
+                    foreach (string className in rule.ElementClasses)
+                    {
+                        var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.ToLower().Contains("revitapi.dll"));
+                        var type = asm.GetType(className);
+                        if (type != null)
+                            types.Add(type);
+                    }
+                    if (types.Count > 0)
+                    {
+                        UpdaterRegistry.AddTrigger(
+                            DataValidationUpdaterId,
+                            new ElementMulticlassFilter(types),
+                            Element.GetChangeTypeAny());
+                        UpdaterRegistry.AddTrigger(
+                            DataValidationUpdaterId,
+                            new ElementMulticlassFilter(types),
+                            Element.GetChangeTypeElementAddition());
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Utils.LogError($"Cannot add trigger for rule: {rule} because of exception {ex.Message}");
             }
 
-            //if (rule.RevitFileNames == null)
-            //{
-            //    failureId = new FailureDefinitionId(Guid.NewGuid());
-            //    var message = "";
-            //    if (string.IsNullOrEmpty(message))
-            //    {
-            //        message = RULE_DEFAULT_MESSAGE;
-            //    }
-            //    FailureDefinition.CreateFailureDefinition(
-            //        failureId,
-            //        FailureSeverity.Error,
-            //        message);
-
-            //    rule.FailureId = failureId;
-            //}
-            //else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
-            //{
-            //    rule.FailureId = genericFailureId;
-            //}
+            if (Utils.doc == null)
+            {
+                var failureId = new FailureDefinitionId(Guid.NewGuid());
+                var message = rule.UserMessage;
+                if (string.IsNullOrEmpty(message))
+                {
+                    message = RULE_DEFAULT_MESSAGE;
+                }
+                try
+                {
+                    FailureDefinition.CreateFailureDefinition(
+                        failureId,
+                        FailureSeverity.Error,
+                        message);
+                }
+                catch (Exception ex)
+                {
+                }
+                rule.FailureId = failureId;
+            }
+            else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
+            {
+                rule.FailureId = genericFailureId;
+            }
             Utils.app.WriteJournalComment(Utils.PRODUCT_NAME + " Completed registering rule " + rule.ToString(), true);
         }
 
+     
         private void GetParameterPacks()
         {
             var file = Path.Combine(ADDINS_FOLDER, PARAMETER_PACK_FILE_NAME);
@@ -223,7 +313,6 @@ namespace RevitDataValidator
                     }
                     catch (Exception ex)
                     {
-
                     }
                     foreach (var rule in rules.Rules)
                     {

@@ -43,6 +43,12 @@ namespace RevitDataValidator
 
         [JsonProperty("From Host Instance")]
         public string FromHostInstance { get; set; }
+
+        [JsonProperty("Element Classes")]
+        public List<string> ElementClasses { get; set; }
+
+        [JsonProperty("Custom Code")]
+        public string CustomCode { get; set; }
     }
 
     public partial class ListOption

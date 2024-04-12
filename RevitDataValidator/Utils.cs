@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace RevitDataValidator
     public static class Utils
     {
         public static ControlledApplication app;
-        public static string PRODUCT_NAME = "RevitValidator";
+        public static string PRODUCT_NAME = "RevitDataValidator";
         public static readonly string ALL = "<all>";
         public static readonly char LIST_SEP = ',';
         public static List<Rule> allRules;
@@ -22,6 +23,7 @@ namespace RevitDataValidator
         public static EventHandlerWithParameterObject eventHandlerWithParameterObject;
         public static EventHandlerCreateInstancesInRoom eventHandlerCreateInstancesInRoom;
         public static Dictionary<string, string> dictCategoryPackSet;
+        public static Dictionary<string, Type> dictCustomCode;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
