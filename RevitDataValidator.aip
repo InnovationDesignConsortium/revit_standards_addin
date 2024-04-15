@@ -64,7 +64,6 @@
     <ROW Component="Microsoft.CodeAnalysis.dll_1" ComponentId="{4B49674A-B0EF-41F5-BD9A-96885DF0E77C}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll_1"/>
     <ROW Component="ParameterPacks.json" ComponentId="{AF7F01FC-18D2-4BF8-8246-6BA09AEE3D18}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="ParameterPacks.json_1" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{33AF353B-E245-44C8-934C-10AD69395E2A}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="ProjectRules.md" ComponentId="{38729931-C13E-4948-81FC-152193F9F25E}" Directory_="Addins_Dir" Attributes="0" KeyPath="ProjectRules.md" Type="0"/>
     <ROW Component="ProjectRules.md_1" ComponentId="{206B7734-9D08-425E-BBF0-420EE7ECDAC5}" Directory_="Rules_Dir" Attributes="0" KeyPath="ProjectRules.md_1" Type="0"/>
     <ROW Component="RevitDataValidator.dll" ComponentId="{AD93D057-42CD-4788-B947-7F1E33FDF84A}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitDataValidator.dll"/>
     <ROW Component="RevitDataValidator.dll_2" ComponentId="{392711B2-10F2-4251-A0F6-BC154463C2A6}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_2"/>
@@ -85,8 +84,6 @@
     <ROW File="MathParser.orgmXparser.dll_1" Component_="MathParser.orgmXparser.dll_1" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\MathParser.org-mXparser.dll" SelfReg="false"/>
     <ROW File="MathParser.orgmXparser.dll_2" Component_="MathParser.orgmXparser.dll_2" FileName="MATHPA~1.DLL|MathParser.org-mXparser.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\MathParser.org-mXparser.dll" SelfReg="false"/>
     <ROW File="Markdig.dll" Component_="Markdig.dll" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Markdig.dll" SelfReg="false"/>
-    <ROW File="ProjectRules.md" Component_="ProjectRules.md" FileName="PROJEC~1.MD|ProjectRules.md" Attributes="0" SourcePath="ProjectRules.md" SelfReg="false"/>
-    <ROW File="ParameterPacks.json" Component_="ProjectRules.md" FileName="PARAME~1.JSO|ParameterPacks.json" Attributes="0" SourcePath="ParameterPacks.json" SelfReg="false"/>
     <ROW File="Flee.dll" Component_="Flee.dll" FileName="Flee.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Flee.dll" SelfReg="false"/>
     <ROW File="Markdig.dll_2" Component_="Markdig.dll_2" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Markdig.dll" SelfReg="false"/>
     <ROW File="RevitDataValidator.pdb" Component_="RevitDataValidator.dll" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2023\RevitDataValidator.pdb" SelfReg="false"/>
@@ -195,7 +192,6 @@
     <ROW Feature_="MainFeature" Component_="MathParser.orgmXparser.dll_2"/>
     <ROW Feature_="MainFeature" Component_="Markdig.dll"/>
     <ROW Feature_="MainFeature" Component_="Flee.dll_1"/>
-    <ROW Feature_="MainFeature" Component_="ProjectRules.md"/>
     <ROW Feature_="MainFeature" Component_="Flee.dll"/>
     <ROW Feature_="MainFeature" Component_="Markdig.dll_2"/>
     <ROW Feature_="MainFeature" Component_="ParameterPacks.json"/>
