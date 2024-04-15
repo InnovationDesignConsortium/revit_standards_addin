@@ -53,6 +53,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
+                Utils.LogException("ValidationService", ex);
                 ms = null;
                 return null;
             }

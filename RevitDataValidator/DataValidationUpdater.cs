@@ -239,12 +239,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                TaskDialog td = new TaskDialog("Error")
-                {
-                    MainInstruction = ex.Message,
-                    MainContent = ex.StackTrace
-                };
-                td.Show();
+                Utils.LogException("DataValidationUpdater", ex);
             }
         }
 

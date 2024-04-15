@@ -29,7 +29,7 @@ namespace RevitDataValidator
                                 {
                                     instance = Utils.doc.Create.NewFamilyInstance(pt, familySymbol, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                                 }
-                                catch (Exception ex)
+                                catch
                                 {
                                 }
                                 if (instance == null)
@@ -38,7 +38,7 @@ namespace RevitDataValidator
                                     {
                                         instance = Utils.doc.Create.NewFamilyInstance(pt, familySymbol, room.Level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                                     }
-                                    catch (Exception ex)
+                                    catch
                                     {
                                     }
                                 }

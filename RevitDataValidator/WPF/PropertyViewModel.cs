@@ -202,6 +202,7 @@ namespace RevitDataValidator
                                     }
                                     catch (Exception ex)
                                     {
+                                        Utils.LogException("Buidling ElementId choices", ex);
                                     }
                                 }
                             }

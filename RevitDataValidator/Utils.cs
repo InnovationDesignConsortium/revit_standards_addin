@@ -34,6 +34,16 @@ namespace RevitDataValidator
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
 
+        public static void LogException(string s, Exception ex)
+        {
+            LogError($"Exception in {s}: {ex.Message}");
+            LogError(ex.StackTrace);
+        }
+        public static void Log(string message)
+        {
+            Utils.app.WriteJournalComment(PRODUCT_NAME + " " + message, true);
+        }
+
         public static void LogError(string error)
         {
             Utils.errors.Add(error);

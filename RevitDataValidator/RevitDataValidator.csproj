@@ -94,7 +94,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Ribbon.cs" />
+    <Compile Include="RevitDataValidatorRibbon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\Rule.cs" />
     <Compile Include="Classes\RuleType.cs" />
@@ -154,9 +154,7 @@ mkdir "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(ProjectDir)$(TargetName).addin "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\"
 copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
-copy /Y $(SolutionDir)ProjectRules.md C:\ProgramData\Autodesk\Revit\Addins
-copy /Y $(SolutionDir)ParameterPacks.json C:\ProgramData\Autodesk\Revit\Addins
 
-"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
+REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

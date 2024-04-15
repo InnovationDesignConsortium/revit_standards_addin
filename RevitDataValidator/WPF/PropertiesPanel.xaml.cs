@@ -42,6 +42,9 @@ namespace RevitDataValidator
 
         private void cbo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (cbo.SelectedItem == null)
+                return;
+
             DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
 
             var element = Utils.doc.GetElement(Utils.selectedIds.First());
