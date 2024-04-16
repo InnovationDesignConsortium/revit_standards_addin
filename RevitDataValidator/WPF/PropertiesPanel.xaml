@@ -7,7 +7,11 @@
              mc:Ignorable="d"
              Background="LightGray"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <ScrollViewer 
+        VerticalScrollBarVisibility="Auto" 
+        HorizontalScrollBarVisibility="Disabled"
+        PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
+        >
         <Grid
         x:Name="OverallGrid"
         Margin="0,0,0,0">
@@ -27,9 +31,9 @@
             IsEditable="False"
             SelectionChanged="cbo_SelectionChanged" />
             <ItemsControl
-            Grid.Row="1"
-            HorizontalContentAlignment="Stretch"
-            ItemsSource="{Binding PackData}">
+                Grid.Row="1"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding PackData}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
 
