@@ -86,6 +86,7 @@
     <Compile Include="Forms\FormSelectElements.Designer.cs">
       <DependentUpon>FormSelectElements.cs</DependentUpon>
     </Compile>
+    <Compile Include="ShowPaneCommand.cs" />
     <Compile Include="WPF\PropertiesPanel.xaml.cs">
       <DependentUpon>PropertiesPanel.xaml</DependentUpon>
     </Compile>

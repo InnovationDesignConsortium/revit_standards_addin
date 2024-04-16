@@ -21,7 +21,21 @@ namespace RevitDataValidator
 
         public PropertyViewModel(string name)
         {
-            var element = Utils.doc.GetElement(Utils.selectedIds.First());
+            if (name == null)
+            {
+                PackData = new ObservableCollection<PackData>();
+                return;
+            }
+            Element element = null;
+            if (Utils.selectedIds.Any())
+            {
+                element = Utils.doc.GetElement(Utils.selectedIds.First());
+            }
+            else
+            {
+                element = Utils.doc.ActiveView;
+            }
+
             if (element == null || element.Category == null)
                 return;
 
@@ -252,9 +266,18 @@ namespace RevitDataValidator
                 return null;
             }
 
-            return Utils.selectedIds.Select(w =>
-            Utils.doc.GetElement(w).Parameters.
-                Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q))).ToList();
+            if (Utils.selectedIds.Any())
+            {
+                return Utils.selectedIds.Select(w =>
+                Utils.doc.GetElement(w).Parameters.
+                    Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q))).ToList();
+            }
+            else
+            {
+                var parameter = Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q));
+                return new List<Parameter> { parameter };
+            }
         }
 
         private bool IsParameterValid(Parameter p)
@@ -288,13 +311,24 @@ namespace RevitDataValidator
             }
 
             var parameters = new List<Parameter>();
-            foreach (var id in Utils.selectedIds)
+            if (Utils.selectedIds.Any())
             {
-                var element = Utils.doc.GetElement(id);
-                var parameter = element.LookupParameter(parameterName);
-                if (parameter == null)
-                    continue;
-                parameters.Add(parameter);
+                foreach (var id in Utils.selectedIds)
+                {
+                    var element = Utils.doc.GetElement(id);
+                    var parameter = element.LookupParameter(parameterName);
+                    if (parameter == null)
+                        continue;
+                    parameters.Add(parameter);
+                }
+            }
+            else
+            {
+                var viewParam = Utils.doc.ActiveView.LookupParameter(parameterName);
+                if (viewParam != null)
+                {
+                    parameters.Add(viewParam);
+                }
             }
 
             var values = new List<string>();

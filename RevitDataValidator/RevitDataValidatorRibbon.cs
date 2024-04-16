@@ -33,6 +33,7 @@ namespace RevitDataValidator
             Utils.errors = new List<string>();
             Utils.allRules = new List<Rule>();
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            application.ViewActivated += Application_ViewActivated;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
@@ -46,7 +47,6 @@ namespace RevitDataValidator
             if (Utils.propertiesPanel != null)
             {
                 application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
-                application.ViewActivated += HideDockablePanelOnStartup;
                 application.SelectionChanged += Application_SelectionChanged;
             }
 
@@ -69,8 +69,9 @@ namespace RevitDataValidator
             var panelName = "Data Validator";
             var panel = application.GetRibbonPanels().FirstOrDefault(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
             var dll = typeof(Ribbon).Assembly.Location;
+            panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
             var cboRuleFile = panel.AddItem(new ComboBoxData("cboRuleFile")) as ComboBox;
-            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES) , "*" + RULE_FILE_EXT)
+            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
                 .OrderBy(q => q);
             if (ruleFiles.Any())
             {
@@ -98,84 +99,81 @@ namespace RevitDataValidator
             return Result.Succeeded;
         }
 
+        private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
+        {
+            Utils.doc = e.Document;
+        }
+
         private string selectedRuleFile;
+
         private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
         {
             selectedRuleFile = e.NewValue.Name;
             RegisterRules();
             Utils.propertiesPanel.Refresh(Utils.propertiesPanel.cbo.SelectedItem.ToString());
-
         }
 
-        private void Application_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SetupPane()
         {
-            var doc = e.GetDocument();
+            var doc = Utils.doc;
+            if (doc == null)
+                return;
+
             Utils.doc = doc;
             var app = doc.Application;
             var uiapp = new UIApplication(app);
             var pane = uiapp.GetDockablePane(Utils.paneId);
-            var selectedElements = e.GetSelectedElements().Select(q => doc.GetElement(q)).ToList();
-            if (selectedElements.Count() == 0)
+
+            Utils.propertiesPanel.SaveTextBoxValues();
+
+            Element element = null;
+            if (Utils.selectedIds.Any())
             {
-                Utils.propertiesPanel.SaveTextBoxValues();
-                pane.Hide();
-                return;
-            }
-
-            Utils.selectedIds = e.GetSelectedElements();
-            var element = doc.GetElement(Utils.selectedIds.First());
-            if (element.Category != null)
-            {
-                var catName = element.Category.Name;
-                var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
-                if (validPacks.Count() == 0)
-                {
-                    pane.Hide();
-                    return;
-                }
-
-                PackSet packSet = null;
-                if (Utils.dictCategoryPackSet.ContainsKey(catName))
-                    packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
-
-                if (packSet == null)
-                    packSet = validPacks.First();
-
-                if (packSet != null)
-                {
-                    var packSetName = packSet.Name;
-                    Utils.propertiesPanel.cbo.SelectedItem = packSetName;
-                    Utils.propertiesPanel.Refresh(packSetName);
-                    pane.Show();
-                }
-                else
-                {
-                    pane.Hide();
-                }
+                element = doc.GetElement(Utils.selectedIds.First());
             }
             else
             {
-                pane.Hide();
+                element = doc.ActiveView;
+            }
+
+            if (element.Category == null)
+                return;
+
+            var catName = element.Category.Name;
+            var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
+            if (validPacks.Count() == 0)
+            {
+                Utils.propertiesPanel.Refresh(null);
+                return;
+            }
+
+            PackSet packSet = null;
+            if (Utils.dictCategoryPackSet.ContainsKey(catName))
+                packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
+
+            if (packSet == null)
+                packSet = validPacks.First();
+
+            if (packSet != null)
+            {
+                var packSetName = packSet.Name;
+                Utils.propertiesPanel.cbo.SelectedItem = packSetName;
+                Utils.propertiesPanel.Refresh(packSetName);
             }
         }
 
-        private void HideDockablePanelOnStartup(object sender, ViewActivatedEventArgs e)
+        private void Application_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var uiapp = sender as UIApplication;
-            try
-            {
-                var window = uiapp.GetDockablePane(Utils.paneId);
-                window.Hide();
-                uiapp.ViewActivated -= HideDockablePanelOnStartup;
-            }
-            catch
-            { }
+            Utils.selectedIds = e.GetSelectedElements().ToList();
+            SetupPane();
         }
 
         private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
+            Utils.selectedIds = new List<ElementId>();
             Utils.doc = e.Document;
             RegisterRules();
+            SetupPane();
         }
 
         public void RegisterRules()
@@ -247,7 +245,6 @@ namespace RevitDataValidator
                             }
                         }
                     }
-
                 }
                 if (rule.Categories != null)
                 {
@@ -312,7 +309,6 @@ namespace RevitDataValidator
             Utils.Log("Completed registering rule " + rule.ToString());
         }
 
-     
         private void GetParameterPacks()
         {
             var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);

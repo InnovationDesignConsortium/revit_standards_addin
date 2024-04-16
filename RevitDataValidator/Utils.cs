@@ -18,7 +18,7 @@ namespace RevitDataValidator
         public static PropertiesPanel propertiesPanel;
         public static DockablePaneId paneId;
         public static ParameterUIData parameterUIData;
-        public static ISet<ElementId> selectedIds;
+        public static List<ElementId> selectedIds;
         public static Document doc;
         public static EventHandlerWithParameterObject eventHandlerWithParameterObject;
         public static EventHandlerCreateInstancesInRoom eventHandlerCreateInstancesInRoom;

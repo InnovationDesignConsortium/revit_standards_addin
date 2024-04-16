@@ -2,6 +2,14 @@
     "Parameter Packs": 
     [
         {
+            "Name": "View Crop",
+            "Category": "Views",
+            "Parameters":
+            [
+                "Crop View", "Crop Region Visible", "Annotation Crop"
+            ]
+        },
+        {
             "Name": "Windows 1",
             "Category": "Windows",
             "Parameters":
@@ -91,6 +99,14 @@
     "Pack Sets":
     [
         {
+            "Name": "View Tools",
+            "Category": "Views",
+            "Show All Other Parameters": false,
+            "Parameter Packs":
+            [
+                    "View Crop"
+            ]
+        },        {
             "Name": "My Window Tools",
             "Category": "Windows",
             "Show All Other Parameters": true,

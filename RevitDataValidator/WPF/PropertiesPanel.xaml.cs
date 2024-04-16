@@ -21,22 +21,11 @@ namespace RevitDataValidator
 
         void IDockablePaneProvider.SetupDockablePane(DockablePaneProviderData data)
         {
-            data.FrameworkElement = this as FrameworkElement;
+            data.FrameworkElement = this;
             var state = new DockablePaneState
             {
-                DockPosition = DockPosition.Floating
+                DockPosition = DockPosition.Left
             };
-            var height = 800;
-            var top = 20;
-            var left = 0;
-            var width = 550;
-            state.SetFloatingRectangle(new Autodesk.Revit.DB.Rectangle
-            {
-                Top = top,
-                Bottom = top + height,
-                Left = left,
-                Right = left + width
-            });
             data.InitialState = state;
         }
 
