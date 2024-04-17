@@ -57,7 +57,7 @@ namespace RevitDataValidator
                 .Cast<Parameter>()
                 .Where(q => !allParameterNames.Contains(q.Definition.Name))
                 .Where(q => packSet.ShowAllOtherParametersExcluding == null || !packSet.ShowAllOtherParametersExcluding.Contains(q.Definition.Name))
-                .Where(q => q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID)
+                .Where(q => q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID && q.StorageType != StorageType.None)
                 .OrderBy(q => q.Definition.Name)
                 .Select(q => q.Definition.Name).ToList()
             };
