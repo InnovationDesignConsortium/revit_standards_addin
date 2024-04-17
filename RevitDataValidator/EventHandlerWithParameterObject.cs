@@ -18,6 +18,11 @@ namespace RevitDataValidator
                     t.Start();
                     foreach (var parameter in args.Parameters)
                     {
+                        if (parameter.IsReadOnly)
+                        {
+                            continue;
+                        }
+
                         if (parameter.StorageType == StorageType.String &&
                             args.Value is string s)
                         {

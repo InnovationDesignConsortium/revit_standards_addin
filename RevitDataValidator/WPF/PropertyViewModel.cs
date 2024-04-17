@@ -46,8 +46,11 @@ namespace RevitDataValidator
                 .Where(q => q.Category == catName).Select(q => q.Name));
 
             var packSet = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Name == name);
+            if (packSet.ParameterPacks == null)
+                packSet.ParameterPacks = new List<string>();
+
             var packNames = packSet.ParameterPacks;
-            var allPacks = Utils.parameterUIData.ParameterPacks.Where(q => packNames.Contains(q.Name));
+            var allPacks = Utils.parameterUIData.ParameterPacks.Where(q => packNames != null && packNames.Contains(q.Name));
             var allParameterNames = allPacks.SelectMany(q => q.Parameters).ToList();
 
             var packOthers = new ParameterPack
@@ -61,7 +64,7 @@ namespace RevitDataValidator
                 .OrderBy(q => q.Definition.Name)
                 .Select(q => q.Definition.Name).ToList()
             };
-            if (!packSet.ParameterPacks.Contains(OTHER) && 
+            if (!packSet.ParameterPacks.Contains(OTHER) &&
                 packSet.ShowAllOtherParameters)
             {
                 packNames.Add(packOthers.Name);
@@ -85,7 +88,7 @@ namespace RevitDataValidator
                     bool foundRule = false;
                     foreach (var rule in Utils.allRules)
                     {
-                        if (rule.Categories != null && 
+                        if (rule.Categories != null &&
                             rule.Categories.Contains(parameterPack.Category) &&
                             rule.ListOptions != null &&
                             rule.ParameterName == pname)
@@ -139,7 +142,7 @@ namespace RevitDataValidator
                                         choices.Add(new StringInt(AddSpacesToSentence(v.ToString(), true), (int)v));
                                     }
                                 }
-                                
+
                                 if (choices.Any())
                                 {
                                     var selected = choices.FirstOrDefault(q => q.Int == parameter.AsInteger());
@@ -157,44 +160,142 @@ namespace RevitDataValidator
                             {
                                 if (parameter.Definition is InternalDefinition id)
                                 {
-                                    var typeid = id.GetParameterTypeId();
-                                    List<StringInt> choices = new List<StringInt>();
-                                    if (typeid == ParameterTypeId.PhaseCreated ||
-                                        typeid == ParameterTypeId.PhaseDemolished)
+                                    ForgeTypeId typeid = null;
+                                    try
                                     {
-                                        choices = new FilteredElementCollector(Utils.doc)
-                                            .OfClass(typeof(Phase))
-                                            .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
-                                            .OrderBy(q => q.String).ToList();
-
-                                        if (typeid == ParameterTypeId.PhaseDemolished)
+                                        typeid = id.GetParameterTypeId();
+                                    }
+                                    catch
+                                    { }
+                                    List<StringInt> choices = new List<StringInt>();
+                                    if (typeid == null)
+                                    {
+                                        if (parameter.Definition.GetDataType() == SpecTypeId.Reference.Material)
                                         {
-                                            choices.Add(new StringInt("None", -1));
+                                            choices = GetChoices(typeof(Material));
+                                            choices.Add(new StringInt("<By Category>", -1));
+                                        }
+                                        else
+                                        {
+                                            var keySchedule = new FilteredElementCollector(Utils.doc)
+                                                .OfClass(typeof(ViewSchedule))
+                                                .Cast<ViewSchedule>()
+                                                .FirstOrDefault(q =>
+                                                    q.Definition.IsKeySchedule &&
+                                                    q.KeyScheduleParameterName == pname);
+                                            if (keySchedule != null)
+                                            {
+                                                var scheduleElements = new FilteredElementCollector(Utils.doc, keySchedule.Id)
+                                                    .ToElements()
+                                                    .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                                                    .OrderBy(q => q.String)
+                                                    .ToList();
+                                                choices = scheduleElements;
+                                                choices.Add(new StringInt("(none)", -1));
+                                            }
                                         }
                                     }
-                                    else if (typeid == ParameterTypeId.WallBaseConstraint ||
-                                        typeid == ParameterTypeId.WallHeightType ||
-                                        typeid == ParameterTypeId.RoofBaseLevelParam ||
-                                        typeid == ParameterTypeId.RoofUptoLevelParam ||
-                                        typeid == ParameterTypeId.FamilyBaseLevelParam ||
-                                        typeid == ParameterTypeId.FamilyTopLevelParam ||
-                                        typeid == ParameterTypeId.FamilyLevelParam ||
-                                        typeid == ParameterTypeId.StairsBaseLevelParam ||
-                                        typeid == ParameterTypeId.StairsTopLevelParam)
+                                    else
                                     {
-                                        choices = new FilteredElementCollector(Utils.doc)
-                                            .OfClass(typeof(Level))
-                                            .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
-                                            .OrderBy(q => q.String).ToList();
+                                        if (typeid == ParameterTypeId.PhaseCreated ||
+                                            typeid == ParameterTypeId.PhaseDemolished)
+                                        {
+                                            choices = GetChoices(typeof(Phase));
 
-                                        if (typeid == ParameterTypeId.StairsTopLevelParam ||
-                                            typeid == ParameterTypeId.RoofUptoLevelParam)
-                                        {
-                                            choices.Add(new StringInt("None", -1));
+                                            if (typeid == ParameterTypeId.PhaseDemolished)
+                                            {
+                                                choices.Add(new StringInt("None", -1));
+                                            }
                                         }
-                                        else if (typeid == ParameterTypeId.WallHeightType)
+                                        else if (
+                                            typeid == ParameterTypeId.AssociatedLevel ||
+                                            typeid == ParameterTypeId.CurveBottomLevel ||
+                                            typeid == ParameterTypeId.CurveLevel ||
+                                            typeid == ParameterTypeId.CurveTopLevel ||
+                                            typeid == ParameterTypeId.DpartBaseLevel ||
+                                            typeid == ParameterTypeId.FabricationLevelParam ||
+                                            typeid == ParameterTypeId.FaceroofLevelParam ||
+                                            typeid == ParameterTypeId.FamilyBaseLevelParam ||
+                                            typeid == ParameterTypeId.FamilyTopLevelParam ||
+                                            typeid == ParameterTypeId.FamilyLevelParam ||
+                                            typeid == ParameterTypeId.GroupLevel ||
+                                            typeid == ParameterTypeId.ImportBaseLevel ||
+                                            typeid == ParameterTypeId.InstanceReferenceLevelParam ||
+                                            typeid == ParameterTypeId.InstanceScheduleOnlyLevelParam ||
+                                            typeid == ParameterTypeId.LegendComponentDetailLevel ||
+                                            typeid == ParameterTypeId.LevelParam ||
+                                            typeid == ParameterTypeId.LevelUpToLevel ||
+                                            typeid == ParameterTypeId.MultistoryStairsRefLevel ||
+                                            typeid == ParameterTypeId.PlanViewLevel ||
+                                            typeid == ParameterTypeId.RbsEndLevelParam ||
+                                            typeid == ParameterTypeId.RbsStartLevelParam ||
+                                            typeid == ParameterTypeId.RoofBaseLevelParam ||
+                                            typeid == ParameterTypeId.RoofUptoLevelParam ||
+                                            typeid == ParameterTypeId.RoofConstraintLevelParam ||
+                                            typeid == ParameterTypeId.RoomLevelId ||
+                                            typeid == ParameterTypeId.RoomUpperLevel ||
+                                            typeid == ParameterTypeId.ScheduleBaseLevelParam ||
+                                            typeid == ParameterTypeId.ScheduleLevelParam ||
+                                            typeid == ParameterTypeId.ScheduleTopLevelParam ||
+                                            typeid == ParameterTypeId.SlopeArrowLevelEnd ||
+                                            typeid == ParameterTypeId.SlopeArrowLevelStart ||
+                                            typeid == ParameterTypeId.SpaceReferenceLevelParam ||
+                                            typeid == ParameterTypeId.StairsBaseLevelParam ||
+                                            typeid == ParameterTypeId.StairsMultistoryTopLevelParam ||
+                                            typeid == ParameterTypeId.StairsMultistoryUpToLevel ||
+                                            typeid == ParameterTypeId.StairsTopLevelParam ||
+                                            typeid == ParameterTypeId.StairsRailingBaseLevelParam ||
+                                            typeid == ParameterTypeId.StructuralAttachmentEndLevelReference ||
+                                            typeid == ParameterTypeId.StructuralAttachmentStartLevelReference ||
+                                            typeid == ParameterTypeId.TrussElementReferenceLevelParam ||
+                                            typeid == ParameterTypeId.ViewUnderlayBottomId ||
+                                            typeid == ParameterTypeId.ViewUnderlayTopId ||
+                                            typeid == ParameterTypeId.WallBaseConstraint ||
+                                            typeid == ParameterTypeId.WallHeightType
+                                            )
                                         {
-                                            choices.Add(new StringInt("Unconnected", -1));
+                                            choices = GetChoices(typeof(Level));
+
+                                            if (typeid == ParameterTypeId.StairsTopLevelParam ||
+                                                typeid == ParameterTypeId.RoofUptoLevelParam ||
+                                                typeid == ParameterTypeId.ViewUnderlayBottomId
+                                                )
+                                            {
+                                                choices.Add(new StringInt("None", -1));
+                                            }
+                                            else if (typeid == ParameterTypeId.WallHeightType)
+                                            {
+                                                choices.Add(new StringInt("Unconnected", -1));
+                                            }
+                                            else if (typeid == ParameterTypeId.ViewUnderlayTopId)
+                                            {
+                                                choices.Add(new StringInt("Unbounded", -1));
+                                            }
+                                        }
+                                        else if (typeid == ParameterTypeId.ViewPhaseFilter)
+                                        {
+                                            choices = GetChoices(typeof(PhaseFilter));
+                                        }
+                                        else if (typeid == ParameterTypeId.ViewTemplateForSchedule &&
+                                            element is View view)
+                                        {
+                                            choices = new FilteredElementCollector(Utils.doc)
+                                                .OfClass(typeof(View))
+                                                .Cast<View>()
+                                                .Where(q => q.IsTemplate && q.ViewType == view.ViewType)
+                                                .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                                                .OrderBy(q => q.String).ToList();
+                                            choices.Add(new StringInt("<None>", -1));
+                                        }
+                                        else if (typeid == ParameterTypeId.DesignOptionId)
+                                        {
+                                            choices = GetChoices(typeof(DesignOption));
+                                            choices.Add(new StringInt("Main Model", -1));
+                                        }
+                                        else if (typeid == ParameterTypeId.ViewerVolumeOfInterestCrop)
+                                        {
+                                            choices = GetChoices(BuiltInCategory.OST_VolumeOfInterest);
+                                            choices.Add(new StringInt("<None>", -1));
                                         }
                                     }
                                     if (choices.Any())
@@ -227,7 +328,7 @@ namespace RevitDataValidator
                                     }
                                 }
                             }
-                            else
+                            else if (parameter.GetTypeId() != ParameterTypeId.SymbolNameParam)
                             {
                                 packParameters.Add(
                                     new TextStateParameter
@@ -264,6 +365,22 @@ namespace RevitDataValidator
                     PdfPath = parameterPack.PDF
                 });
             }
+        }
+
+        private List<StringInt> GetChoices(Type t)
+        {
+            return new FilteredElementCollector(Utils.doc)
+                        .OfClass(t)
+                        .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                        .OrderBy(q => q.String).ToList();
+        }
+
+        private List<StringInt> GetChoices(BuiltInCategory bic)
+        {
+            return new FilteredElementCollector(Utils.doc)
+                        .OfCategory(bic)
+                        .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                        .OrderBy(q => q.String).ToList();
         }
 
         private List<Parameter> GetParameter(string parameterName)
@@ -369,7 +486,7 @@ namespace RevitDataValidator
             }
         }
 
-        string AddSpacesToSentence(string text, bool preserveAcronyms)
+        private string AddSpacesToSentence(string text, bool preserveAcronyms)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
