@@ -139,15 +139,19 @@ namespace RevitDataValidator
                                         choices.Add(new StringInt(AddSpacesToSentence(v.ToString(), true), (int)v));
                                     }
                                 }
-                                var selected = choices.FirstOrDefault(q => q.Int == parameter.AsInteger());
-                                packParameters.Add(new ChoiceStateParameter
+                                
+                                if (choices.Any())
                                 {
-                                    Parameters = parameters,
-                                    Name = pname,
-                                    IsEnabled = !parameters.First().IsReadOnly,
-                                    Choices = choices,
-                                    SelectedChoice = selected
-                                });
+                                    var selected = choices.FirstOrDefault(q => q.Int == parameter.AsInteger());
+                                    packParameters.Add(new ChoiceStateParameter
+                                    {
+                                        Parameters = parameters,
+                                        Name = pname,
+                                        IsEnabled = !parameters.First().IsReadOnly,
+                                        Choices = choices,
+                                        SelectedChoice = selected
+                                    });
+                                }
                             }
                             else if (parameter.StorageType == StorageType.ElementId)
                             {
@@ -193,30 +197,33 @@ namespace RevitDataValidator
                                             choices.Add(new StringInt("Unconnected", -1));
                                         }
                                     }
-                                    try
+                                    if (choices.Any())
                                     {
-                                        StringInt selected = null;
-                                        if (parameter.StorageType == StorageType.ElementId &&
-                                            value != string.Empty)
+                                        try
                                         {
-                                            selected = choices.FirstOrDefault(q => q.Int == parameter.AsElementId().IntegerValue);
+                                            StringInt selected = null;
+                                            if (parameter.StorageType == StorageType.ElementId &&
+                                                value != string.Empty)
+                                            {
+                                                selected = choices.FirstOrDefault(q => q.Int == parameter.AsElementId().IntegerValue);
+                                            }
+                                            else
+                                            {
+                                                selected = choices.FirstOrDefault(q => q.String == value);
+                                            }
+                                            packParameters.Add(new ChoiceStateParameter
+                                            {
+                                                Parameters = parameters,
+                                                IsEnabled = !parameters.First().IsReadOnly,
+                                                Name = pname,
+                                                Choices = choices,
+                                                SelectedChoice = selected
+                                            });
                                         }
-                                        else
+                                        catch (Exception ex)
                                         {
-                                            selected = choices.FirstOrDefault(q => q.String == value);
+                                            Utils.LogException("Buidling ElementId choices", ex);
                                         }
-                                        packParameters.Add(new ChoiceStateParameter
-                                        {
-                                            Parameters = parameters,
-                                            IsEnabled = !parameters.First().IsReadOnly,
-                                            Name = pname,
-                                            Choices = choices,
-                                            SelectedChoice = selected
-                                        });
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Utils.LogException("Buidling ElementId choices", ex);
                                     }
                                 }
                             }
