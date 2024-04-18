@@ -49,6 +49,8 @@ namespace RevitDataValidator
 
         [JsonProperty("Custom Code")]
         public string CustomCode { get; set; }
+
+        public string Formula { get; set; }
     }
 
     public partial class ListOption

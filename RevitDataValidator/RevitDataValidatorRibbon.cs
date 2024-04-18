@@ -340,9 +340,12 @@ namespace RevitDataValidator
                     {
                         Utils.LogException("JsonConvert.DeserializeObject", ex);
                     }
-                    foreach (var rule in rules.Rules)
+                    if (rules != null)
                     {
-                        ret.Add(rule);
+                        foreach (var rule in rules.Rules)
+                        {
+                            ret.Add(rule);
+                        }
                     }
                 }
 

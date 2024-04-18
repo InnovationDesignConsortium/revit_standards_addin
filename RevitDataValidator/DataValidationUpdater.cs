@@ -165,6 +165,14 @@ namespace RevitDataValidator
                                     }
                                 }
                             }
+                            else if (rule.Formula != null)
+                            {
+                                var exp = BuildExpressionString(element, rule.Formula) ;
+                                var context = new ExpressionContext();
+                                var e = context.CompileGeneric<double>(exp);
+                                var result = e.Evaluate();
+                                SetParam(parameter, result.ToString());
+                            }
                             else if (
                                 rule.Regex != null && 
                                 paramString != null)
@@ -383,7 +391,7 @@ namespace RevitDataValidator
                     s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
                 }
             }
-            return s + ";";
+            return s;
         }
 
 
@@ -407,6 +415,8 @@ namespace RevitDataValidator
             if (p != null)
                 return p;
             var elementType = e.Document.GetElement(e.GetTypeId());
+            if (elementType == null)
+                return null;
             p = elementType.LookupParameter(paramName);
             if (p != null)
                 return p;
@@ -465,8 +475,12 @@ namespace RevitDataValidator
             else if (p.StorageType == StorageType.Double &&
                 double.TryParse(s, out double d))
             {
-                if (!double.IsInfinity(d) &&
-                    !double.IsNaN(d))
+                if (double.IsInfinity(d) ||
+                    double.IsNaN(d))
+                {
+                    p.Set(0);
+                }
+                else
                 {
                     p.Set(d);
                 }

@@ -5,6 +5,11 @@
   "Rules": 
   [
     {
+      "Categories": ["Rooms"],
+      "Parameter Name": "Occupancy Load",
+      "Formula": "{Occupancy Count} * {Area}",
+    },
+    {
       "Element Classes": [
         "Autodesk.Revit.DB.FamilyInstance"
       ],
