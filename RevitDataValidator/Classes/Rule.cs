@@ -6,23 +6,31 @@ namespace RevitDataValidator
 {
     public partial class RuleData
     {
-        [JsonProperty("Rules")]
-        public List<Rule> Rules { get; set; }
+        [JsonProperty("Parameter Rules")]
+        public List<ParameterRule> ParameterRules { get; set; }
+
+        [JsonProperty("Workset Rules")]
+        public List<WorksetRule> WorksetRules { get; set; }
     }
 
-    public partial class Rule
+    public interface Rule
     {
-        public FailureDefinitionId FailureId { get; set; }
-        [JsonProperty("Rule Name")]
-        public string RuleName { get; set; }
-        [JsonProperty("When Run")]
-        public string WhenRun { get; set; }
+        List<string> RevitFileNames { get; set; }
+        List<string> Categories { get; set; }
+    }
 
+    public partial class ParameterRule : Rule
+    {
         [JsonProperty("Revit File Names")]
         public List<string> RevitFileNames { get; set; }
 
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }
+        public FailureDefinitionId FailureId { get; set; }
+        [JsonProperty("Rule Name")]
+        public string RuleName { get; set; }
+        [JsonProperty("When Run")]
+        public string WhenRun { get; set; }
 
         [JsonProperty("Parameter Name")]
         public string ParameterName { get; set; }
@@ -61,5 +69,22 @@ namespace RevitDataValidator
         [JsonProperty("description")]
         public string Description { get; set; }
 
+    }
+
+    public class ParameterData
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class WorksetRule : Rule
+    {
+        [JsonProperty("Revit File Names")]
+        public List<string> RevitFileNames { get; set; }
+
+        [JsonProperty("Categories")]
+        public List<string> Categories { get; set; }
+        public string Workset { get; set; }
+        public List<ParameterData> Parameters { get; set; }
     }
 }

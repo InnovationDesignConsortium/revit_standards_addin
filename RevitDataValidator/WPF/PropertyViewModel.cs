@@ -86,7 +86,7 @@ namespace RevitDataValidator
                 {
                     var parameters = GetParameter(pname);
                     bool foundRule = false;
-                    foreach (var rule in Utils.allRules)
+                    foreach (var rule in Utils.allParameterRules)
                     {
                         if (rule.Categories != null &&
                             rule.Categories.Contains(parameterPack.Category) &&

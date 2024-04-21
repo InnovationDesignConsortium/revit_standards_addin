@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,8 @@ namespace RevitDataValidator
             Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = application.ControlledApplication;
             Utils.errors = new List<string>();
-            Utils.allRules = new List<Rule>();
+            Utils.allParameterRules = new List<ParameterRule>();
+            Utils.allWorksetRules = new List<WorksetRule>();
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             application.ViewActivated += Application_ViewActivated;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
@@ -64,7 +66,7 @@ namespace RevitDataValidator
             DataValidationUpdaterId = dataValidationUpdater.GetUpdaterId();
             UpdaterRegistry.RegisterUpdater(dataValidationUpdater, true);
 
-            genericFailureId = new FailureDefinitionId(new Guid());
+            genericFailureId = new FailureDefinitionId(Guid.NewGuid());
 
             var panelName = "Data Validator";
             var panel = application.GetRibbonPanels().FirstOrDefault(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
@@ -109,6 +111,7 @@ namespace RevitDataValidator
         private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
         {
             selectedRuleFile = e.NewValue.Name;
+            Utils.allParameterRules = new List<ParameterRule>();
             RegisterRules();
             Utils.propertiesPanel.Refresh(Utils.propertiesPanel.cbo.SelectedItem.ToString());
         }
@@ -178,7 +181,6 @@ namespace RevitDataValidator
 
         public void RegisterRules()
         {
-            Utils.allRules = new List<Rule>();
             Utils.Log($"Registering rules");
             if (Utils.doc != null)
             {
@@ -190,30 +192,64 @@ namespace RevitDataValidator
                 {
                 }
             }
-
-            var rules = GetRules();
+            GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules);
             if (Utils.doc == null)
             {
-                foreach (var rule in rules.Where(q =>
+                foreach (var parameterRule in parameterRules.Where(q =>
                     q.RevitFileNames == null))
                 {
-                    RegisterRule(rule);
-                    Utils.allRules.Add(rule);
+                    RegisterParameterRule(parameterRule);
+                    Utils.allParameterRules.Add(parameterRule);
+                }
+                foreach (var worksetRule in worksetRules.Where(q =>
+                    q.RevitFileNames == null))
+                {
+                    RegisterWorksetRule(worksetRule);
+                    Utils.allWorksetRules.Add(worksetRule);
                 }
             }
             else
             {
-                foreach (var rule in rules.Where(q =>
-                    q.RevitFileNames == null ||
+                foreach (var parameterRule in parameterRules.Where(q =>
+                    q.RevitFileNames != null &&
                     q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName))))
                 {
-                    RegisterRule(rule);
-                    Utils.allRules.Add(rule);
+                    RegisterParameterRule(parameterRule);
+                    Utils.allParameterRules.Add(parameterRule);
+                }
+                foreach (var worksetRule in worksetRules.Where(q =>
+                    q.RevitFileNames != null &&
+                    q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName))))
+                {
+                    RegisterWorksetRule(worksetRule);
+                    Utils.allWorksetRules.Add(worksetRule);
                 }
             }
         }
 
-        private void RegisterRule(Rule rule)
+        private void RegisterWorksetRule(WorksetRule worksetRule)
+        {
+            if (worksetRule.Categories != null)
+            {
+                var builtInCats = Utils.GetBuiltInCats(worksetRule);
+                var filter = new LogicalAndFilter(
+                    new List<ElementFilter>
+                    {
+                        new ElementMulticategoryFilter(builtInCats),
+                        new ElementIsElementTypeFilter(true)
+                    });
+                UpdaterRegistry.AddTrigger(
+                    DataValidationUpdaterId,
+                    filter,
+                    Element.GetChangeTypeAny());
+                UpdaterRegistry.AddTrigger(
+                    DataValidationUpdaterId,
+                    filter,
+                    Element.GetChangeTypeElementAddition());
+            }
+        }
+
+        private void RegisterParameterRule(ParameterRule rule)
         {
             Utils.Log(" Registering rule " + rule.ToString());
             try
@@ -304,7 +340,7 @@ namespace RevitDataValidator
             }
             else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
             {
-                rule.FailureId = genericFailureId;
+                rule.FailureId = genericFailureId;  
             }
             Utils.Log("Completed registering rule " + rule.ToString());
         }
@@ -318,9 +354,10 @@ namespace RevitDataValidator
             Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json);
         }
 
-        private List<Rule> GetRules()
+        private void GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules)
         {
-            var ret = new List<Rule>();
+            parameterRules = new List<ParameterRule>();
+            worksetRules = new List<WorksetRule>();
             if (File.Exists(selectedRuleFile))
             {
                 var markdown = File.ReadAllText(selectedRuleFile);
@@ -342,10 +379,8 @@ namespace RevitDataValidator
                     }
                     if (rules != null)
                     {
-                        foreach (var rule in rules.Rules)
-                        {
-                            ret.Add(rule);
-                        }
+                        parameterRules = rules.ParameterRules;
+                        worksetRules = rules.WorksetRules;
                     }
                 }
 
@@ -357,7 +392,7 @@ namespace RevitDataValidator
                 //            if (categoryString == string.Empty)
                 //                break;
 
-                //            var rule = new Rule
+                //            var rule = new ParameterRule
                 //            {
                 //                PackName = GetCellString(sheet.Cells[row, 2].Value),
                 //                RuleData = GetCellString(sheet.Cells[row, 4].Value),
@@ -402,7 +437,6 @@ namespace RevitDataValidator
             {
                 Utils.LogError("File not found: " + selectedRuleFile);
             }
-            return ret;
         }
 
         public Result OnShutdown(UIControlledApplication application)

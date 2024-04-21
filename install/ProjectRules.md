@@ -2,8 +2,39 @@
 
 ```json
 {
-  "Rules": 
+  
+  "Workset Rules":
   [
+    {
+      "Categories": ["Furniture", "Entourage"],
+      "Workset": "Level 1 Stuff",
+      "Parameters":
+      [
+        {"Name": "Level", "Value": "Level 1"},
+        {"Name": "Auto Assign Workset", "Value": "1"}
+      ]
+    },
+    {
+      "Categories": ["Furniture", "Entourage"],
+      "Workset": "Level 2 Stuff",
+      "Parameters":
+      [
+        {"Name": "Level", "Value": "Level 2"},
+        {"Name": "Auto Assign Workset", "Value": "1"}
+      ]
+    }
+  ],
+  "Parameter Rules": 
+  [
+    {
+      "Categories": ["Rooms"],
+      "Key Parameters": ["Room Style", "Wall Finish", "Floor Finish", "Ceiling Finish"],
+      "Key Values": [
+        ["A", "A1", "A2", "A3"],
+        ["B", "B1", "B2", "B3"],
+        ["C", "C1", "C2", "C3"],
+        ]
+    },
     {
       "Categories": ["Rooms"],
       "Parameter Name": "Occupancy Load",

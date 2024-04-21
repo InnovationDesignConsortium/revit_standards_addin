@@ -13,7 +13,8 @@ namespace RevitDataValidator
         public static string PRODUCT_NAME = "RevitDataValidator";
         public static readonly string ALL = "<all>";
         public static readonly char LIST_SEP = ',';
-        public static List<Rule> allRules;
+        public static List<ParameterRule> allParameterRules;
+        public static List<WorksetRule> allWorksetRules;
         public static List<string> errors;
         public static PropertiesPanel propertiesPanel;
         public static DockablePaneId paneId;
@@ -59,7 +60,8 @@ namespace RevitDataValidator
             else
             {
                 var builtInCats = rule.Categories.Select(q => catMap[q]).ToList();
-                if (rule.FromHostInstance != null)
+                if (rule is ParameterRule parameterRule &&
+                    parameterRule.FromHostInstance != null)
                 {
                     var hostCats = new List<BuiltInCategory>();
                     foreach (var bic in builtInCats)

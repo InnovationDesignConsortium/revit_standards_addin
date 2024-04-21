@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
 {
-
     public class DataValidationUpdater : IUpdater
     {
         private static readonly string PARAMETER_PARSE_PATTERN = "\\{(.*?)\\}";
@@ -30,10 +29,57 @@ namespace RevitDataValidator
             try
             {
                 Document doc = data.GetDocument();
-                List<ElementId> ids = new List<ElementId>();
-                ids.AddRange(data.GetModifiedElementIds());
+                List<ElementId> ids = data.GetModifiedElementIds().ToList();
+                List<ElementId> addedAndModifiedIds = data.GetAddedElementIds().ToList();
+                addedAndModifiedIds.AddRange(data.GetModifiedElementIds());
 
-                foreach (var rule in Utils.allRules)
+                foreach (var rule in Utils.allWorksetRules)
+                {
+                    if (rule.RevitFileNames != null &&
+                        rule.RevitFileNames.FirstOrDefault() != Utils.ALL &&
+                        rule.RevitFileNames.Contains(doc.PathName))
+                    {
+                        continue;
+                    }
+
+                    var workset = new FilteredWorksetCollector(Utils.doc).FirstOrDefault(q => q.Name == rule.Workset);
+                    if (workset == null)
+                        continue;
+
+                    foreach (ElementId id in addedAndModifiedIds)
+                    {
+                        var element = doc.GetElement(id);
+
+                        if (element is ElementType || 
+                            element.Category == null ||
+                            rule.Categories == null ||
+                            (rule.Categories.First() != Utils.ALL &&
+                            !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                        {
+                            continue;
+                        }
+
+                        bool pass = true;
+                        foreach (var p in rule.Parameters)
+                        {
+                            var parameter = GetParameterFromElementOrHostOrType(element, p.Name);
+                            if (parameter == null)
+                                continue;
+
+                            var paramValue = GetParamAsString(parameter);
+                            if (paramValue != p.Value)
+                            {
+                                pass = false;
+                                break;
+                            }
+                        }
+
+                        if (pass)
+                            element.get_Parameter(BuiltInParameter.ELEM_PARTITION_PARAM).Set(workset.Id.IntegerValue);
+                    }
+                }
+
+                foreach (var rule in Utils.allParameterRules)
                 {
                     if (rule.RevitFileNames != null &&
                         rule.RevitFileNames.FirstOrDefault() != Utils.ALL &&
@@ -97,150 +143,152 @@ namespace RevitDataValidator
                     {
                         var element = doc.GetElement(id);
 
-                        if (element.Category != null &&
-                            rule.Categories != null && 
-                            ((rule.Categories.Count() == 1 && rule.Categories.First() == Utils.ALL) ||
-                            Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                        if (element.Category == null ||
+                            rule.Categories == null ||
+                            (rule.Categories.First() != Utils.ALL &&
+                            !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                         {
-                            var parameter = element.LookupParameter(rule.ParameterName);
-                            if (parameter == null)
-                                continue;
+                            continue;
+                        }
 
-                            var paramString = GetParamAsString(parameter);
+                        var parameter = element.LookupParameter(rule.ParameterName);
+                        if (parameter == null)
+                            continue;
 
-                            if (paramString == null)
+                        var paramString = GetParamAsString(parameter);
+
+                        if (paramString == null)
+                        {
+                            continue;
+                        }
+
+                        if (rule.ListOptions != null)
+                        {
+                            var validValues = rule.ListOptions.Select(q => q.Name).ToList();
+                            if (paramString == null ||
+                                !validValues.Contains(paramString))
                             {
-                                continue;
-                            }
-
-                            if (rule.ListOptions != null)
-                            {
-                                var validValues = rule.ListOptions.Select(q => q.Name).ToList();
-                                if (paramString == null ||
-                                    !validValues.Contains(paramString))
+                                using (var form = new FormSelectFromList(validValues, rule.UserMessage))
                                 {
-                                    using (var form = new FormSelectFromList(validValues, rule.UserMessage))
-                                    {
-                                        form.ShowDialog();
-                                        var v = form.GetValue();
-                                        SetParam(parameter, v);
-                                    }
+                                    form.ShowDialog();
+                                    var v = form.GetValue();
+                                    SetParam(parameter, v);
                                 }
                             }
-                            else if (rule.Requirement != null)
+                        }
+                        else if (rule.Requirement != null)
+                        {
+                            if (rule.Requirement.StartsWith("IF "))
                             {
-                                if (rule.Requirement.StartsWith("IF "))
-                                {
-                                    var thenIdx = rule.Requirement.IndexOf("THEN ");
+                                var thenIdx = rule.Requirement.IndexOf("THEN ");
 
-                                    var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
-                                    var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
+                                var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
+                                var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
 
-                                    var ifExp = BuildExpressionString(element, ifClause);
-                                    var result = CSharpScript.EvaluateAsync<bool>(ifExp,
-                                         Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
-                                         .WithImports("System")
-                                         ).Result;
+                                var ifExp = BuildExpressionString(element, ifClause);
+                                var result = CSharpScript.EvaluateAsync<bool>(ifExp,
+                                     Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+                                     .WithImports("System")
+                                     ).Result;
 
-                                    if (result)
-                                    {
-                                        var thenExp = BuildExpressionString(element, thenClause);
-                                    }
-                                }
-                                else
+                                if (result)
                                 {
-                                    var expressionString = BuildExpressionString(element, rule.Requirement);
-                                    var exp = paramString + expressionString;
-                                    var context = new ExpressionContext();
-                                    var e = context.CompileGeneric<bool>(exp);
-                                    var result = e.Evaluate();
-                                    if (!result)
-                                    {
-                                        using (var form = new FormEnterValue(rule.UserMessage + " but current evaluation is " + exp, null))
-                                        {
-                                            form.ShowDialog();
-                                            var v = form.GetValue();
-                                            SetParam(parameter, v);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (rule.Formula != null)
-                            {
-                                var exp = BuildExpressionString(element, rule.Formula) ;
-                                var context = new ExpressionContext();
-                                var e = context.CompileGeneric<double>(exp);
-                                var result = e.Evaluate();
-                                SetParam(parameter, result.ToString());
-                            }
-                            else if (
-                                rule.Regex != null && 
-                                paramString != null)
-                            {
-                                if (paramString == null ||
-                                    !Regex.IsMatch(paramString, rule.Regex))
-                                {
-                                    using (var form = new FormEnterValue(rule.UserMessage, rule.Regex))
-                                    {
-                                        form.ShowDialog();
-                                        var v = form.GetValue();
-                                        SetParam(parameter, v);
-                                        Utils.propertiesPanel.Refresh();
-                                    }
-                                }
-                            }
-                            else if (rule.PreventDuplicates != null)
-                            {
-                                var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
-                                var others = new FilteredElementCollector(doc)
-                                    .OfCategory(bic)
-                                    .WhereElementIsNotElementType()
-                                    .Where(q => q.Id != element.Id);
-                                List<string> othersParams =
-                                    others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
-                                if (othersParams.Contains(paramString))
-                                {
-                                    using (var form = new FormEnterValue(rule.UserMessage, null))
-                                    {
-                                        form.ShowDialog();
-                                        var v = form.GetValue();
-                                        SetParam(parameter, v);
-                                        Utils.propertiesPanel.Refresh();
-                                    }
-                                }
-                            }
-                            else if (rule.FromHostInstance != null)
-                            {
-                                if (element is FamilyInstance fi)
-                                {
-                                    var host = fi.Host;
-                                    if (host != null)
-                                    {
-                                        var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
-                                        if ((value ?? string.Empty) != (paramString ?? string.Empty))
-                                        {
-                                            SetParam(parameter, value);
-                                            TaskDialog.Show("Rule", $"{rule.UserMessage}");
-                                        }
-                                    }
-                                }
-                                else if (element is HostObject host)
-                                {
-                                    var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
-                                    var inserts = new FilteredElementCollector(doc)
-                                        .OfClass(typeof(FamilyInstance))
-                                        .Cast<FamilyInstance>()
-                                        .Where(q => q.Host != null && q.Host.Id == host.Id);
-                                    foreach (var insert in inserts)
-                                    {
-                                        SetParam(insert.LookupParameter(rule.FromHostInstance), value);
-                                    }
+                                    var thenExp = BuildExpressionString(element, thenClause);
                                 }
                             }
                             else
                             {
-                                Utils.errors.Add($"Not Implmented");
+                                var expressionString = BuildExpressionString(element, rule.Requirement);
+                                var exp = paramString + expressionString;
+                                var context = new ExpressionContext();
+                                var e = context.CompileGeneric<bool>(exp);
+                                var result = e.Evaluate();
+                                if (!result)
+                                {
+                                    using (var form = new FormEnterValue(rule.UserMessage + " but current evaluation is " + exp, null))
+                                    {
+                                        form.ShowDialog();
+                                        var v = form.GetValue();
+                                        SetParam(parameter, v);
+                                    }
+                                }
                             }
+                        }
+                        else if (rule.Formula != null)
+                        {
+                            var exp = BuildExpressionString(element, rule.Formula);
+                            var context = new ExpressionContext();
+                            var e = context.CompileGeneric<double>(exp);
+                            var result = e.Evaluate();
+                            SetParam(parameter, result.ToString());
+                        }
+                        else if (
+                            rule.Regex != null &&
+                            paramString != null)
+                        {
+                            if (paramString == null ||
+                                !Regex.IsMatch(paramString, rule.Regex))
+                            {
+                                using (var form = new FormEnterValue(rule.UserMessage, rule.Regex))
+                                {
+                                    form.ShowDialog();
+                                    var v = form.GetValue();
+                                    SetParam(parameter, v);
+                                    Utils.propertiesPanel.Refresh();
+                                }
+                            }
+                        }
+                        else if (rule.PreventDuplicates != null)
+                        {
+                            var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
+                            var others = new FilteredElementCollector(doc)
+                                .OfCategory(bic)
+                                .WhereElementIsNotElementType()
+                                .Where(q => q.Id != element.Id);
+                            List<string> othersParams =
+                                others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
+                            if (othersParams.Contains(paramString))
+                            {
+                                using (var form = new FormEnterValue(rule.UserMessage, null))
+                                {
+                                    form.ShowDialog();
+                                    var v = form.GetValue();
+                                    SetParam(parameter, v);
+                                    Utils.propertiesPanel.Refresh();
+                                }
+                            }
+                        }
+                        else if (rule.FromHostInstance != null)
+                        {
+                            if (element is FamilyInstance fi)
+                            {
+                                var host = fi.Host;
+                                if (host != null)
+                                {
+                                    var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                    if ((value ?? string.Empty) != (paramString ?? string.Empty))
+                                    {
+                                        SetParam(parameter, value);
+                                        TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
+                                    }
+                                }
+                            }
+                            else if (element is HostObject host)
+                            {
+                                var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                var inserts = new FilteredElementCollector(doc)
+                                    .OfClass(typeof(FamilyInstance))
+                                    .Cast<FamilyInstance>()
+                                    .Where(q => q.Host != null && q.Host.Id == host.Id);
+                                foreach (var insert in inserts)
+                                {
+                                    SetParam(insert.LookupParameter(rule.FromHostInstance), value);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Utils.errors.Add($"Not Implmented");
                         }
                     }
                 }
@@ -283,11 +331,15 @@ namespace RevitDataValidator
             {
                 return p.AsInteger().ToString();
             }
+            else if (p.StorageType == StorageType.ElementId)
+            {
+                return p.AsValueString();
+            }
 
             return null;
         }
 
-        //private static void ParseAndSetParameter(Rule rule, Element element)
+        //private static void ParseAndSetParameter(ParameterRule rule, Element element)
         //{
         //    var elementOrHostOrHostType = element;
         //    if (element is FamilyInstance fi)
@@ -322,10 +374,10 @@ namespace RevitDataValidator
         //        {
         //            paramValue = GetParamAsValueString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
         //        }
-        //        else 
+        //        else
         //        {
         //            paramValue = GetParamAsDoubleString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
-        //        }   
+        //        }
 
         //        s += paramValue;
         //        if (i == matches.Count - 1)
@@ -393,7 +445,6 @@ namespace RevitDataValidator
             }
             return s;
         }
-
 
         private static void PostFailure(Document doc, ElementId id, FailureDefinitionId failureId)
         {
