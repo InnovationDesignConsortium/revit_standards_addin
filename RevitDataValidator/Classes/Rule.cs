@@ -59,6 +59,12 @@ namespace RevitDataValidator
         public string CustomCode { get; set; }
 
         public string Formula { get; set; }
+
+        [JsonProperty("Driven Parameters")]
+        public List<string> DrivenParameters { get; set; }
+
+        [JsonProperty("Key Values")]
+        public List<List<string>> KeyValues { get; set; }
     }
 
     public partial class ListOption

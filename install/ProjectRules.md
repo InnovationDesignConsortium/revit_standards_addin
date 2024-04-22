@@ -26,13 +26,14 @@
   ],
   "Parameter Rules": 
   [
-    {
+  {
       "Categories": ["Rooms"],
-      "Key Parameters": ["Room Style", "Wall Finish", "Floor Finish", "Ceiling Finish"],
+      "Parameter Name": "Room Style",
+      "Driven Parameters": ["Wall Finish", "Floor Finish", "Ceiling Finish"],
       "Key Values": [
-        ["A", "A1", "A2", "A3"],
-        ["B", "B1", "B2", "B3"],
-        ["C", "C1", "C2", "C3"],
+        ["A", "Wall A", "Floor A", "Ceiling A"],
+        ["B", "Wall B", "Floor B", "Ceiling B"],
+        ["C", "Wall C", "Floor C", "Ceiling C"],
         ]
     },
     {

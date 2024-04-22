@@ -90,10 +90,18 @@ namespace RevitDataValidator
                     {
                         if (rule.Categories != null &&
                             rule.Categories.Contains(parameterPack.Category) &&
-                            rule.ListOptions != null &&
+                            (rule.ListOptions != null || rule.KeyValues != null) &&
                             rule.ParameterName == pname)
                         {
-                            var choices = rule.ListOptions.Select(q => new StringInt(q.Name, 0)).ToList();
+                            List<StringInt> choices;
+                            if (rule.ListOptions != null)
+                            {
+                                choices = rule.ListOptions.Select(q => new StringInt(q.Name, 0)).ToList();
+                            }
+                            else
+                            {
+                                choices = rule.KeyValues.Select(q => new StringInt(q[0], 0)).ToList();
+                            }
                             var paramValue = GetParameterValue(pname);
                             var selected = choices.FirstOrDefault(q => q.String == paramValue);
                             packParameters.Add(new ChoiceStateParameter

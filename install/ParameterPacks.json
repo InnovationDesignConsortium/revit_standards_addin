@@ -88,7 +88,7 @@
             "Category": "Rooms",
             "Parameters":
             [    
-                "Occupancy", "Name", "Number"
+                "Occupancy", "Name", "Number", "Room Style"
             ],
             "Custom Tools":
             [

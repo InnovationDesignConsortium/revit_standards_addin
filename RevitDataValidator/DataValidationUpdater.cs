@@ -162,9 +162,18 @@ namespace RevitDataValidator
                             continue;
                         }
 
-                        if (rule.ListOptions != null)
+                        if (rule.KeyValues != null ||
+                            rule.ListOptions != null)
                         {
-                            var validValues = rule.ListOptions.Select(q => q.Name).ToList();
+                            List<string> validValues;
+                            if (rule.ListOptions == null)
+                            {
+                                validValues = rule.KeyValues.Select(q => q.First()).ToList();
+                            }
+                            else
+                            {
+                                validValues = rule.ListOptions.Select(q => q.Name).ToList();
+                            }
                             if (paramString == null ||
                                 !validValues.Contains(paramString))
                             {
@@ -173,6 +182,17 @@ namespace RevitDataValidator
                                     form.ShowDialog();
                                     var v = form.GetValue();
                                     SetParam(parameter, v);
+                                }
+                            }
+                            else
+                            {
+                                var keys = rule.KeyValues.FirstOrDefault(q => q[0] == paramString);
+                                for (var i = 0; i < rule.DrivenParameters.Count(); i++)
+                                {
+                                    var drivenParam = element.LookupParameter(rule.DrivenParameters[i]);
+                                    if (drivenParam == null)
+                                        continue;
+                                    SetParam(drivenParam, keys[i + 1]);
                                 }
                             }
                         }
