@@ -143,7 +143,7 @@ namespace RevitDataValidator
                                 parameter.AsValueString() != parameter.AsInteger().ToString())
                             {
                                 var choices = new List<StringInt>();
-                                if (pname == "Location Line")
+                                if (parameter.GetTypeId() == ParameterTypeId.WallKeyRefParam)
                                 {
                                     foreach (var v in Enum.GetValues(typeof(WallLocationLine)))
                                     {

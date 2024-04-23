@@ -66,6 +66,14 @@
             ]
         },
         {
+            "Name": "Location Line",
+            "Category": "Walls",
+            "Parameters":
+            [
+                "Location Line"
+            ]
+        },
+        {
             "Name": "Wall Height",
             "Category": "Walls",
             "Parameters":
@@ -148,7 +156,7 @@
             "Category": "Walls",
             "Parameter Packs":
             [
-                "Phasing", "Structure"
+                "Phasing", "Structure", "Location Line"
             ]
         },
         {
