@@ -27,6 +27,14 @@
   "Parameter Rules": 
   [
   {
+      "Element Classes": [
+        "Autodesk.Revit.DB.WallType"
+      ],
+      "Parameter Name": "Type Name",
+      "Format": "{Function} - {Structural Material} - {Width}",
+      "User Message": "Type name does not match required format"
+  },
+  {
       "Categories": ["Rooms"],
       "Parameter Name": "Room Style",
       "Driven Parameters": ["Wall Finish", "Floor Finish", "Ceiling Finish"],

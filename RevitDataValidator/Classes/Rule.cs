@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace RevitDataValidator
 {
@@ -19,6 +20,7 @@ namespace RevitDataValidator
         List<string> Categories { get; set; }
     }
 
+    [DebuggerDisplay("{Categories} {ParameterName}")]
     public partial class ParameterRule : Rule
     {
         [JsonProperty("Revit File Names")]
@@ -65,6 +67,9 @@ namespace RevitDataValidator
 
         [JsonProperty("Key Values")]
         public List<List<string>> KeyValues { get; set; }
+
+        public string Format { get; set; }
+
     }
 
     public partial class ListOption

@@ -50,7 +50,7 @@ namespace RevitDataValidator
                     {
                         var element = doc.GetElement(id);
 
-                        if (element is ElementType || 
+                        if (element is ElementType ||
                             element.Category == null ||
                             rule.Categories == null ||
                             (rule.Categories.First() != Utils.ALL &&
@@ -144,8 +144,8 @@ namespace RevitDataValidator
                         var element = doc.GetElement(id);
 
                         if (element.Category == null ||
-                            rule.Categories == null ||
-                            (rule.Categories.First() != Utils.ALL &&
+                            (rule.Categories == null && rule.ElementClasses == null) ||
+                            (rule.Categories != null && rule.Categories.FirstOrDefault() != Utils.ALL &&
                             !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                         {
                             continue;
@@ -193,6 +193,44 @@ namespace RevitDataValidator
                                     if (drivenParam == null)
                                         continue;
                                     SetParam(drivenParam, keys[i + 1]);
+                                }
+                            }
+                        }
+                        else if (rule.Format != null)
+                        {
+                            var formattedString = BuildFormattedString(element, rule.Format);
+                            if (!paramString.StartsWith(formattedString))
+                            {
+                                var td = new TaskDialog("Alert")
+                                { 
+                                    MainInstruction =
+                                    $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to {formattedString}",
+                                    CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
+                                };
+                                if (td.Show() == TaskDialogResult.Ok)
+                                {
+                                    if (parameter.Definition.Name == "Type Name")
+                                    {
+                                        Type t = element.GetType();
+                                        var i = 0;
+                                        var suffix = string.Empty;
+
+                                        while (new FilteredElementCollector(doc)
+                                            .OfClass(t).FirstOrDefault(q => q.Name == formattedString + suffix) != null)
+                                        {
+                                            i++;
+                                            suffix = " " + i.ToString();
+                                        }
+                                        element.Name = formattedString + suffix;
+                                    }
+                                    else
+                                    {
+                                        parameter.Set(formattedString);
+                                    }
+                                }
+                                else
+                                {
+                                    PostFailure(doc, element.Id, rule.FailureId);
                                 }
                             }
                         }
@@ -422,6 +460,67 @@ namespace RevitDataValidator
         {
             var length = nextMatchIndex - matchEnd;
             return input.Substring(matchEnd, length);
+        }
+
+        private string BuildFormattedString(Element element, string input)
+        {
+            var matches = Regex.Matches(input, PARAMETER_PARSE_PATTERN);
+
+            var s = string.Empty;
+            for (int i = 0; i < matches.Count; i++)
+            {
+                var match = matches[i];
+                var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
+                var matchEnd = match.Index + match.Length;
+                if (s == string.Empty)
+                    s += input.Substring(0, match.Index);
+                var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
+                if (parameter != null)
+                {
+                    if (parameter.StorageType == StorageType.Double)
+                    {
+                        double paramValue = GetParamAsDouble(parameter);
+                        var options = new FormatValueOptions
+                        {
+                            AppendUnitSymbol = true
+                        };
+                        var formatted = UnitFormatUtils.Format(element.Document.GetUnits(), parameter.Definition.GetDataType(), paramValue, false, options);
+                        s += formatted;
+                    }
+                    else if (parameter.StorageType == StorageType.Integer)
+                    {
+                        if (parameter.AsValueString() == parameter.AsInteger().ToString())
+                        {
+                            s += parameter.AsInteger();
+                        }
+                        else
+                        {
+                            if (parameter.GetTypeId() == ParameterTypeId.FunctionParam)
+                            {
+                                s += ((WallFunction)parameter.AsInteger()).ToString();
+                            }
+                        }
+                    }
+                    else if (parameter.StorageType == StorageType.String)
+                    {
+                        s += parameter.AsString();
+                    }
+                    else if (parameter.StorageType == StorageType.ElementId)
+                    {
+                        s += parameter.AsValueString();
+                    }
+                }
+
+                if (i == matches.Count - 1)
+                {
+                    s += input.Substring(matchEnd);
+                }
+                else
+                {
+                    s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
+                }
+            }
+            return s;
         }
 
         private string BuildExpressionString(Element element, string input)
