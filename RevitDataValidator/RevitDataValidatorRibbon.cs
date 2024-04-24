@@ -195,34 +195,46 @@ namespace RevitDataValidator
             GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules);
             if (Utils.doc == null)
             {
-                foreach (var parameterRule in parameterRules.Where(q =>
-                    q.RevitFileNames == null))
+                if (parameterRules != null)
                 {
-                    RegisterParameterRule(parameterRule);
-                    Utils.allParameterRules.Add(parameterRule);
+                    foreach (var parameterRule in parameterRules.Where(q =>
+                        q.RevitFileNames == null))
+                    {
+                        RegisterParameterRule(parameterRule);
+                        Utils.allParameterRules.Add(parameterRule);
+                    }
                 }
-                foreach (var worksetRule in worksetRules.Where(q =>
-                    q.RevitFileNames == null))
+                if (worksetRules != null)
                 {
-                    RegisterWorksetRule(worksetRule);
-                    Utils.allWorksetRules.Add(worksetRule);
+                    foreach (var worksetRule in worksetRules.Where(q =>
+                        q.RevitFileNames == null))
+                    {
+                        RegisterWorksetRule(worksetRule);
+                        Utils.allWorksetRules.Add(worksetRule);
+                    }
                 }
             }
             else
             {
-                foreach (var parameterRule in parameterRules.Where(q =>
-                    q.RevitFileNames != null &&
-                    q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName))))
+                if (parameterRules != null)
                 {
-                    RegisterParameterRule(parameterRule);
-                    Utils.allParameterRules.Add(parameterRule);
+                    foreach (var parameterRule in parameterRules.Where(q =>
+                        q.RevitFileNames == null ||
+                       (q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
+                    {
+                        RegisterParameterRule(parameterRule);
+                        Utils.allParameterRules.Add(parameterRule);
+                    }
                 }
-                foreach (var worksetRule in worksetRules.Where(q =>
-                    q.RevitFileNames != null &&
-                    q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName))))
+                if (worksetRules != null)
                 {
-                    RegisterWorksetRule(worksetRule);
-                    Utils.allWorksetRules.Add(worksetRule);
+                    foreach (var worksetRule in worksetRules.Where(q =>
+                        q.RevitFileNames == null ||
+                       (q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
+                    {
+                        RegisterWorksetRule(worksetRule);
+                        Utils.allWorksetRules.Add(worksetRule);
+                    }
                 }
             }
         }
@@ -340,7 +352,7 @@ namespace RevitDataValidator
             }
             else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
             {
-                rule.FailureId = genericFailureId;  
+                rule.FailureId = genericFailureId;
             }
             Utils.Log("Completed registering rule " + rule.ToString());
         }
