@@ -111,6 +111,7 @@ namespace RevitDataValidator
 
                         if (element.Category == null ||
                             (rule.Categories == null && rule.ElementClasses == null) ||
+                            (rule.ElementClasses != null && !rule.ElementClasses.Any(q => q.EndsWith(element.GetType().Name))) ||
                             (rule.Categories != null && rule.Categories.FirstOrDefault() != Utils.ALL &&
                             !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                         {
