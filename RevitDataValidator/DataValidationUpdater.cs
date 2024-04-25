@@ -198,7 +198,7 @@ namespace RevitDataValidator
                         }
                         else if (rule.Format != null)
                         {
-                            var formattedString = BuildFormattedString(element, rule.Format);
+                            var formattedString = BuildFormattedString(element, rule.Format, true);
                             if (!paramString.StartsWith(formattedString))
                             {
                                 var td = new TaskDialog("Alert")
@@ -369,6 +369,12 @@ namespace RevitDataValidator
         public string GetUpdaterName()
         { return "DataValidationUpdater"; }
 
+        private static string RemoveIllegalCharacters(string s)
+        {
+            char[] illegal = { '\\', ':', '{', '}', '[', ']', '|', '>', '<' , '~', '?', '`', ';',};
+            return string.Concat(s.Split(illegal));
+        }
+
         private static string GetParamAsString(Parameter p)
         {
             if (p == null)
@@ -462,7 +468,7 @@ namespace RevitDataValidator
             return input.Substring(matchEnd, length);
         }
 
-        private string BuildFormattedString(Element element, string input)
+        private string BuildFormattedString(Element element, string input, bool removeIllegalCharacters)
         {
             var matches = Regex.Matches(input, PARAMETER_PARSE_PATTERN);
 
@@ -520,6 +526,9 @@ namespace RevitDataValidator
                     s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
                 }
             }
+            if (removeIllegalCharacters)
+                s = RemoveIllegalCharacters(s);
+
             return s;
         }
 
