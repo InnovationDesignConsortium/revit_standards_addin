@@ -9,6 +9,7 @@ namespace RevitDataValidator
 {
     public static class Utils
     {
+        public static string dialogIdShowing = "";
         public static ControlledApplication app;
         public static string PRODUCT_NAME = "RevitDataValidator";
         public static readonly string ALL = "<all>";

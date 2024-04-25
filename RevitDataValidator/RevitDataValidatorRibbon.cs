@@ -36,6 +36,8 @@ namespace RevitDataValidator
             Utils.allWorksetRules = new List<WorksetRule>();
             application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             application.ViewActivated += Application_ViewActivated;
+            application.DialogBoxShowing += Application_DialogBoxShowing;
+            application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
@@ -99,6 +101,16 @@ namespace RevitDataValidator
             }
 
             return Result.Succeeded;
+        }
+
+        private void Application_Idling(object sender, IdlingEventArgs e)
+        {
+            Utils.dialogIdShowing = "";
+        }
+
+        private void Application_DialogBoxShowing(object sender, DialogBoxShowingEventArgs e)
+        {
+            Utils.dialogIdShowing = e.DialogId;
         }
 
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)

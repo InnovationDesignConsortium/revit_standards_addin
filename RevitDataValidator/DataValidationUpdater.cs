@@ -28,6 +28,9 @@ namespace RevitDataValidator
         {
             try
             {
+                if (Utils.dialogIdShowing == "Dialog_Revit_PartitionsEnable")
+                    return;
+
                 Document doc = data.GetDocument();
                 List<ElementId> ids = data.GetModifiedElementIds().ToList();
                 List<ElementId> addedAndModifiedIds = data.GetAddedElementIds().ToList();
