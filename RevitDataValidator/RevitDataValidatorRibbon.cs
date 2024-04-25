@@ -175,7 +175,6 @@ namespace RevitDataValidator
         {
             Utils.selectedIds = new List<ElementId>();
             Utils.doc = e.Document;
-            RegisterRules();
             SetupPane();
         }
 
@@ -193,48 +192,25 @@ namespace RevitDataValidator
                 }
             }
             GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules);
-            if (Utils.doc == null)
+
+            if (parameterRules != null)
             {
-                if (parameterRules != null)
+                foreach (var parameterRule in parameterRules.Where(q =>
+                    q.RevitFileNames == null ||
+                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
                 {
-                    foreach (var parameterRule in parameterRules.Where(q =>
-                        q.RevitFileNames == null))
-                    {
-                        RegisterParameterRule(parameterRule);
-                        Utils.allParameterRules.Add(parameterRule);
-                    }
-                }
-                if (worksetRules != null)
-                {
-                    foreach (var worksetRule in worksetRules.Where(q =>
-                        q.RevitFileNames == null))
-                    {
-                        RegisterWorksetRule(worksetRule);
-                        Utils.allWorksetRules.Add(worksetRule);
-                    }
+                    RegisterParameterRule(parameterRule);
+                    Utils.allParameterRules.Add(parameterRule);
                 }
             }
-            else
+            if (worksetRules != null)
             {
-                if (parameterRules != null)
+                foreach (var worksetRule in worksetRules.Where(q =>
+                    q.RevitFileNames == null ||
+                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
                 {
-                    foreach (var parameterRule in parameterRules.Where(q =>
-                        q.RevitFileNames == null ||
-                       (q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
-                    {
-                        RegisterParameterRule(parameterRule);
-                        Utils.allParameterRules.Add(parameterRule);
-                    }
-                }
-                if (worksetRules != null)
-                {
-                    foreach (var worksetRule in worksetRules.Where(q =>
-                        q.RevitFileNames == null ||
-                       (q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
-                    {
-                        RegisterWorksetRule(worksetRule);
-                        Utils.allWorksetRules.Add(worksetRule);
-                    }
+                    RegisterWorksetRule(worksetRule);
+                    Utils.allWorksetRules.Add(worksetRule);
                 }
             }
         }

@@ -79,67 +79,30 @@ namespace RevitDataValidator
                     }
                 }
 
-                foreach (var rule in Utils.allParameterRules)
+                var applicableParameterRules = Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
+                        rule.RevitFileNames.FirstOrDefault() == Utils.ALL ||
+                        rule.RevitFileNames.Contains(doc.PathName));
+
+                foreach (var rule in applicableParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
                 {
-                    if (rule.RevitFileNames != null &&
-                        rule.RevitFileNames.FirstOrDefault() != Utils.ALL &&
-                        rule.RevitFileNames.Contains(doc.PathName))
+                    Type type = Utils.dictCustomCode[rule.CustomCode];
+                    object obj = Activator.CreateInstance(type);
+                    object x = type.InvokeMember("Run",
+                                        BindingFlags.Default | BindingFlags.InvokeMethod,
+                                        null,
+                                        obj,
+                                        new object[] { Utils.doc });
+                    if (x is List<ElementId> failureIds)
                     {
-                        continue;
+                        FailureMessage failureMessage = new FailureMessage(rule.FailureId);
+                        failureMessage.SetFailingElements(failureIds);
+                        doc.PostFailure(failureMessage);
                     }
+                }
 
-                    if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
-                    {
-                        Type type = Utils.dictCustomCode[rule.CustomCode];
-                        object obj = Activator.CreateInstance(type);
-                        object x = type.InvokeMember("Run",
-                                            BindingFlags.Default | BindingFlags.InvokeMethod,
-                                            null,
-                                            obj,
-                                            new object[] { Utils.doc });
-                        if (x is List<ElementId> failureIds)
-                        {
-                            FailureMessage failureMessage = new FailureMessage(rule.FailureId);
-                            failureMessage.SetFailingElements(failureIds);
-                            doc.PostFailure(failureMessage);
-                        }
-                    }
-
-                    //if (rule.RuleType == RuleType.FromHostInstance)
-                    //{
-                    //    var idsFromHost = new FilteredElementCollector(doc)
-                    //        .OfClass(typeof(FamilyInstance))
-                    //        .Cast<FamilyInstance>()
-                    //        .Where(q => q.Host != null && ids.Contains(q.Host.Id))
-                    //        .Select(q => q.Id)
-                    //        .ToList();
-                    //    ids.AddRange(idsFromHost);
-                    //}
-                    //else if (rule.RuleType == RuleType.FromHostType)
-                    //{
-                    //    var hostTypeIds = new FilteredElementCollector(doc, ids)
-                    //        .OfClass(typeof(HostObjAttributes))
-                    //        .ToElementIds()
-                    //        .ToList();
-
-                    //    var hostIds = new FilteredElementCollector(doc)
-                    //        .OfClass(typeof(HostObject))
-                    //        .Cast<HostObject>()
-                    //        .Where(q => hostTypeIds.Contains(q.GetTypeId()))
-                    //        .Select(q => q.Id)
-                    //        .ToList();
-
-                    //    var idsFromHostType = new FilteredElementCollector(doc)
-                    //        .OfClass(typeof(FamilyInstance))
-                    //        .Cast<FamilyInstance>()
-                    //        .Where(q => q.Host != null && hostIds.Contains(q.Host.Id))
-                    //        .Select(q => q.Id)
-                    //        .ToList();
-
-                    //    ids = idsFromHostType;
-                    //}
-
-                    foreach (ElementId id in ids)
+                foreach (ElementId id in ids)
+                {
+                    foreach (var rule in applicableParameterRules)
                     {
                         var element = doc.GetElement(id);
 
@@ -202,7 +165,7 @@ namespace RevitDataValidator
                             if (!paramString.StartsWith(formattedString))
                             {
                                 var td = new TaskDialog("Alert")
-                                { 
+                                {
                                     MainInstruction =
                                     $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to {formattedString}",
                                     CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
@@ -371,7 +334,7 @@ namespace RevitDataValidator
 
         private static string RemoveIllegalCharacters(string s)
         {
-            char[] illegal = { '\\', ':', '{', '}', '[', ']', '|', '>', '<' , '~', '?', '`', ';',};
+            char[] illegal = { '\\', ':', '{', '}', '[', ']', '|', '>', '<', '~', '?', '`', ';', };
             return string.Concat(s.Split(illegal));
         }
 
