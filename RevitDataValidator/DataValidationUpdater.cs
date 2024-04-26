@@ -67,7 +67,10 @@ namespace RevitDataValidator
                         {
                             var parameter = GetParameterFromElementOrHostOrType(element, p.Name);
                             if (parameter == null)
-                                continue;
+                            {
+                                pass = false;
+                                break;
+                            }
 
                             var paramValue = GetParamAsString(parameter);
                             if (paramValue != p.Value)
