@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace RevitDataValidator
 {
@@ -36,20 +37,56 @@ namespace RevitDataValidator
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
 
-        public static void LogException(string s, Exception ex)
+        public static Parameter GetParameter(Element e, string name)
         {
-            LogError($"Exception in {s}: {ex.Message}");
-            LogError(ex.StackTrace);
-        }
-        public static void Log(string message)
-        {
-            Utils.app.WriteJournalComment(PRODUCT_NAME + " " + message, true);
+            var parameters = e.Parameters.Cast<Parameter>().Where(q => q.Definition.Name == name);
+            if (parameters.Count() == 0)
+            {
+                return null;
+            }
+            else
+            {
+                if (parameters.Count() > 1)
+                {
+                    Utils.Log($"Element {GetElementInfo(e)} has multiple parameters named '{name}'", LogLevel.Error);
+                }
+                return parameters.First();
+            }
         }
 
-        public static void LogError(string error)
+        public static string GetElementInfo(Element e)
         {
-            Utils.errors.Add(error);
-            Utils.app.WriteJournalComment(PRODUCT_NAME + " " + error, true);
+            var ret = e.Id.IntegerValue.ToString();
+            if (e.Category != null)
+            {
+                ret += " " + e.Category.Name;
+            }
+            if (e is FamilyInstance fi)
+            {
+                ret += " " + fi.Symbol.Family.Name;
+            }
+            ret += " " + e.Name;
+            return ret;
+        }
+
+        public enum LogLevel
+        {
+            Info,
+            Error,
+            Exception
+        }
+
+        public static void LogException(string s, Exception ex)
+        {
+            Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+        }
+        public static void Log(string message, LogLevel level = LogLevel.Info)
+        {
+            if (level == LogLevel.Error || level == LogLevel.Exception)
+            {
+                errors.Add(message);
+            }
+            app.WriteJournalComment($"{PRODUCT_NAME} {level} {message}", true);
         }
 
         public static List<BuiltInCategory> GetBuiltInCats(Rule rule)

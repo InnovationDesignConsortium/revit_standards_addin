@@ -172,8 +172,14 @@ namespace RevitDataValidator
             if (packSet != null)
             {
                 var packSetName = packSet.Name;
-                Utils.propertiesPanel.cbo.SelectedItem = packSetName;
-                Utils.propertiesPanel.Refresh(packSetName);
+                try
+                {
+                    Utils.propertiesPanel.cbo.SelectedItem = packSetName;
+                    Utils.propertiesPanel.Refresh(packSetName);
+                }
+                catch (Exception ex)
+                {
+                }
             }
         }
 
@@ -276,7 +282,7 @@ namespace RevitDataValidator
                             {
                                 foreach (var error in result)
                                 {
-                                    Utils.LogError($"{rule.CustomCode} compilation error: {error.GetMessage()}");
+                                    Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
                                 }
                             }
                         }
@@ -435,7 +441,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.LogError("File not found: " + selectedRuleFile);
+                Utils.Log("File not found: " + selectedRuleFile, Utils.LogLevel.Error);
             }
         }
 

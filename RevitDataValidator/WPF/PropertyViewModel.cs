@@ -79,7 +79,10 @@ namespace RevitDataValidator
                     parameterPack = packOthers;
 
                 if (parameterPack == null)
+                {
+                    Utils.Log($"{packName} is listed in {packSet.Name} but does not exist", Utils.LogLevel.Error);
                     continue;
+                }
 
                 var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
@@ -400,14 +403,24 @@ namespace RevitDataValidator
 
             if (Utils.selectedIds.Any())
             {
-                return Utils.selectedIds.Select(w =>
+                var parameters = Utils.selectedIds.Select(w =>
                 Utils.doc.GetElement(w).Parameters.
                     Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q))).ToList();
+                if (parameters.Any(q => q == null))
+                {
+                    Utils.Log($"Parameter {parameterName} does not exist for element ids {string.Join(",", Utils.selectedIds.Select(q => q.IntegerValue))}", Utils.LogLevel.Error);
+                }
+                return parameters;
             }
             else
             {
                 var parameter = Utils.doc.ActiveView.Parameters.Cast<Parameter>()
                     .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q));
+                if (parameter == null)
+                {
+                    Utils.Log($"Parameter {parameterName} does not exist in view {Utils.doc.ActiveView.Name}", Utils.LogLevel.Error);
+                    return new List<Parameter>();
+                }
                 return new List<Parameter> { parameter };
             }
         }
@@ -448,7 +461,7 @@ namespace RevitDataValidator
                 foreach (var id in Utils.selectedIds)
                 {
                     var element = Utils.doc.GetElement(id);
-                    var parameter = element.LookupParameter(parameterName);
+                    var parameter = Utils.GetParameter(element, parameterName);
                     if (parameter == null)
                         continue;
                     parameters.Add(parameter);
@@ -456,7 +469,7 @@ namespace RevitDataValidator
             }
             else
             {
-                var viewParam = Utils.doc.ActiveView.LookupParameter(parameterName);
+                var viewParam = Utils.GetParameter(Utils.doc.ActiveView, parameterName);
                 if (viewParam != null)
                 {
                     parameters.Add(viewParam);

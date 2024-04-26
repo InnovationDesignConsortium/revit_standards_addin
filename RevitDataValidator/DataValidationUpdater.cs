@@ -32,9 +32,11 @@ namespace RevitDataValidator
                     return;
 
                 Document doc = data.GetDocument();
-                List<ElementId> ids = data.GetModifiedElementIds().ToList();
-                List<ElementId> addedAndModifiedIds = data.GetAddedElementIds().ToList();
-                addedAndModifiedIds.AddRange(data.GetModifiedElementIds());
+                var modifiedIds = data.GetModifiedElementIds().ToList();
+                var addedIds = data.GetModifiedElementIds().ToList();
+
+                List<ElementId> addedAndModifiedIds = addedIds.ToList();
+                addedAndModifiedIds.AddRange(modifiedIds);
 
                 foreach (var rule in Utils.allWorksetRules)
                 {
@@ -47,7 +49,10 @@ namespace RevitDataValidator
 
                     var workset = new FilteredWorksetCollector(Utils.doc).FirstOrDefault(q => q.Name == rule.Workset);
                     if (workset == null)
+                    {
+                        Utils.Log($"Worksest does not exist {rule.Workset}", Utils.LogLevel.Error);
                         continue;
+                    }
 
                     foreach (ElementId id in addedAndModifiedIds)
                     {
@@ -106,7 +111,7 @@ namespace RevitDataValidator
                     }
                 }
 
-                foreach (ElementId id in ids)
+                foreach (ElementId id in modifiedIds)
                 {
                     foreach (var rule in applicableParameterRules)
                     {
@@ -121,7 +126,7 @@ namespace RevitDataValidator
                             continue;
                         }
 
-                        var parameter = element.LookupParameter(rule.ParameterName);
+                        var parameter = Utils.GetParameter(element, rule.ParameterName);
                         if (parameter == null)
                             continue;
 
@@ -131,6 +136,8 @@ namespace RevitDataValidator
                         {
                             continue;
                         }
+
+                        Utils.Log($"Runing Updater on {Utils.GetElementInfo(element)} for parameter {parameter.Definition.Name}");
 
                         if (rule.KeyValues != null ||
                             rule.ListOptions != null)
@@ -144,6 +151,7 @@ namespace RevitDataValidator
                             {
                                 validValues = rule.ListOptions.Select(q => q.Name).ToList();
                             }
+
                             if (paramString == null ||
                                 !validValues.Contains(paramString))
                             {
@@ -154,12 +162,12 @@ namespace RevitDataValidator
                                     SetParam(parameter, v);
                                 }
                             }
-                            else
+                            else if (rule.KeyValues != null)
                             {
                                 var keys = rule.KeyValues.FirstOrDefault(q => q[0] == paramString);
                                 for (var i = 0; i < rule.DrivenParameters.Count(); i++)
                                 {
-                                    var drivenParam = element.LookupParameter(rule.DrivenParameters[i]);
+                                    var drivenParam = Utils.GetParameter(element, rule.DrivenParameters[i]);
                                     if (drivenParam == null)
                                         continue;
                                     SetParam(drivenParam, keys[i + 1]);
@@ -192,10 +200,12 @@ namespace RevitDataValidator
                                             suffix = " " + i.ToString();
                                         }
                                         element.Name = formattedString + suffix;
+                                        Utils.Log($"Rename {element.Name} = {formattedString + suffix}");
                                     }
                                     else
                                     {
                                         parameter.Set(formattedString);
+                                        Utils.Log($"Set {parameter.Definition.Name} = {formattedString}");
                                     }
                                 }
                                 else
@@ -274,7 +284,7 @@ namespace RevitDataValidator
                                 .WhereElementIsNotElementType()
                                 .Where(q => q.Id != element.Id);
                             List<string> othersParams =
-                                others.Select(q => GetParamAsString(q.LookupParameter(rule.ParameterName))).ToList();
+                                others.Select(q => GetParamAsString(Utils.GetParameter(q, rule.ParameterName))).ToList();
                             if (othersParams.Contains(paramString))
                             {
                                 using (var form = new FormEnterValue(rule.UserMessage, null))
@@ -293,7 +303,7 @@ namespace RevitDataValidator
                                 var host = fi.Host;
                                 if (host != null)
                                 {
-                                    var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                    var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
                                     if ((value ?? string.Empty) != (paramString ?? string.Empty))
                                     {
                                         SetParam(parameter, value);
@@ -303,20 +313,20 @@ namespace RevitDataValidator
                             }
                             else if (element is HostObject host)
                             {
-                                var value = GetParamAsValueString(host.LookupParameter(rule.FromHostInstance));
+                                var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
                                 var inserts = new FilteredElementCollector(doc)
                                     .OfClass(typeof(FamilyInstance))
                                     .Cast<FamilyInstance>()
                                     .Where(q => q.Host != null && q.Host.Id == host.Id);
                                 foreach (var insert in inserts)
                                 {
-                                    SetParam(insert.LookupParameter(rule.FromHostInstance), value);
+                                    SetParam(Utils.GetParameter(insert, rule.FromHostInstance), value);
                                 }
                             }
                         }
                         else
                         {
-                            Utils.errors.Add($"Not Implmented");
+                            Utils.Log($"Rule Not Implmented {rule.RuleName}");
                         }
                     }
                 }
@@ -372,65 +382,6 @@ namespace RevitDataValidator
 
             return null;
         }
-
-        //private static void ParseAndSetParameter(ParameterRule rule, Element element)
-        //{
-        //    var elementOrHostOrHostType = element;
-        //    if (element is FamilyInstance fi)
-        //    {
-        //        var host = fi.Host;
-        //        if (rule.RuleType == RuleType.FromHostInstance)
-        //        {
-        //            elementOrHostOrHostType = host;
-        //        }
-        //        else if (rule.RuleType == RuleType.FromHostType)
-        //        {
-        //            elementOrHostOrHostType = element.Document.GetElement(host.GetTypeId());
-        //        }
-        //    }
-        //    var matches = Regex.Matches(rule.RuleData, PARAMETER_PARSE_PATTERN);
-
-        //    var parameter = element.LookupParameter(rule.PackName);
-        //    if (parameter == null)
-        //    {
-        //        return;
-        //    }
-
-        //    var s = string.Empty;
-        //    for (int i = 0; i < matches.Count; i++)
-        //    {
-        //        var match = matches[i];
-        //        var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
-        //        var matchEnd = match.Index + match.Length;
-
-        //        string paramValue;
-        //        if (parameter.StorageType == StorageType.String)
-        //        {
-        //            paramValue = GetParamAsValueString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
-        //        }
-        //        else
-        //        {
-        //            paramValue = GetParamAsDoubleString(elementOrHostOrHostType.LookupParameter(matchValueCleaned));
-        //        }
-
-        //        s += paramValue;
-        //        if (i == matches.Count - 1)
-        //        {
-        //            s += rule.RuleData.Substring(matchEnd);
-        //        }
-        //        else
-        //        {
-        //            s += GetStringAfterParsedParameterName(rule, matchEnd, matches[i + 1].Index);
-        //        }
-        //    }
-
-        //    if (parameter.StorageType == StorageType.Double)
-        //    {
-        //        var expression = new Expression(s);
-        //        s = expression.calculate().ToString();
-        //    }
-        //    SetParam(parameter, s);
-        //}
 
         private static string GetStringAfterParsedParameterName(string input, int matchEnd, int nextMatchIndex)
         {
@@ -560,22 +511,22 @@ namespace RevitDataValidator
 
         private Parameter GetParameterFromElementOrHostOrType(Element e, string paramName)
         {
-            var p = e.LookupParameter(paramName);
+            var p = Utils.GetParameter(e, paramName);
             if (p != null)
                 return p;
             var elementType = e.Document.GetElement(e.GetTypeId());
             if (elementType == null)
                 return null;
-            p = elementType.LookupParameter(paramName);
+            p = Utils.GetParameter(elementType, paramName);
             if (p != null)
                 return p;
             if (e is FamilyInstance fi)
             {
-                p = fi.Host.LookupParameter(paramName);
+                p = Utils.GetParameter(fi.Host, paramName);
                 if (p != null)
                     return p;
                 var hostType = e.Document.GetElement(fi.Host.GetTypeId());
-                p = hostType.LookupParameter(paramName);
+                p = Utils.GetParameter(hostType, paramName);
                 if (p != null)
                     return p;
             }
@@ -602,6 +553,9 @@ namespace RevitDataValidator
         {
             if (p == null)
                 return;
+
+            Utils.Log($"Set {p.Definition.Name} = {s}");
+
             if (p.StorageType == StorageType.String)
             {
                 p.Set(s);

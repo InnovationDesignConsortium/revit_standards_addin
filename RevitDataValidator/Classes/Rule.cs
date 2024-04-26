@@ -70,6 +70,10 @@ namespace RevitDataValidator
 
         public string Format { get; set; }
 
+        public override string ToString()
+        {
+            return RuleName;
+        }
     }
 
     public partial class ListOption
