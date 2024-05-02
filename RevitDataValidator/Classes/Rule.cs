@@ -102,4 +102,18 @@ namespace RevitDataValidator
         public string Workset { get; set; }
         public List<ParameterData> Parameters { get; set; }
     }
+
+    public enum FailureType
+    {
+        INVALID,
+        List,
+        Regex
+    }
+
+    public class RuleFailure
+    {
+        public ParameterRule Rule { get; set; }
+        public FailureType FailureType { get; set;}
+        public ElementId ElementId { get; set; }
+    }
 }

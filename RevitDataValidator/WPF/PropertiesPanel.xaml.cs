@@ -91,7 +91,7 @@ namespace RevitDataValidator
                     }
                 }
                 var item = new ParameterObject(parameters, textBox.Text);
-                Utils.eventHandlerWithParameterObject.Raise(item);
+                Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { item });
             }
         }
 
@@ -110,7 +110,7 @@ namespace RevitDataValidator
             if (control.Tag is List<Parameter> parameters)
             {
                 var item = new ParameterObject(parameters, control.IsChecked.ToString());
-                Utils.eventHandlerWithParameterObject.Raise(item);
+                Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { item });
             }
         }
 
@@ -133,7 +133,7 @@ namespace RevitDataValidator
                         po = new ParameterObject(parameters, stringInt.Int);
                     }
                 }
-                Utils.eventHandlerWithParameterObject.Raise(po);
+                Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { po });
             }
         }
 

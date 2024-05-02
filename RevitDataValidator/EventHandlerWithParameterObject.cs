@@ -1,70 +1,74 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System;
+using System.Collections.Generic;
 
 namespace RevitDataValidator
 {
-    public class EventHandlerWithParameterObject : RevitEventWrapper<ParameterObject>
+    public class EventHandlerWithParameterObject : RevitEventWrapper<List<ParameterObject>>
     {
-        public override void Execute(UIApplication uiApp, ParameterObject args)
+        public override void Execute(UIApplication uiApp, List<ParameterObject> parameterObjects)
         {
             try
             {
-                if (args.Parameters == null)
-                    return;
-
                 using (Transaction t = new Transaction(Utils.doc, "Update Parameters"))
                 {
                     t.Start();
-                    foreach (var parameter in args.Parameters)
+                    foreach (var args in parameterObjects)
                     {
-                        if (parameter.IsReadOnly)
-                        {
+                        if (args.Parameters == null)
                             continue;
-                        }
 
-                        if (parameter.StorageType == StorageType.String &&
-                            args.Value is string s)
+                        foreach (var parameter in args.Parameters)
                         {
-                            parameter.Set(s);
-                        }
-                        else if (parameter.StorageType == StorageType.Integer)
-                        {
-                            if (args.Value is int i)
+                            if (parameter.IsReadOnly)
                             {
-                                parameter.Set(i);
+                                continue;
                             }
-                            else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo &&
-                                args.Value is string ss)
+
+                            if (parameter.StorageType == StorageType.String &&
+                                args.Value is string s)
                             {
-                                if (ss == "True")
+                                parameter.Set(s);
+                            }
+                            else if (parameter.StorageType == StorageType.Integer)
+                            {
+                                if (args.Value is int i)
                                 {
-                                    parameter.Set(1);
+                                    parameter.Set(i);
                                 }
-                                else
+                                else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo &&
+                                    args.Value is string ss)
                                 {
-                                    parameter.Set(0);
+                                    if (ss == "True")
+                                    {
+                                        parameter.Set(1);
+                                    }
+                                    else
+                                    {
+                                        parameter.Set(0);
+                                    }
                                 }
                             }
-                        }
-                        else if (parameter.StorageType == StorageType.Double)
-                        {
-                            if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed))
+                            else if (parameter.StorageType == StorageType.Double)
                             {
-                                parameter.Set(dparsed);
+                                if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed))
+                                {
+                                    parameter.Set(dparsed);
+                                }
                             }
-                        }
-                        else if (parameter.StorageType == StorageType.ElementId &&
-                            args.Value is int i)
-                        {
-                            var elementid = new ElementId(i);
-                            try
+                            else if (parameter.StorageType == StorageType.ElementId &&
+                                args.Value is int i)
                             {
-                                bool didSet = parameter.Set(elementid);
-                            }
-                            catch (Exception ex)
-                            {
-                                Utils.LogException("EventHandlerWithParameterObject setting parameter", ex);
+                                var elementid = new ElementId(i);
+                                try
+                                {
+                                    bool didSet = parameter.Set(elementid);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Utils.LogException("EventHandlerWithParameterObject setting parameter", ex);
+                                }
                             }
                         }
                     }

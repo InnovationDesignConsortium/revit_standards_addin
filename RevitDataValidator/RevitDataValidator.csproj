@@ -58,6 +58,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ParameterString.cs" />
     <Compile Include="Classes\StringInt.cs" />
     <Compile Include="Classes\ParameterObject.cs" />
     <Compile Include="Classes\ValidationService.cs" />
@@ -69,6 +70,12 @@
     </Compile>
     <Compile Include="Forms\FormEnterValue.Designer.cs">
       <DependentUpon>FormEnterValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormGridList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormGridList.Designer.cs">
+      <DependentUpon>FormGridList.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormSelectFromList.cs">
       <SubType>Form</SubType>
@@ -134,6 +141,9 @@
     <EmbeddedResource Include="Forms\FormEnterValue.resx">
       <DependentUpon>FormEnterValue.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormGridList.resx">
+      <DependentUpon>FormGridList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormSelectFromList.resx">
       <DependentUpon>FormSelectFromList.cs</DependentUpon>
     </EmbeddedResource>
@@ -147,6 +157,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\DataSources\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" sign /f "C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx" /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)
@@ -159,6 +172,6 @@ copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Co
 copy /Y $(SolutionDir)install\ProjectRules.md "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)\Rules"
 copy /Y $(SolutionDir)install\ParameterPacks.json "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)"
 
-REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
+REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023_2.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

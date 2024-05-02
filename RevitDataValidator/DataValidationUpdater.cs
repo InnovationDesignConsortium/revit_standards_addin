@@ -1,22 +1,15 @@
 ﻿using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-using Flee.PublicTypes;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
+using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
 {
     public class DataValidationUpdater : IUpdater
     {
-        private static readonly string PARAMETER_PARSE_PATTERN = "\\{(.*?)\\}";
-        private static readonly string PARAMETER_PARSE_START = "{";
-        private static readonly string PARAMETER_PARSE_END = "}";
-
         private UpdaterId updaterId;
 
         public DataValidationUpdater(AddInId id)
@@ -70,14 +63,14 @@ namespace RevitDataValidator
                         bool pass = true;
                         foreach (var p in rule.Parameters)
                         {
-                            var parameter = GetParameterFromElementOrHostOrType(element, p.Name);
+                            var parameter = Utils.GetParameterFromElementOrHostOrType(element, p.Name);
                             if (parameter == null)
                             {
                                 pass = false;
                                 break;
                             }
 
-                            var paramValue = GetParamAsString(parameter);
+                            var paramValue = Utils.GetParamAsString(parameter);
                             if (paramValue != p.Value)
                             {
                                 pass = false;
@@ -90,10 +83,8 @@ namespace RevitDataValidator
                     }
                 }
 
-                var applicableParameterRules = Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
-                        rule.RevitFileNames.FirstOrDefault() == Utils.ALL ||
-                        rule.RevitFileNames.Contains(doc.PathName));
 
+                var applicableParameterRules = Utils.GetApplicableParameterRules();
                 foreach (var rule in applicableParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
                 {
                     Type type = Utils.dictCustomCode[rule.CustomCode];
@@ -111,224 +102,22 @@ namespace RevitDataValidator
                     }
                 }
 
+                var ruleFailures = new List<RuleFailure>();
+
                 foreach (ElementId id in modifiedIds)
                 {
-                    foreach (var rule in applicableParameterRules)
+                    var failuresForThisRule = Utils.GetFailures(id, null, out List<ParameterString> parametersToSet);
+                    ruleFailures.AddRange(failuresForThisRule);
+                    foreach (var parameterString in parametersToSet)
                     {
-                        var element = doc.GetElement(id);
-
-                        if (element.Category == null ||
-                            (rule.Categories == null && rule.ElementClasses == null) ||
-                            (rule.ElementClasses != null && !rule.ElementClasses.Any(q => q.EndsWith(element.GetType().Name))) ||
-                            (rule.Categories != null && rule.Categories.FirstOrDefault() != Utils.ALL &&
-                            !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
-                        {
-                            continue;
-                        }
-
-                        var parameter = Utils.GetParameter(element, rule.ParameterName);
-                        if (parameter == null)
-                            continue;
-
-                        var paramString = GetParamAsString(parameter);
-
-                        if (paramString == null)
-                        {
-                            continue;
-                        }
-
-                        Utils.Log($"Runing Updater on {Utils.GetElementInfo(element)} for parameter {parameter.Definition.Name}");
-
-                        if (rule.KeyValues != null ||
-                            rule.ListOptions != null)
-                        {
-                            List<string> validValues;
-                            if (rule.ListOptions == null)
-                            {
-                                validValues = rule.KeyValues.Select(q => q.First()).ToList();
-                            }
-                            else
-                            {
-                                validValues = rule.ListOptions.Select(q => q.Name).ToList();
-                            }
-
-                            if (paramString == null ||
-                                !validValues.Contains(paramString))
-                            {
-                                using (var form = new FormSelectFromList(validValues, rule.UserMessage))
-                                {
-                                    form.ShowDialog();
-                                    var v = form.GetValue();
-                                    SetParam(parameter, v);
-                                }
-                            }
-                            else if (rule.KeyValues != null)
-                            {
-                                var keys = rule.KeyValues.FirstOrDefault(q => q[0] == paramString);
-                                for (var i = 0; i < rule.DrivenParameters.Count(); i++)
-                                {
-                                    var drivenParam = Utils.GetParameter(element, rule.DrivenParameters[i]);
-                                    if (drivenParam == null)
-                                        continue;
-                                    SetParam(drivenParam, keys[i + 1]);
-                                }
-                            }
-                        }
-                        else if (rule.Format != null)
-                        {
-                            var formattedString = BuildFormattedString(element, rule.Format, true);
-                            if (!paramString.StartsWith(formattedString))
-                            {
-                                var td = new TaskDialog("Alert")
-                                {
-                                    MainInstruction =
-                                    $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to {formattedString}",
-                                    CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
-                                };
-                                if (td.Show() == TaskDialogResult.Ok)
-                                {
-                                    if (parameter.Definition.Name == "Type Name")
-                                    {
-                                        Type t = element.GetType();
-                                        var i = 0;
-                                        var suffix = string.Empty;
-
-                                        while (new FilteredElementCollector(doc)
-                                            .OfClass(t).FirstOrDefault(q => q.Name == formattedString + suffix) != null)
-                                        {
-                                            i++;
-                                            suffix = " " + i.ToString();
-                                        }
-                                        element.Name = formattedString + suffix;
-                                        Utils.Log($"Rename {element.Name} = {formattedString + suffix}");
-                                    }
-                                    else
-                                    {
-                                        parameter.Set(formattedString);
-                                        Utils.Log($"Set {parameter.Definition.Name} = {formattedString}");
-                                    }
-                                }
-                                else
-                                {
-                                    PostFailure(doc, element.Id, rule.FailureId);
-                                }
-                            }
-                        }
-                        else if (rule.Requirement != null)
-                        {
-                            if (rule.Requirement.StartsWith("IF "))
-                            {
-                                var thenIdx = rule.Requirement.IndexOf("THEN ");
-
-                                var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
-                                var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
-
-                                var ifExp = BuildExpressionString(element, ifClause);
-                                var result = CSharpScript.EvaluateAsync<bool>(ifExp,
-                                     Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
-                                     .WithImports("System")
-                                     ).Result;
-
-                                if (result)
-                                {
-                                    var thenExp = BuildExpressionString(element, thenClause);
-                                }
-                            }
-                            else
-                            {
-                                var expressionString = BuildExpressionString(element, rule.Requirement);
-                                var exp = paramString + expressionString;
-                                var context = new ExpressionContext();
-                                var e = context.CompileGeneric<bool>(exp);
-                                var result = e.Evaluate();
-                                if (!result)
-                                {
-                                    using (var form = new FormEnterValue(rule.UserMessage + " but current evaluation is " + exp, null))
-                                    {
-                                        form.ShowDialog();
-                                        var v = form.GetValue();
-                                        SetParam(parameter, v);
-                                    }
-                                }
-                            }
-                        }
-                        else if (rule.Formula != null)
-                        {
-                            var exp = BuildExpressionString(element, rule.Formula);
-                            var context = new ExpressionContext();
-                            var e = context.CompileGeneric<double>(exp);
-                            var result = e.Evaluate();
-                            SetParam(parameter, result.ToString());
-                        }
-                        else if (
-                            rule.Regex != null &&
-                            paramString != null)
-                        {
-                            if (paramString == null ||
-                                !Regex.IsMatch(paramString, rule.Regex))
-                            {
-                                using (var form = new FormEnterValue(rule.UserMessage, rule.Regex))
-                                {
-                                    form.ShowDialog();
-                                    var v = form.GetValue();
-                                    SetParam(parameter, v);
-                                    Utils.propertiesPanel.Refresh();
-                                }
-                            }
-                        }
-                        else if (rule.PreventDuplicates != null)
-                        {
-                            var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
-                            var others = new FilteredElementCollector(doc)
-                                .OfCategory(bic)
-                                .WhereElementIsNotElementType()
-                                .Where(q => q.Id != element.Id);
-                            List<string> othersParams =
-                                others.Select(q => GetParamAsString(Utils.GetParameter(q, rule.ParameterName))).ToList();
-                            if (othersParams.Contains(paramString))
-                            {
-                                using (var form = new FormEnterValue(rule.UserMessage, null))
-                                {
-                                    form.ShowDialog();
-                                    var v = form.GetValue();
-                                    SetParam(parameter, v);
-                                    Utils.propertiesPanel.Refresh();
-                                }
-                            }
-                        }
-                        else if (rule.FromHostInstance != null)
-                        {
-                            if (element is FamilyInstance fi)
-                            {
-                                var host = fi.Host;
-                                if (host != null)
-                                {
-                                    var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
-                                    if ((value ?? string.Empty) != (paramString ?? string.Empty))
-                                    {
-                                        SetParam(parameter, value);
-                                        TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
-                                    }
-                                }
-                            }
-                            else if (element is HostObject host)
-                            {
-                                var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
-                                var inserts = new FilteredElementCollector(doc)
-                                    .OfClass(typeof(FamilyInstance))
-                                    .Cast<FamilyInstance>()
-                                    .Where(q => q.Host != null && q.Host.Id == host.Id);
-                                foreach (var insert in inserts)
-                                {
-                                    SetParam(Utils.GetParameter(insert, rule.FromHostInstance), value);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Utils.Log($"Rule Not Implmented {rule.RuleName}");
-                        }
+                        SetParam(parameterString.Parameter, parameterString.Value);
                     }
+                }
+                if (ruleFailures.Any())
+                {
+                    FormGridList form = new FormGridList(ruleFailures);
+                    form.Show();
+
                 }
             }
             catch (Exception ex)
@@ -349,151 +138,12 @@ namespace RevitDataValidator
         public string GetUpdaterName()
         { return "DataValidationUpdater"; }
 
-        private static string RemoveIllegalCharacters(string s)
-        {
-            char[] illegal = { '\\', ':', '{', '}', '[', ']', '|', '>', '<', '~', '?', '`', ';', };
-            return string.Concat(s.Split(illegal));
-        }
 
-        private static string GetParamAsString(Parameter p)
-        {
-            if (p == null)
-                return null;
 
-            if (p.StorageType == StorageType.String)
-            {
-                if (p.AsString() == null)
-                    return null;
+      
 
-                return p.AsString();
-            }
-            else if (p.StorageType == StorageType.Double)
-            {
-                return p.AsDouble().ToString();
-            }
-            else if (p.StorageType == StorageType.Integer)
-            {
-                return p.AsInteger().ToString();
-            }
-            else if (p.StorageType == StorageType.ElementId)
-            {
-                return p.AsValueString();
-            }
+        
 
-            return null;
-        }
-
-        private static string GetStringAfterParsedParameterName(string input, int matchEnd, int nextMatchIndex)
-        {
-            var length = nextMatchIndex - matchEnd;
-            return input.Substring(matchEnd, length);
-        }
-
-        private string BuildFormattedString(Element element, string input, bool removeIllegalCharacters)
-        {
-            var matches = Regex.Matches(input, PARAMETER_PARSE_PATTERN);
-
-            var s = string.Empty;
-            for (int i = 0; i < matches.Count; i++)
-            {
-                var match = matches[i];
-                var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
-                var matchEnd = match.Index + match.Length;
-                if (s == string.Empty)
-                    s += input.Substring(0, match.Index);
-                var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
-                if (parameter != null)
-                {
-                    if (parameter.StorageType == StorageType.Double)
-                    {
-                        double paramValue = GetParamAsDouble(parameter);
-                        var options = new FormatValueOptions
-                        {
-                            AppendUnitSymbol = true
-                        };
-                        var formatted = UnitFormatUtils.Format(element.Document.GetUnits(), parameter.Definition.GetDataType(), paramValue, false, options);
-                        s += formatted;
-                    }
-                    else if (parameter.StorageType == StorageType.Integer)
-                    {
-                        if (parameter.AsValueString() == parameter.AsInteger().ToString())
-                        {
-                            s += parameter.AsInteger();
-                        }
-                        else
-                        {
-                            if (parameter.GetTypeId() == ParameterTypeId.FunctionParam)
-                            {
-                                s += ((WallFunction)parameter.AsInteger()).ToString();
-                            }
-                        }
-                    }
-                    else if (parameter.StorageType == StorageType.String)
-                    {
-                        s += parameter.AsString();
-                    }
-                    else if (parameter.StorageType == StorageType.ElementId)
-                    {
-                        s += parameter.AsValueString();
-                    }
-                }
-
-                if (i == matches.Count - 1)
-                {
-                    s += input.Substring(matchEnd);
-                }
-                else
-                {
-                    s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
-                }
-            }
-            if (removeIllegalCharacters)
-                s = RemoveIllegalCharacters(s);
-
-            return s;
-        }
-
-        private string BuildExpressionString(Element element, string input)
-        {
-            var matches = Regex.Matches(input, PARAMETER_PARSE_PATTERN);
-
-            var s = string.Empty;
-            for (int i = 0; i < matches.Count; i++)
-            {
-                var match = matches[i];
-                var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
-                var matchEnd = match.Index + match.Length;
-                if (s == string.Empty)
-                    s += input.Substring(0, match.Index);
-                var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
-                if (parameter != null)
-                {
-                    if (parameter.StorageType == StorageType.Integer || parameter.StorageType == StorageType.Double)
-                    {
-                        double paramValue = GetParamAsDouble(parameter);
-                        s += paramValue;
-                    }
-                    else if (parameter.StorageType == StorageType.String)
-                    {
-                        s += "\"" + parameter.AsString() + "\"";
-                    }
-                    else if (parameter.StorageType == StorageType.ElementId)
-                    {
-                        s += "\"" + parameter.AsValueString() + "\"";
-                    }
-                }
-
-                if (i == matches.Count - 1)
-                {
-                    s += input.Substring(matchEnd);
-                }
-                else
-                {
-                    s += GetStringAfterParsedParameterName(input, matchEnd, matches[i + 1].Index);
-                }
-            }
-            return s;
-        }
 
         private static void PostFailure(Document doc, ElementId id, FailureDefinitionId failureId)
         {
@@ -502,45 +152,11 @@ namespace RevitDataValidator
             doc.PostFailure(failureMessage);
         }
 
-        private static string GetParamAsValueString(Parameter p)
-        {
-            if (p == null)
-                return null;
-            return p.AsValueString();
-        }
 
-        private Parameter GetParameterFromElementOrHostOrType(Element e, string paramName)
-        {
-            var p = Utils.GetParameter(e, paramName);
-            if (p != null)
-                return p;
-            var elementType = e.Document.GetElement(e.GetTypeId());
-            if (elementType == null)
-                return null;
-            p = Utils.GetParameter(elementType, paramName);
-            if (p != null)
-                return p;
-            if (e is FamilyInstance fi)
-            {
-                p = Utils.GetParameter(fi.Host, paramName);
-                if (p != null)
-                    return p;
-                var hostType = e.Document.GetElement(fi.Host.GetTypeId());
-                p = Utils.GetParameter(hostType, paramName);
-                if (p != null)
-                    return p;
-            }
-            return null;
-        }
 
-        private static double GetParamAsDouble(Parameter p)
-        {
-            if (p.StorageType == StorageType.Integer)
-                return Convert.ToDouble(p.AsInteger());
-            if (p.StorageType == StorageType.Double)
-                return p.AsDouble();
-            return double.NaN;
-        }
+        
+
+
 
         private static string GetParamAsDoubleString(Parameter p)
         {
