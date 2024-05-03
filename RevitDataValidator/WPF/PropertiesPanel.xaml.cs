@@ -121,19 +121,11 @@ namespace RevitDataValidator
                 return;
             if (control.Tag is List<Parameter> parameters)
             {
-                ParameterObject po = null;
                 if (control.SelectedItem is StringInt stringInt)
                 {
-                    if (stringInt.Int == 0)
-                    {
-                        po = new ParameterObject(parameters, stringInt.String);
-                    }
-                    else
-                    {
-                        po = new ParameterObject(parameters, stringInt.Int);
-                    }
+                    var po = new ParameterObject(parameters, stringInt.Int);
+                    Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { po });
                 }
-                Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { po });
             }
         }
 

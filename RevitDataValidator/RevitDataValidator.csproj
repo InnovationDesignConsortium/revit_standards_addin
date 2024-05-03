@@ -58,6 +58,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ParameterEnum.cs" />
     <Compile Include="Classes\ParameterString.cs" />
     <Compile Include="Classes\StringInt.cs" />
     <Compile Include="Classes\ParameterObject.cs" />

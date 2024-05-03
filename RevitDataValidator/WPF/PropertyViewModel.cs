@@ -1,8 +1,11 @@
 ﻿using Autodesk.Revit.DB;
+using Newtonsoft.Json;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +13,7 @@ namespace RevitDataValidator
 {
     public class PropertyViewModel
     {
-        private static readonly string OTHER = "Others";
+        private const string OTHER = "Others";
         public ObservableCollection<PackData> PackData { get; set; }
         public ObservableCollection<string> cboData { get; set; }
 
@@ -29,7 +32,7 @@ namespace RevitDataValidator
             Element element = null;
             if (Utils.selectedIds.Any())
             {
-                element = Utils.doc.GetElement(Utils.selectedIds.First());
+                element = Utils.doc.GetElement(Utils.selectedIds[0]);
             }
             else
             {
@@ -45,12 +48,12 @@ namespace RevitDataValidator
                 Utils.parameterUIData.PackSets
                 .Where(q => q.Category == catName).Select(q => q.Name));
 
-            var packSet = Utils.parameterUIData.PackSets.FirstOrDefault(q => q.Name == name);
+            var packSet = Utils.parameterUIData.PackSets.Find(q => q.Name == name);
             if (packSet.ParameterPacks == null)
                 packSet.ParameterPacks = new List<string>();
 
             var packNames = packSet.ParameterPacks;
-            var allPacks = Utils.parameterUIData.ParameterPacks.Where(q => packNames != null && packNames.Contains(q.Name));
+            var allPacks = Utils.parameterUIData.ParameterPacks.Where(q => packNames?.Contains(q.Name) == true);
             var allParameterNames = allPacks.SelectMany(q => q.Parameters).ToList();
 
             var packOthers = new ParameterPack
@@ -58,9 +61,11 @@ namespace RevitDataValidator
                 Name = OTHER,
                 Parameters = element.Parameters
                 .Cast<Parameter>()
-                .Where(q => !allParameterNames.Contains(q.Definition.Name))
-                .Where(q => packSet.ShowAllOtherParametersExcluding == null || !packSet.ShowAllOtherParametersExcluding.Contains(q.Definition.Name))
-                .Where(q => q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID && q.StorageType != StorageType.None)
+                .Where(q =>
+                    !allParameterNames.Contains(q.Definition.Name) &&
+                    (packSet.ShowAllOtherParametersExcluding?.Contains(q.Definition.Name) != true) &&
+                    q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID &&
+                    q.StorageType != StorageType.None)
                 .OrderBy(q => q.Definition.Name)
                 .Select(q => q.Definition.Name).ToList()
             };
@@ -74,7 +79,7 @@ namespace RevitDataValidator
 
             foreach (var packName in packNames)
             {
-                var parameterPack = Utils.parameterUIData.ParameterPacks.FirstOrDefault(q => q.Name == packName);
+                var parameterPack = Utils.parameterUIData.ParameterPacks.Find(q => q.Name == packName);
                 if (packName == OTHER)
                     parameterPack = packOthers;
 
@@ -91,29 +96,28 @@ namespace RevitDataValidator
                     bool foundRule = false;
                     foreach (var rule in Utils.allParameterRules)
                     {
-                        if (rule.Categories != null &&
-                            rule.Categories.Contains(parameterPack.Category) &&
+                        if (rule.Categories?.Contains(parameterPack.Category) == true &&
                             (rule.ListOptions != null || rule.KeyValues != null) &&
                             rule.ParameterName == pname)
                         {
                             List<StringInt> choices;
                             if (rule.ListOptions != null)
                             {
-                                choices = rule.ListOptions.Select(q => new StringInt(q.Name, 0)).ToList();
+                                choices = rule.ListOptions.ConvertAll(q => new StringInt(q.Name, 0));
                             }
                             else
                             {
-                                choices = rule.KeyValues.Select(q => new StringInt(q[0], 0)).ToList();
+                                choices = rule.KeyValues.ConvertAll(q => new StringInt(q[0], 0));
                             }
                             var paramValue = GetParameterValue(pname);
-                            var selected = choices.FirstOrDefault(q => q.String == paramValue);
+                            var selected = choices.Find(q => q.String == paramValue);
                             packParameters.Add(new ChoiceStateParameter
                             {
                                 Parameters = parameters,
                                 Name = pname,
                                 Choices = choices,
                                 SelectedChoice = selected,
-                                IsEnabled = !parameters.First().IsReadOnly
+                                IsEnabled = !parameters[0].IsReadOnly
                             });
                             foundRule = true;
                             break;
@@ -121,9 +125,9 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        if (parameters != null && parameters.Count() > 0 && parameters.First() != null)
+                        if (parameters?.Count() > 0 && parameters[0] != null)
                         {
-                            var parameter = parameters.First();
+                            var parameter = parameters[0];
                             var value = GetParameterValue(pname);
                             if (parameter.StorageType == StorageType.Integer &&
                                 parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
@@ -146,7 +150,22 @@ namespace RevitDataValidator
                                 parameter.AsValueString() != parameter.AsInteger().ToString())
                             {
                                 var choices = new List<StringInt>();
-                                if (parameter.GetTypeId() == ParameterTypeId.WallKeyRefParam)
+                                var typeid = parameter.GetTypeId();
+                                var typeidstring = typeid.TypeId.Replace("autodesk.revit.parameter:", "");
+                                typeidstring = typeidstring.Substring(0, typeidstring.IndexOf("-") + 1);
+                                var path = Path.Combine(Utils.dllPath, "enums");
+                                var enumFile = Directory.GetFiles(path, "*.json")
+                                    .FirstOrDefault(q => q.Replace(path + "\\", "").StartsWith(typeidstring));
+                                if (enumFile != null)
+                                {
+                                    using (var sr = new StreamReader(enumFile))
+                                    {
+                                        var contents = sr.ReadToEnd();
+                                        var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents);
+                                        choices = enumData.Properties.ConvertAll(q => new StringInt(q.Id, q.Value));
+                                    }
+                                }
+                                else if (typeid == ParameterTypeId.WallKeyRefParam)
                                 {
                                     foreach (var v in Enum.GetValues(typeof(WallLocationLine)))
                                     {
@@ -156,12 +175,12 @@ namespace RevitDataValidator
 
                                 if (choices.Any())
                                 {
-                                    var selected = choices.FirstOrDefault(q => q.Int == parameter.AsInteger());
+                                    var selected = choices.Find(q => q.Int == parameter.AsInteger());
                                     packParameters.Add(new ChoiceStateParameter
                                     {
                                         Parameters = parameters,
                                         Name = pname,
-                                        IsEnabled = !parameters.First().IsReadOnly,
+                                        IsEnabled = !parameters[0].IsReadOnly,
                                         Choices = choices,
                                         SelectedChoice = selected
                                     });
@@ -317,16 +336,16 @@ namespace RevitDataValidator
                                             if (parameter.StorageType == StorageType.ElementId &&
                                                 value != string.Empty)
                                             {
-                                                selected = choices.FirstOrDefault(q => q.Int == parameter.AsElementId().IntegerValue);
+                                                selected = choices.Find(q => q.Int == parameter.AsElementId().IntegerValue);
                                             }
                                             else
                                             {
-                                                selected = choices.FirstOrDefault(q => q.String == value);
+                                                selected = choices.Find(q => q.String == value);
                                             }
                                             packParameters.Add(new ChoiceStateParameter
                                             {
                                                 Parameters = parameters,
-                                                IsEnabled = !parameters.First().IsReadOnly,
+                                                IsEnabled = !parameters[0].IsReadOnly,
                                                 Name = pname,
                                                 Choices = choices,
                                                 SelectedChoice = selected
@@ -346,7 +365,7 @@ namespace RevitDataValidator
                                     {
                                         Name = pname,
                                         Parameters = parameters,
-                                        IsEnabled = !parameters.First().IsReadOnly,
+                                        IsEnabled = !parameters[0].IsReadOnly,
                                         Value = value
                                     }
                                     );
@@ -403,9 +422,9 @@ namespace RevitDataValidator
 
             if (Utils.selectedIds.Any())
             {
-                var parameters = Utils.selectedIds.Select(w =>
+                var parameters = Utils.selectedIds.ConvertAll(w =>
                 Utils.doc.GetElement(w).Parameters.
-                    Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q))).ToList();
+                    Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
                 if (parameters.Any(q => q == null))
                 {
                     Utils.Log($"Parameter {parameterName} does not exist for element ids {string.Join(",", Utils.selectedIds.Select(q => q.IntegerValue))}", Utils.LogLevel.Error);
@@ -431,16 +450,9 @@ namespace RevitDataValidator
                 id.BuiltInParameter != BuiltInParameter.INVALID)
             {
                 var typeid = id.GetParameterTypeId();
-                if (typeid == ParameterTypeId.ScheduleLevelParam ||
-                    typeid == ParameterTypeId.ScheduleBaseLevelParam ||
-                    typeid == ParameterTypeId.ScheduleTopLevelParam)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                return typeid != ParameterTypeId.ScheduleLevelParam &&
+                    typeid != ParameterTypeId.ScheduleBaseLevelParam &&
+                    typeid != ParameterTypeId.ScheduleTopLevelParam;
             }
             else
             {
@@ -499,7 +511,7 @@ namespace RevitDataValidator
             var valuesDistinct = values.Distinct().ToList();
             if (valuesDistinct.Count == 1)
             {
-                return valuesDistinct.First();
+                return valuesDistinct[0];
             }
             else
             {
@@ -516,10 +528,15 @@ namespace RevitDataValidator
             for (int i = 1; i < text.Length; i++)
             {
                 if (char.IsUpper(text[i]))
+                {
                     if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
                         (preserveAcronyms && char.IsUpper(text[i - 1]) &&
                          i < text.Length - 1 && !char.IsUpper(text[i + 1])))
-                        newText.Append(' ');
+                    {
+                        _ = newText.Append(' ');
+                    }
+                }
+
                 newText.Append(text[i]);
             }
             return newText.ToString();

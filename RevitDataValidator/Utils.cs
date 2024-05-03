@@ -32,6 +32,7 @@ namespace RevitDataValidator
         private const string PARAMETER_PARSE_PATTERN = "\\{(.*?)\\}";
         private const string PARAMETER_PARSE_START = "{";
         private const string PARAMETER_PARSE_END = "}";
+        public static string dllPath;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {

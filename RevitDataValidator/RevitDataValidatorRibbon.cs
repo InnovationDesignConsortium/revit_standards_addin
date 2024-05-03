@@ -70,9 +70,11 @@ namespace RevitDataValidator
 
             genericFailureId = new FailureDefinitionId(Guid.NewGuid());
 
-            var panelName = "Data Validator";
+            const string panelName = "Data Validator";
             var panel = application.GetRibbonPanels().FirstOrDefault(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
             var dll = typeof(Ribbon).Assembly.Location;
+            Utils.dllPath = Path.GetDirectoryName(dll);
+
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
             var cboRuleFile = panel.AddItem(new ComboBoxData("cboRuleFile")) as ComboBox;
             var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)

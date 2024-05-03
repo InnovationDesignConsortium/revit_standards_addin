@@ -112,7 +112,7 @@
             this.Controls.Add(this.btnOk);
             this.Name = "FormGridList";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Select From List";
+            this.Text = "Resolve Rule Errors";
             this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel1.ResumeLayout(false);
