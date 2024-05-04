@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
+using Autodesk.Revit.UI.Selection;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
@@ -22,7 +23,7 @@ namespace RevitDataValidator
         private readonly string RULE_FILE_EXT = ".md";
         private readonly string RULES = "Rules";
         private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
-        private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed.";
+        private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
 
@@ -69,24 +70,31 @@ namespace RevitDataValidator
             UpdaterRegistry.RegisterUpdater(dataValidationUpdater, true);
 
             genericFailureId = new FailureDefinitionId(Guid.NewGuid());
+            FailureDefinition.CreateFailureDefinition(
+                genericFailureId,
+                FailureSeverity.Error,
+                RULE_DEFAULT_MESSAGE);
 
             const string panelName = "Data Validator";
-            var panel = application.GetRibbonPanels().FirstOrDefault(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
+            var panel = application.GetRibbonPanels().Find(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
-            var cboRuleFile = panel.AddItem(new ComboBoxData("cboRuleFile")) as ComboBox;
+            var cboRuleFile = panel.AddItem(new ComboBoxData("cboRuleFile")) as Autodesk.Revit.UI.ComboBox;
             var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
                 .OrderBy(q => q);
             if (ruleFiles.Any())
             {
-                foreach (string s in ruleFiles)
+                foreach (string ruleFile in ruleFiles)
                 {
-                    var name = Path.GetFileNameWithoutExtension(s);
-                    cboRuleFile.AddItem(new ComboBoxMemberData(s, name));
+                    var member = cboRuleFile.AddItem(new ComboBoxMemberData(ruleFile, Path.GetFileNameWithoutExtension(ruleFile)));
+                    if (ruleFile == Properties.Settings.Default.ActiveRuleFile)
+                    {
+                        cboRuleFile.Current = member;
+                    }
                 }
-                selectedRuleFile = ruleFiles.FirstOrDefault();
+
                 RegisterRules();
 
                 cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
@@ -120,14 +128,12 @@ namespace RevitDataValidator
             Utils.doc = e.Document;
         }
 
-        private string selectedRuleFile;
-
         private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
         {
-            selectedRuleFile = e.NewValue.Name;
+            Properties.Settings.Default.ActiveRuleFile = e.NewValue.Name;
+            Properties.Settings.Default.Save();
             Utils.allParameterRules = new List<ParameterRule>();
             RegisterRules();
-            Utils.propertiesPanel.Refresh(Utils.propertiesPanel.cbo.SelectedItem.ToString());
         }
 
         private void SetupPane()
@@ -146,7 +152,7 @@ namespace RevitDataValidator
             Element element = null;
             if (Utils.selectedIds.Any())
             {
-                element = doc.GetElement(Utils.selectedIds.First());
+                element = doc.GetElement(Utils.selectedIds[0]);
             }
             else
             {
@@ -158,7 +164,7 @@ namespace RevitDataValidator
 
             var catName = element.Category.Name;
             var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
-            if (validPacks.Count() == 0)
+            if (!validPacks.Any())
             {
                 Utils.propertiesPanel.Refresh(null);
                 return;
@@ -227,7 +233,7 @@ namespace RevitDataValidator
             {
                 foreach (var worksetRule in worksetRules.Where(q =>
                     q.RevitFileNames == null ||
-                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
+                    (Utils.doc != null && q.RevitFileNames?.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)) == true)))
                 {
                     RegisterWorksetRule(worksetRule);
                     Utils.allWorksetRules.Add(worksetRule);
@@ -259,7 +265,7 @@ namespace RevitDataValidator
 
         private void RegisterParameterRule(ParameterRule rule)
         {
-            Utils.Log(" Registering rule " + rule.ToString());
+            Utils.Log(" Registering rule " + rule);
             try
             {
                 if (rule.CustomCode != null)
@@ -303,7 +309,7 @@ namespace RevitDataValidator
                     var types = new List<Type>();
                     foreach (string className in rule.ElementClasses)
                     {
-                        var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.ToLower().Contains("revitapi.dll"));
+                        var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
                         var type = asm.GetType(className);
                         if (type != null)
                             types.Add(type);
@@ -366,9 +372,9 @@ namespace RevitDataValidator
         {
             parameterRules = new List<ParameterRule>();
             worksetRules = new List<WorksetRule>();
-            if (File.Exists(selectedRuleFile))
+            if (File.Exists(Properties.Settings.Default.ActiveRuleFile))
             {
-                var markdown = File.ReadAllText(selectedRuleFile);
+                var markdown = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
                 MarkdownDocument document = Markdown.Parse(markdown);
                 var descendents = document.Descendants();
                 var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
@@ -391,59 +397,10 @@ namespace RevitDataValidator
                         worksetRules = rules.WorksetRules;
                     }
                 }
-
-                //for (var row = 2; row < sheet.Dimension.End.Row + 1; row++)
-                //    {
-                //        try
-                //        {
-                //            var categoryString = GetCellString(sheet.Cells[row, 1].Value);
-                //            if (categoryString == string.Empty)
-                //                break;
-
-                //            var rule = new ParameterRule
-                //            {
-                //                PackName = GetCellString(sheet.Cells[row, 2].Value),
-                //                RuleData = GetCellString(sheet.Cells[row, 4].Value),
-                //                UserMessage = GetCellString(sheet.Cells[row, 6].Value),
-                //            };
-
-                //            if (GetCellString(sheet.Cells[row, 5].Value).ToLower().StartsWith("y"))
-                //            {
-                //                rule.IsRequired = true;
-                //            }
-                //            else
-                //            {
-                //                rule.IsRequired = false;
-                //            }
-
-                //            var categories = new List<string>();
-                //            foreach (var cat in categoryString.Split(Utils.LIST_SEP))
-                //            {
-                //                categories.Add(cat);
-                //            }
-                //            rule.Categories = categories;
-
-                //            var ruleTypeString = GetCellString(sheet.Cells[row, 3].Value);
-                //            if (Enum.TryParse(ruleTypeString, out RuleType ruleType))
-                //            {
-                //                rule.RuleType = ruleType;
-                //            }
-                //            else
-                //            {
-                //                Utils.LogError($"Invalid rule type: {ruleTypeString}");
-                //            }
-                //            ret.Add(rule);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            Utils.LogError($"Exception loading rule on row {row} {ex.Message}");
-                //        }
-
-                //}
             }
             else
             {
-                Utils.Log("File not found: " + selectedRuleFile, Utils.LogLevel.Error);
+                Utils.Log("File not found: " + Properties.Settings.Default.ActiveRuleFile, Utils.LogLevel.Error);
             }
         }
 
