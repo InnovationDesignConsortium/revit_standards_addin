@@ -2,7 +2,6 @@
 
 ```json
 {
-  
   "Workset Rules":
   [
     {
@@ -27,6 +26,7 @@
   "Parameter Rules": 
   [
   {
+    "Rule Name": "Set Wall Type Function",
       "Element Classes": [
         "Autodesk.Revit.DB.WallType"
       ],
@@ -35,21 +35,24 @@
       "User Message": "Type name does not match required format"
   },
   {
+    "Rule Name": "Room Finish Keys",
       "Categories": ["Rooms"],
       "Parameter Name": "Room Style",
       "Driven Parameters": ["Wall Finish", "Floor Finish", "Ceiling Finish"],
       "Key Values": [
         ["A", "Wall A", "Floor A", "Ceiling A"],
         ["B", "Wall B", "Floor B", "Ceiling B"],
-        ["C", "Wall C", "Floor C", "Ceiling C"],
+        ["C", "Wall C", "Floor C", "Ceiling C"]
         ]
     },
     {
+      "Rule Name": "Room Occupancy Load",
       "Categories": ["Rooms"],
       "Parameter Name": "Occupancy Load",
-      "Formula": "{Occupancy Count} * {Area}",
+      "Formula": "{Occupancy Count} * {Area}"
     },
     {
+      "Rule Name": "In Place Family Quantity",
       "Element Classes": [
         "Autodesk.Revit.DB.FamilyInstance"
       ],
@@ -76,7 +79,7 @@
       [
         {"name": "a", "description": ""},
         {"name": "b", "description": ""},
-        {"name": "c", "description": ""},
+        {"name": "c", "description": ""}
       ]
     },
     {

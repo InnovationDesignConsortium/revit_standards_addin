@@ -4,6 +4,7 @@ using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -123,8 +124,10 @@ namespace RevitDataValidator
             {
                 if (control.SelectedItem is StringInt stringInt)
                 {
-                    var po = new ParameterObject(parameters, stringInt.Int);
-                    Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> { po });
+                    Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> {
+                        new ParameterObject(parameters, stringInt.Int) });
+                    Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> {
+                        new ParameterObject(parameters, stringInt.String)});
                 }
             }
         }
@@ -190,7 +193,6 @@ namespace RevitDataValidator
                         }
                     }
                 }
-
             }
         }
 
@@ -199,6 +201,109 @@ namespace RevitDataValidator
             ScrollViewer scv = (ScrollViewer)sender;
             scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
             e.Handled = true;
+        }
+
+        private void Button_Workset_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var tag = button.Tag;
+            var rule = Utils.allWorksetRules.First(q => q.Guid.ToString() == tag.ToString());
+            if (rule == null)
+                return;
+
+            List<ElementId> ids = new FilteredElementCollector(Utils.doc)
+                .WherePasses(new LogicalOrFilter(
+                    new ElementIsElementTypeFilter(true),
+                    new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
+
+            Utils.RunWorksetRule(rule, ids);
+        }
+
+        private void Button_Parameter_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var tag = button.Tag;
+            var rule = Utils.allParameterRules.First(q => q.Guid.ToString() == tag.ToString());
+            if (rule == null)
+                return;
+
+            var ruleFailures = new List<RuleFailure>();
+            var parametersToSet = new List<ParameterString>();
+
+            if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
+            {
+                var ids = Utils.RunCustomRule(rule);
+                if (ids.Any())
+                {
+                    var td = new TaskDialog("Error")
+                    {
+                        MainInstruction = rule.UserMessage,
+                        MainContent = string.Join(Environment.NewLine, ids)
+                    };
+                    td.Show();
+                }
+            }
+            else
+            {
+                List<ElementId> allDocumentIds = new FilteredElementCollector(Utils.doc)
+                    .WherePasses(new LogicalOrFilter(
+                        new ElementIsElementTypeFilter(true),
+                        new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
+                var parametersToSetForFormatRules = new List<ParameterString>();
+                foreach (var id in allDocumentIds)
+                {
+                    var thisFailure = Utils.RunParameterRule(
+                        rule,
+                        id,
+                        null,
+                        out List<ParameterString> thisElementParametersToSet,
+                        out List<ParameterString> thisElementparametersToSetForFormatRules
+                        );
+                    parametersToSet.AddRange(thisElementParametersToSet);
+                    parametersToSetForFormatRules.AddRange(thisElementparametersToSetForFormatRules);
+                    if (thisFailure != null)
+                    {
+                        ruleFailures.Add(thisFailure);
+                    }
+                }
+
+                if (parametersToSetForFormatRules.Any())
+                {
+                    var td = new TaskDialog("Alert")
+                    {
+                        MainInstruction =
+        $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to",
+                        MainContent = string.Join(Environment.NewLine, parametersToSetForFormatRules.Select(q => q.Value)),
+                        CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
+                    };
+                    if (td.Show() == TaskDialogResult.Ok)
+                    {
+                        Utils.eventHandlerWithParameterObject.Raise(
+                            parametersToSetForFormatRules.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.Value)));
+                    }
+                }
+
+                if (parametersToSet.Any())
+                {
+                    Utils.eventHandlerWithParameterObject.Raise(
+                        parametersToSet.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.Value)));
+                }
+
+                if (ruleFailures.Any())
+                {
+                    FormGridList form = new FormGridList(ruleFailures);
+                    form.Show();
+                }
+            }
+        }
+
+        private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
+        {
+            var ruleFile = Properties.Settings.Default.ActiveRuleFile;
+            if (File.Exists(ruleFile))
+            {
+                Process.Start(ruleFile);
+            }
         }
     }
 }

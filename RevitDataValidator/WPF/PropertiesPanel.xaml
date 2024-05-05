@@ -7,22 +7,22 @@
              mc:Ignorable="d"
              Background="LightGray"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ScrollViewer 
-        VerticalScrollBarVisibility="Auto" 
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
         HorizontalScrollBarVisibility="Disabled"
-        PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
-        >
-        <Grid
+        PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+        <StackPanel>
+            <Grid
         x:Name="OverallGrid"
         Margin="0,0,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <ComboBox
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ComboBox
             x:Name="cbo"
             Grid.Row="0"
             HorizontalContentAlignment="Stretch"
@@ -30,25 +30,24 @@
             Margin="5,5,5,5"
             IsEditable="False"
             SelectionChanged="cbo_SelectionChanged" />
-            <ItemsControl
+                <ItemsControl
                 Grid.Row="1"
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding PackData}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-
-                        <Grid
-                        x:Name="WrapperGrid"
-                        HorizontalAlignment="Stretch">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Label Grid.Row="0"
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid
+                                x:Name="WrapperGrid"
+                                HorizontalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0"
                                Content="{Binding PackName}"
                                Margin="2" />
-                            <DataGrid Grid.Row="1"
+                                <DataGrid Grid.Row="1"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
                                   CanUserDeleteRows="False"
@@ -60,62 +59,61 @@
                                   HeadersVisibility="None"
                                   Width="{Binding Path=ActualWidth, ElementName=WrapperGrid}"
                                   ItemsSource="{Binding PackParameters}">
-                                <DataGrid.Resources>
-                                    <DataTemplate DataType="{x:Type local:BoolStateParameter}">
-                                        <CheckBox
+                                    <DataGrid.Resources>
+                                        <DataTemplate DataType="{x:Type local:BoolStateParameter}">
+                                            <CheckBox
                                         Tag="{Binding Parameters}"
                                         IsChecked="{Binding Value}"
                                         IsEnabled="{Binding IsEnabled}"
                                         Checked="CheckBox_Checked"
                                         Unchecked="CheckBox_Unchecked" />
-                                    </DataTemplate>
-                                    <DataTemplate DataType="{x:Type local:TextStateParameter}">
-                                        <TextBox
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type local:TextStateParameter}">
+                                            <TextBox
                                         Tag="{Binding Parameters}"
                                         Text="{Binding Value}"
                                         IsEnabled="{Binding IsEnabled}"
                                         GotKeyboardFocus="TextBox_GotKeyboardFocus"
                                         LostFocus="TextBox_LostFocus" />
-                                    </DataTemplate>
-                                    <DataTemplate DataType="{x:Type local:ChoiceStateParameter}">
-                                        <ComboBox
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type local:ChoiceStateParameter}">
+                                            <ComboBox
                                         Tag="{Binding Parameters}"
                                         IsEnabled="{Binding IsEnabled}"
                                         LostFocus="ComboBox_LostFocus"
                                         DisplayMemberPath="String"
                                         SelectedItem="{Binding SelectedChoice}"
                                         ItemsSource="{Binding Choices}" />
-                                    </DataTemplate>
-                                    <DataTemplate DataType="{x:Type local:PushButtonParameter}">
-                                        <Button
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type local:PushButtonParameter}">
+                                            <Button
                                             Content="{Binding Name}"
-                                            PreviewMouseLeftButtonUp="Button_PreviewMouseLeftButtonUp"
-                                         />
-                                    </DataTemplate>
-                                </DataGrid.Resources>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn
+                                            PreviewMouseLeftButtonUp="Button_PreviewMouseLeftButtonUp" />
+                                        </DataTemplate>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn
                                     IsReadOnly="True"
                                     Header="Property"
                                     Width="150"
                                     Binding="{Binding Name}" />
-                                    <DataGridTemplateColumn
+                                        <DataGridTemplateColumn
                                     Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <ContentPresenter Content="{Binding}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <Grid
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentPresenter Content="{Binding}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Grid
                             Grid.Row="3">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition></ColumnDefinition>
-                                    <ColumnDefinition></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
                             Grid.Column="0">
                             <Hyperlink
                                 NavigateUri="{Binding LinkURL}"
@@ -124,7 +122,7 @@
                                     Text="{Binding LinkText}" />
                             </Hyperlink>
                         </TextBlock>
-                                <TextBlock
+                                    <TextBlock
                             Grid.Column="1">
                             <Hyperlink
                                 NavigateUri="{Binding PdfPath}"
@@ -133,11 +131,117 @@
                                     Text="{Binding PdfText}" />
                             </Hyperlink>
                         </TextBlock>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+            <Separator />
+            
+            <Grid Grid.Row="1">
+                <ItemsControl
+                    ItemsSource="{Binding WorksetRuleDatas}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="5,5,5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <StackPanel
+                                        Grid.Row="1"
+                                        Orientation="Horizontal">
+                                    <Label
+                                        Margin="0,0,-5, 0"
+                                        Content="{Binding WorksetName}" />
+                                    <Label
+                                        Margin="0,0,-5, 0"
+                                        Content=" (" />
+                                    <Label
+                                        Margin="-5,0,-5, 0"
+                                        Content="{Binding CategoryList}" />
+                                    <Label
+                                        Margin="-5,0,0,0"
+                                        Content=")" />
+                                    <Button
+                                        Content="Run"
+                                        Tag="{Binding Guid}"
+                                        Width="50"
+                                        Height="20"
+                                        Click="Button_Workset_Click" />
+                                </StackPanel>
+                                <DataGrid
+                                    Grid.Row="3"
+                                    Background="LightGray"
+                                    Margin="0,-3,0,0"
+                                    HorizontalAlignment="Left"
+                                    AutoGenerateColumns="True"
+                                    HeadersVisibility="None"
+                                    CanUserAddRows="False"
+                                    CanUserDeleteRows="False"
+                                    CanUserResizeRows="False"
+                                    CanUserReorderColumns="False"
+                                    ColumnWidth="Auto"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding WorksetRuleParameters}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+            <Separator />
+            <Grid Grid.Row="2">
+                <ItemsControl
+                    ItemsSource="{Binding ParameterRuleDatas}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal">
+
+                                    <Label
+                                        Margin="0,0,-5,0"
+                                        Content="{Binding RuleName}" />
+                                    <Label
+                                        Margin="0,0,-5,0"
+                                        Content=" (" />
+                                    <Label
+                                        Margin="-5,0,-5, 0"
+                                        Content="{Binding CategoryList}" />
+                                    <Label
+                                        Margin="-5,0,0,0"
+                                        Content=")" />
+                                    <Button
+                                        Content="Run"
+                                        Tag="{Binding Guid}"
+                                        Width="50"
+                                        Height="20"
+                                        Click="Button_Parameter_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+            <Button
+                Content="View Rule File"
+                HorizontalAlignment="Left"
+                Width="150"
+                Click="Button_ViewRuleFile_Click" />
+        </StackPanel>
     </ScrollViewer>
 </UserControl>

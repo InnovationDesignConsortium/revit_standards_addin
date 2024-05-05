@@ -26,98 +26,49 @@ namespace RevitDataValidator
 
                 Document doc = data.GetDocument();
                 var modifiedIds = data.GetModifiedElementIds().ToList();
-                var addedIds = data.GetModifiedElementIds().ToList();
+                var addedIds = data.GetAddedElementIds().ToList();
 
                 List<ElementId> addedAndModifiedIds = addedIds.ToList();
                 addedAndModifiedIds.AddRange(modifiedIds);
 
                 foreach (var rule in Utils.allWorksetRules)
                 {
-                    if (rule.RevitFileNames != null &&
-                        rule.RevitFileNames.FirstOrDefault() != Utils.ALL &&
-                        rule.RevitFileNames.Contains(doc.PathName))
-                    {
-                        continue;
-                    }
-
-                    var workset = new FilteredWorksetCollector(Utils.doc).FirstOrDefault(q => q.Name == rule.Workset);
-                    if (workset == null)
-                    {
-                        Utils.Log($"Worksest does not exist {rule.Workset}", Utils.LogLevel.Error);
-                        continue;
-                    }
-
-                    foreach (ElementId id in addedAndModifiedIds)
-                    {
-                        var element = doc.GetElement(id);
-
-                        if (element is ElementType ||
-                            element.Category == null ||
-                            rule.Categories == null ||
-                            (rule.Categories.First() != Utils.ALL &&
-                            !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
-                        {
-                            continue;
-                        }
-
-                        bool pass = true;
-                        foreach (var p in rule.Parameters)
-                        {
-                            var parameter = Utils.GetParameterFromElementOrHostOrType(element, p.Name);
-                            if (parameter == null)
-                            {
-                                pass = false;
-                                break;
-                            }
-
-                            var paramValue = Utils.GetParamAsString(parameter);
-                            if (paramValue != p.Value)
-                            {
-                                pass = false;
-                                break;
-                            }
-                        }
-
-                        if (pass)
-                            element.get_Parameter(BuiltInParameter.ELEM_PARTITION_PARAM).Set(workset.Id.IntegerValue);
-                    }
+                    Utils.RunWorksetRule(rule, addedAndModifiedIds);
                 }
-
 
                 var applicableParameterRules = Utils.GetApplicableParameterRules();
-                foreach (var rule in applicableParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
+                if (applicableParameterRules.Any())
                 {
-                    Type type = Utils.dictCustomCode[rule.CustomCode];
-                    object obj = Activator.CreateInstance(type);
-                    object x = type.InvokeMember("Run",
-                                        BindingFlags.Default | BindingFlags.InvokeMethod,
-                                        null,
-                                        obj,
-                                        new object[] { Utils.doc });
-                    if (x is List<ElementId> failureIds)
+                    foreach (var rule in applicableParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
                     {
-                        FailureMessage failureMessage = new FailureMessage(rule.FailureId);
-                        failureMessage.SetFailingElements(failureIds);
-                        doc.PostFailure(failureMessage);
+                        var ids = Utils.RunCustomRule(rule);
+                        if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
+                        {
+                            FailureMessage failureMessage = new FailureMessage(rule.FailureId);
+                            failureMessage.SetFailingElements(ids);
+                            if (doc.IsModifiable)
+                            {
+                                doc.PostFailure(failureMessage);
+                            }
+                        }
                     }
-                }
 
-                var ruleFailures = new List<RuleFailure>();
+                    var ruleFailures = new List<RuleFailure>();
 
-                foreach (ElementId id in modifiedIds)
-                {
-                    var failuresForThisRule = Utils.GetFailures(id, null, out List<ParameterString> parametersToSet);
-                    ruleFailures.AddRange(failuresForThisRule);
-                    foreach (var parameterString in parametersToSet)
+                    foreach (ElementId id in modifiedIds)
                     {
-                        SetParam(parameterString.Parameter, parameterString.Value);
+                        var failuresForThisRule = Utils.GetFailures(id, null, out List<ParameterString> parametersToSet);
+                        ruleFailures.AddRange(failuresForThisRule);
+                        foreach (var parameterString in parametersToSet)
+                        {
+                            SetParam(parameterString.Parameter, parameterString.Value);
+                        }
                     }
-                }
-                if (ruleFailures.Any())
-                {
-                    FormGridList form = new FormGridList(ruleFailures);
-                    form.Show();
-
+                    if (ruleFailures.Any())
+                    {
+                        FormGridList form = new FormGridList(ruleFailures);
+                        form.Show();
+                    }
                 }
             }
             catch (Exception ex)
@@ -138,25 +89,12 @@ namespace RevitDataValidator
         public string GetUpdaterName()
         { return "DataValidationUpdater"; }
 
-
-
-      
-
-        
-
-
         private static void PostFailure(Document doc, ElementId id, FailureDefinitionId failureId)
         {
             FailureMessage failureMessage = new FailureMessage(failureId);
             failureMessage.SetFailingElement(id);
             doc.PostFailure(failureMessage);
         }
-
-
-
-        
-
-
 
         private static string GetParamAsDoubleString(Parameter p)
         {

@@ -17,6 +17,9 @@ namespace RevitDataValidator
         public ObservableCollection<PackData> PackData { get; set; }
         public ObservableCollection<string> cboData { get; set; }
 
+        public ObservableCollection<WorksetRuleData> WorksetRuleDatas { get; set; }
+        public ObservableCollection<ParameterRuleData> ParameterRuleDatas { get; set; }
+
         public PropertyViewModel()
         {
             cboData = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
@@ -393,6 +396,39 @@ namespace RevitDataValidator
                     PackParameters = packParameters,
                     LinkURL = parameterPack.URL,
                     PdfPath = parameterPack.PDF
+                });
+            }
+
+            ParameterRuleDatas = new ObservableCollection<ParameterRuleData>();
+            foreach (var rule in Utils.allParameterRules)
+            {
+                var v = new ParameterRuleData
+                {
+                    RuleName = rule.RuleName,
+                    Guid = rule.Guid,
+                };
+                if (rule.ElementClasses != null)
+                {
+                    v.ParameterRuleCategories = new ObservableCollection<string>(
+                        rule.ElementClasses.Select(q => q.Replace("Autodesk.Revit.DB.","")));
+                }
+                else if (rule.Categories != null)
+                {
+                    v.ParameterRuleCategories = new ObservableCollection<string>(rule.Categories);
+                }
+                ParameterRuleDatas.Add(v);
+            }
+
+
+            WorksetRuleDatas = new ObservableCollection<WorksetRuleData>();
+            foreach (var rule in Utils.allWorksetRules)
+            {
+                WorksetRuleDatas.Add(new WorksetRuleData
+                {
+                    WorksetName = rule.Workset,
+                    WorksetRuleParameters = new ObservableCollection<ParameterData>(rule.Parameters),
+                    WorksetRuleCategories = new ObservableCollection<string>(rule.Categories),
+                    Guid = rule.Guid,
                 });
             }
         }

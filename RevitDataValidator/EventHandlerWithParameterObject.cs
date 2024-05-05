@@ -23,6 +23,11 @@ namespace RevitDataValidator
                         {
                             if (parameter.IsReadOnly)
                             {
+                                if (parameter.Definition.Name == "Type Name" &&
+                                    args.Value is string typeNameValue)
+                                {
+                                    parameter.Element.Name = typeNameValue;
+                                }
                                 continue;
                             }
 

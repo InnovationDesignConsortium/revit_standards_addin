@@ -23,6 +23,7 @@ namespace RevitDataValidator
         private readonly string RULE_FILE_EXT = ".md";
         private readonly string RULES = "Rules";
         private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
+        private const string NONE = "<none>";
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
@@ -94,6 +95,7 @@ namespace RevitDataValidator
                         cboRuleFile.Current = member;
                     }
                 }
+                cboRuleFile.AddItem(new ComboBoxMemberData(NONE, NONE));
 
                 RegisterRules();
 
@@ -133,7 +135,9 @@ namespace RevitDataValidator
             Properties.Settings.Default.ActiveRuleFile = e.NewValue.Name;
             Properties.Settings.Default.Save();
             Utils.allParameterRules = new List<ParameterRule>();
+            Utils.allWorksetRules = new List<WorksetRule>();
             RegisterRules();
+            Utils.propertiesPanel.Refresh();
         }
 
         private void SetupPane()
@@ -372,7 +376,13 @@ namespace RevitDataValidator
         {
             parameterRules = new List<ParameterRule>();
             worksetRules = new List<WorksetRule>();
-            if (File.Exists(Properties.Settings.Default.ActiveRuleFile))
+            var ruleFile = Properties.Settings.Default.ActiveRuleFile;
+            if (ruleFile == NONE)
+            {
+                return;
+            }
+
+            if (File.Exists(ruleFile))
             {
                 var markdown = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
                 MarkdownDocument document = Markdown.Parse(markdown);
@@ -381,7 +391,7 @@ namespace RevitDataValidator
                 foreach (var block in codeblocks)
                 {
                     var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
-                    var json = string.Join(string.Empty, lines.Where(q => !q.StartsWith("//")).ToList());
+                    var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
                     RuleData rules = null;
                     try
                     {
@@ -395,6 +405,21 @@ namespace RevitDataValidator
                     {
                         parameterRules = rules.ParameterRules;
                         worksetRules = rules.WorksetRules;
+
+                        if (parameterRules != null)
+                        {
+                            foreach (var rule in parameterRules)
+                            {
+                                rule.Guid = Guid.NewGuid();
+                            }
+                        }
+                        if (worksetRules != null)
+                        {
+                            foreach (var rule in worksetRules)
+                            {
+                                rule.Guid = Guid.NewGuid();
+                            }
+                        }
                     }
                 }
             }

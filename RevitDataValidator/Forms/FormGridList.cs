@@ -17,16 +17,13 @@ namespace RevitDataValidator.Forms
 {
     public partial class FormGridList : System.Windows.Forms.Form
     {
-        List<RuleFailure> _failures;
         const string PARAM = "PARAM";
         public FormGridList(List<RuleFailure> failures)
         {
             InitializeComponent();
-            _failures = failures;
 
             try
             {
-
                 DataTable dt = new DataTable();
                 dt.Columns.Add("Category");
                 dt.Columns.Add("Family");
@@ -114,7 +111,7 @@ namespace RevitDataValidator.Forms
                     };
                     panel1.Controls.Add(parameterMultiLabel);
 
-                    if (rule.Regex != null)
+                    if (rule.Regex != null || rule.PreventDuplicates != null)
                     {
                         var multiTextbox = new System.Windows.Forms.TextBox
                         {
@@ -133,12 +130,21 @@ namespace RevitDataValidator.Forms
                             ToolTipText = rule.UserMessage
                         });
                     }
-                    else if (rule.ListOptions != null)
+                    else if (rule.ListOptions != null || rule.KeyValues != null)
                     {
+                        List<string> dataSource = new List<string>();
+                        if (rule.ListOptions != null)
+                        {
+                            dataSource = rule.ListOptions.ConvertAll(q => q.Name);
+                        }
+                        else if (rule.KeyValues != null)
+                        {
+                            dataSource = rule.KeyValues.ConvertAll(q => q[0]);
+                        }
                         var multiCbo = new System.Windows.Forms.ComboBox
                         {
                             Location = new System.Drawing.Point() { X = multiUiX, Y = labelY },
-                            DataSource = rule.ListOptions.Select(q => q.Name).ToList(),
+                            DataSource = dataSource,
                             DropDownStyle = ComboBoxStyle.DropDownList,
                             Name = prefix + group.Key
                         };
@@ -149,7 +155,7 @@ namespace RevitDataValidator.Forms
                         {
                             Name = PARAM + group.Key,
                             HeaderText = group.Key,
-                            DataSource = rule.ListOptions.Select(q => q.Name).ToList(),
+                            DataSource = dataSource,
                             ToolTipText = rule.UserMessage,
                             FlatStyle = FlatStyle.Flat
                         };
@@ -236,7 +242,8 @@ namespace RevitDataValidator.Forms
                 }
 
             }
-            if (failures.Any())
+            if (failures.Count(q => q.FailureType == FailureType.PreventDuplicates) > 1 ||
+                failures.Any(q => q.FailureType != FailureType.PreventDuplicates))
             {
                 var td = new TaskDialog("Errors")
                 {
@@ -299,6 +306,11 @@ namespace RevitDataValidator.Forms
             //     //   cell.ReadOnly = true;
             //    }
             //}
+        }
+
+        private void btnSelAll_Click(object sender, EventArgs e)
+        {
+            dataGridView1.SelectAll();
         }
     }
 }

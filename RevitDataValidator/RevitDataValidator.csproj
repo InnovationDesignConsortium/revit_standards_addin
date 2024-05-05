@@ -95,6 +95,7 @@
       <DependentUpon>FormSelectElements.cs</DependentUpon>
     </Compile>
     <Compile Include="ShowPaneCommand.cs" />
+    <Compile Include="WPF\ParameterRuleData.cs" />
     <Compile Include="WPF\PropertiesPanel.xaml.cs">
       <DependentUpon>PropertiesPanel.xaml</DependentUpon>
     </Compile>
@@ -110,6 +111,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="WPF\PropertyViewModel.cs" />
     <Compile Include="Classes\StateParameter.cs" />
+    <Compile Include="WPF\WorksetRuleData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -174,6 +176,6 @@ copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Co
 copy /Y $(SolutionDir)install\ProjectRules.md "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)\Rules"
 copy /Y $(SolutionDir)install\ParameterPacks.json "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)"
 
-REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023_2.rvt"</PostBuildEvent>
+REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

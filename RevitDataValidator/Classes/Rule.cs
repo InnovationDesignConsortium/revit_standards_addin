@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -18,6 +19,7 @@ namespace RevitDataValidator
     {
         List<string> RevitFileNames { get; set; }
         List<string> Categories { get; set; }
+        Guid Guid { get; set; }
     }
 
     [DebuggerDisplay("{Categories} {ParameterName}")]
@@ -69,6 +71,7 @@ namespace RevitDataValidator
         public List<List<string>> KeyValues { get; set; }
 
         public string Format { get; set; }
+        public Guid Guid { get; set; }
 
         public override string ToString()
         {
@@ -101,13 +104,16 @@ namespace RevitDataValidator
         public List<string> Categories { get; set; }
         public string Workset { get; set; }
         public List<ParameterData> Parameters { get; set; }
+
+        public Guid Guid { get; set; }
     }
 
     public enum FailureType
     {
         INVALID,
         List,
-        Regex
+        Regex,
+        PreventDuplicates
     }
 
     public class RuleFailure
