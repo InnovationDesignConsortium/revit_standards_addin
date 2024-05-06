@@ -51,6 +51,8 @@ namespace RevitDataValidator
                 Utils.propertiesPanel = new PropertiesPanel();
             }
 
+            application.ControlledApplication.DocumentChanged += ControlledApplication_DocumentChanged;
+
             if (Utils.propertiesPanel != null)
             {
                 application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
@@ -106,6 +108,11 @@ namespace RevitDataValidator
             ShowErrors();
 
             return Result.Succeeded;
+        }
+
+        private void ControlledApplication_DocumentChanged(object sender, Autodesk.Revit.DB.Events.DocumentChangedEventArgs e)
+        {
+            Utils.propertiesPanel?.Refresh();
         }
 
         private void ShowErrors()

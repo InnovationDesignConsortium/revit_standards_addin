@@ -38,11 +38,19 @@ namespace RevitDataValidator
                             }
                             else if (parameter.StorageType == StorageType.Integer)
                             {
-                                if (args.Value is int i)
+                                var dataType = parameter.Definition.GetDataType();
+                                if (dataType == SpecTypeId.Int.Integer)
                                 {
-                                    parameter.Set(i);
+                                    if (int.TryParse(args.Value.ToString(), out int i))
+                                    {
+                                        parameter.Set(i);
+                                    }
+                                    else
+                                    {
+                                        TaskDialog.Show("Error", "Enter a valid integer");
+                                    }
                                 }
-                                else if (parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo &&
+                                else if (dataType == SpecTypeId.Boolean.YesNo &&
                                     args.Value is string ss)
                                 {
                                     if (ss == "True")
@@ -54,21 +62,38 @@ namespace RevitDataValidator
                                         parameter.Set(0);
                                     }
                                 }
+                                else
+                                {
+                                    if (args.Value is StringInt si &&
+                                        int.TryParse(si.Int.ToString(), out int i))
+                                    {
+                                        parameter.Set(i);
+                                    }
+                                }
                             }
                             else if (parameter.StorageType == StorageType.Double)
                             {
-                                if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed))
+                                if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed, out string parseFailureMessage))
                                 {
                                     parameter.Set(dparsed);
                                 }
+                                else
+                                {
+                                    TaskDialog.Show("Error", parseFailureMessage);
+                                }
                             }
                             else if (parameter.StorageType == StorageType.ElementId &&
-                                args.Value is int i)
+                                args.Value is StringInt si &&
+                                int.TryParse(si.Int.ToString(), out int i))
                             {
                                 var elementid = new ElementId(i);
                                 try
                                 {
                                     bool didSet = parameter.Set(elementid);
+                                    if (!didSet)
+                                    {
+                                        TaskDialog.Show("Error", $"Unable to set {parameter.Definition.Name} to {Utils.doc.GetElement(elementid).Name}");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

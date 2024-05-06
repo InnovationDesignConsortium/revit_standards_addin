@@ -86,7 +86,7 @@ namespace RevitDataValidator
         {
             if (textBox.Tag is List<Parameter> parameters)
             {
-                var parameter = parameters.First();
+                var parameter = parameters[0];
                 if (parameter.StorageType == StorageType.Double)
                 {
                     var units = Utils.doc.GetUnits();
@@ -132,9 +132,7 @@ namespace RevitDataValidator
                 if (control.SelectedItem is StringInt stringInt)
                 {
                     Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> {
-                        new ParameterObject(parameters, stringInt.Int) });
-                    Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject> {
-                        new ParameterObject(parameters, stringInt.String)});
+                        new ParameterObject(parameters, stringInt) });
                 }
             }
         }

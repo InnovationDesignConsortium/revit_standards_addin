@@ -458,25 +458,14 @@ namespace RevitDataValidator
 
             if (Utils.selectedIds.Any())
             {
-                var parameters = Utils.selectedIds.ConvertAll(w =>
+                return Utils.selectedIds.ConvertAll(w =>
                 Utils.doc.GetElement(w).Parameters.
                     Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
-                if (parameters.Any(q => q == null))
-                {
-                    Utils.Log($"Parameter {parameterName} does not exist for element ids {string.Join(",", Utils.selectedIds.Select(q => q.IntegerValue))}", Utils.LogLevel.Error);
-                }
-                return parameters;
             }
             else
             {
-                var parameter = Utils.doc.ActiveView.Parameters.Cast<Parameter>()
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q));
-                if (parameter == null)
-                {
-                    Utils.Log($"Parameter {parameterName} does not exist in view {Utils.doc.ActiveView.Name}", Utils.LogLevel.Error);
-                    return new List<Parameter>();
-                }
-                return new List<Parameter> { parameter };
+                return new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
             }
         }
 
