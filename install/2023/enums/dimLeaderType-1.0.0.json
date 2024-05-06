@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dimLeaderType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Line",
+         "value": 0
+      },
+      {
+         "id": "Arc",
+         "value": 1
+      }
+   ]
+}

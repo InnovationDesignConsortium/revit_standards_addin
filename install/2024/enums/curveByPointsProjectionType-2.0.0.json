@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Top down",
+         "value": 0
+      },
+      {
+         "id": "Parallel to level",
+         "value": 1
+      },
+      {
+         "id": "Follow surface UV",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:curveByPointsProjectionType-2.0.0"
+}

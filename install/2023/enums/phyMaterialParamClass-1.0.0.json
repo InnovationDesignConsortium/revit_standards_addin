@@ -1,0 +1,40 @@
+{
+   "typeid": "autodesk.revit.enum:phyMaterialParamClass-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Generic",
+         "value": 2
+      },
+      {
+         "id": "Concrete",
+         "value": 4
+      },
+      {
+         "id": "Metal",
+         "value": 3
+      },
+      {
+         "id": "Wood",
+         "value": 5
+      },
+      {
+         "id": "Undefined",
+         "value": 0
+      },
+      {
+         "id": "Liquid",
+         "value": 6
+      },
+      {
+         "id": "Gas",
+         "value": 7
+      },
+      {
+         "id": "Plastic",
+         "value": 8
+      }
+   ]
+}

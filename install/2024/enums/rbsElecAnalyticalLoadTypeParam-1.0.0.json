@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsElecAnalyticalLoadTypeParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Point Load",
+         "value": 0
+      },
+      {
+         "id": "Area Load",
+         "value": 1
+      }
+   ]
+}

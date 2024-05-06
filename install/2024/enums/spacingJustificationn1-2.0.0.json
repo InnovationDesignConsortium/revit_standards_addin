@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Beginning",
+         "value": 4
+      },
+      {
+         "id": "End",
+         "value": 5
+      },
+      {
+         "id": "Center",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:spacingJustificationn1-2.0.0"
+}

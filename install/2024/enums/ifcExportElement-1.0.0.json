@@ -1,0 +1,20 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "By Type",
+         "value": 0
+      },
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 2
+      }
+   ],
+   "typeid": "autodesk.revit.enum:ifcExportElement-1.0.0"
+}

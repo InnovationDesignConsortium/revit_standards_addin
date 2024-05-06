@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:roomBaseLightingLoadOnParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "By Space Type",
+         "value": -1
+      },
+      {
+         "id": "Specified Lighting Load Values",
+         "value": 0
+      },
+      {
+         "id": "Actual Lighting Load Values",
+         "value": 2
+      }
+   ]
+}

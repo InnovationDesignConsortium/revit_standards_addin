@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Along Surface",
+         "value": 0
+      },
+      {
+         "id": "Absolute",
+         "value": 1
+      },
+      {
+         "id": "Snap XYZ",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:ssePointBasetypeEnum-2.0.0"
+}

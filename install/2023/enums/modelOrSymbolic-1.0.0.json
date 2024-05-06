@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:modelOrSymbolic-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Model Lines",
+         "value": 0
+      },
+      {
+         "id": "Symbolic Lines",
+         "value": 1
+      }
+   ]
+}

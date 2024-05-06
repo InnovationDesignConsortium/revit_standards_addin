@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:structuralBraceRepresentation-1.1.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Kicker Brace",
+         "value": 3
+      },
+      {
+         "id": "Line with Angle",
+         "value": 2
+      },
+      {
+         "id": "None",
+         "value": -1
+      },
+      {
+         "id": "Parallel Line",
+         "value": 1
+      }
+   ]
+}

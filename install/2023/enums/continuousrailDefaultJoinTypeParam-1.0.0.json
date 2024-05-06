@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:continuousrailDefaultJoinTypeParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Miter",
+         "value": 0
+      },
+      {
+         "id": "Fillet",
+         "value": 1
+      }
+   ]
+}

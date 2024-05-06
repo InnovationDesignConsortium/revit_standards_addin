@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "By host",
+         "value": 0
+      },
+      {
+         "id": "Neither",
+         "value": 1
+      },
+      {
+         "id": "Interior",
+         "value": 2
+      },
+      {
+         "id": "Exterior",
+         "value": 3
+      },
+      {
+         "id": "Both",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:typeWallClosure-2.0.0"
+}

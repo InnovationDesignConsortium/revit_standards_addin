@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "End 1",
+         "value": 0
+      },
+      {
+         "id": "Middle",
+         "value": 1
+      },
+      {
+         "id": "End 2",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarSpliceSpliceLinePosition-2.0.0"
+}

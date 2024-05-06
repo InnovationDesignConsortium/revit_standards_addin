@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:autoJoinCondition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Not Defined",
+         "value": 0
+      },
+      {
+         "id": "Grid 1 Continuous",
+         "value": 1
+      },
+      {
+         "id": "Grid 2 Continuous",
+         "value": 2
+      },
+      {
+         "id": "Border and Grid 1 Continuous",
+         "value": 3
+      },
+      {
+         "id": "Border and Grid 2 Continuous",
+         "value": 4
+      }
+   ]
+}

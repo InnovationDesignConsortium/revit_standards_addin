@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Beginning",
+         "value": 3
+      },
+      {
+         "id": "End",
+         "value": 2
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "Direction Line",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:joistSystemJustificationParam-2.0.0"
+}

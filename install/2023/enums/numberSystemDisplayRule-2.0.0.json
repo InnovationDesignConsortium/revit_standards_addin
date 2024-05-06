@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "All",
+         "value": 0
+      },
+      {
+         "id": "Odd",
+         "value": 1
+      },
+      {
+         "id": "Even",
+         "value": 2
+      },
+      {
+         "id": "Start and End",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:numberSystemDisplayRule-2.0.0"
+}

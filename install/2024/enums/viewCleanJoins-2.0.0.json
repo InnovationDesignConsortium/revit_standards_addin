@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Clean all wall joins",
+         "value": 0
+      },
+      {
+         "id": "Clean same type wall joins",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewCleanJoins-2.0.0"
+}

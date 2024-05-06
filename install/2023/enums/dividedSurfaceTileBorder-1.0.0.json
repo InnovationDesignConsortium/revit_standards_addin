@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:dividedSurfaceTileBorder-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Empty",
+         "value": 0
+      },
+      {
+         "id": "Partial",
+         "value": 1
+      },
+      {
+         "id": "Overhanging",
+         "value": 2
+      }
+   ]
+}

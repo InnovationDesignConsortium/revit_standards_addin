@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:spotSlopeSlopeDirection-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Down",
+         "value": 1
+      },
+      {
+         "id": "Up",
+         "value": 0
+      }
+   ]
+}

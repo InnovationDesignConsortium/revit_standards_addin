@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Value",
+         "value": 0
+      },
+      {
+         "id": "Equality Text",
+         "value": 1
+      },
+      {
+         "id": "Equality Formula",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dimDisplayEq-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairstypeConstructionMethod-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Assembled",
+         "value": 0
+      },
+      {
+         "id": "Cast-in-place Monolithic",
+         "value": 1
+      },
+      {
+         "id": "Precast Monolithic",
+         "value": 2
+      }
+   ]
+}

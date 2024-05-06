@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rbsElecPanelConfigurationParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Two Columns, Circuits Across",
+         "value": 1
+      },
+      {
+         "id": "Two Columns, Circuits Down",
+         "value": 2
+      },
+      {
+         "id": "One Column",
+         "value": 0
+      }
+   ]
+}

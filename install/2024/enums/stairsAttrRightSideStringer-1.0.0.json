@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsAttrRightSideStringer-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Closed",
+         "value": 1
+      },
+      {
+         "id": "Open",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "Architectural",
+         "value": 1
+      },
+      {
+         "id": "Structural",
+         "value": 2
+      },
+      {
+         "id": "Mechanical",
+         "value": 4
+      },
+      {
+         "id": "Electrical",
+         "value": 8
+      },
+      {
+         "id": "Plumbing",
+         "value": 16
+      },
+      {
+         "id": "Coordination",
+         "value": 4095
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewDiscipline-2.0.0"
+}

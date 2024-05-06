@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:viewPartsVisibility-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Show Parts",
+         "value": 0
+      },
+      {
+         "id": "Show Original",
+         "value": 1
+      },
+      {
+         "id": "Show Both",
+         "value": 2
+      }
+   ]
+}

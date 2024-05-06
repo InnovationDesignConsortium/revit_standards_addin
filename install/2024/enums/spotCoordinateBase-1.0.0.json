@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:spotCoordinateBase-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Project Base Point",
+         "value": 0
+      },
+      {
+         "id": "Survey Point",
+         "value": 1
+      },
+      {
+         "id": "Internal Origin",
+         "value": 2
+      }
+   ]
+}

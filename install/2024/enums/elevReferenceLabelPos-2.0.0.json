@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Outside Left",
+         "value": 0
+      },
+      {
+         "id": "Outside Center",
+         "value": 1
+      },
+      {
+         "id": "Outside Right",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:elevReferenceLabelPos-2.0.0"
+}

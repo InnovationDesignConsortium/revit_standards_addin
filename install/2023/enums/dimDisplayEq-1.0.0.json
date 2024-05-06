@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:dimDisplayEq-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Value",
+         "value": 0
+      },
+      {
+         "id": "Equality Text",
+         "value": 1
+      },
+      {
+         "id": "Equality Formula",
+         "value": 2
+      }
+   ]
+}

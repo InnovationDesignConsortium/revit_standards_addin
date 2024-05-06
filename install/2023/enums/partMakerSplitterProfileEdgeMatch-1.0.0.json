@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:partMakerSplitterProfileEdgeMatch-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Complementary",
+         "value": 0
+      },
+      {
+         "id": "Mirrored",
+         "value": 1
+      },
+      {
+         "id": "Rotated",
+         "value": 2
+      }
+   ]
+}

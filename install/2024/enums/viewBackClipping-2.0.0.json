@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "No clip",
+         "value": 0
+      },
+      {
+         "id": "Clip with line",
+         "value": 1
+      },
+      {
+         "id": "Clip without line",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewBackClipping-2.0.0"
+}

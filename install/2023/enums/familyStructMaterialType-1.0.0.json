@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:familyStructMaterialType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Steel",
+         "value": 1
+      },
+      {
+         "id": "Concrete",
+         "value": 2
+      },
+      {
+         "id": "Precast Concrete",
+         "value": 5
+      },
+      {
+         "id": "Wood",
+         "value": 3
+      },
+      {
+         "id": "Other",
+         "value": 4
+      }
+   ]
+}

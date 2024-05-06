@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:handrailSupportsJustificationParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Begin",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "End",
+         "value": 2
+      }
+   ]
+}

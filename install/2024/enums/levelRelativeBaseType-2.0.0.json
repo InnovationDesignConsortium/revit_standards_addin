@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Project Base Point",
+         "value": 0
+      },
+      {
+         "id": "Survey Point",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:levelRelativeBaseType-2.0.0"
+}

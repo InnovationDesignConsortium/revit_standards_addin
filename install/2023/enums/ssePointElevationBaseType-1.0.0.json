@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:ssePointElevationBaseType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "Current Level"
+      },
+      {
+         "value": 3,
+         "id": "Internal Origin"
+      },
+      {
+         "value": 1,
+         "id": "Project Base Point"
+      },
+      {
+         "value": 2,
+         "id": "Survey Point"
+      }
+   ]
+}

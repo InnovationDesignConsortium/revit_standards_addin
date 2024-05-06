@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:importDisplayUnits-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "feet",
+         "value": 3
+      },
+      {
+         "id": "inch",
+         "value": 6
+      },
+      {
+         "id": "meter",
+         "value": 0
+      },
+      {
+         "id": "centimeter",
+         "value": 1
+      },
+      {
+         "id": "millimeter",
+         "value": 2
+      }
+   ]
+}

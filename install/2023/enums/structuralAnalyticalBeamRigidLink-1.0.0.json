@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:structuralAnalyticalBeamRigidLink-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 2
+      },
+      {
+         "id": "From Column",
+         "value": 0
+      }
+   ]
+}

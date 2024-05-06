@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsAttrRiserType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Straight",
+         "value": 1
+      },
+      {
+         "id": "Slanted",
+         "value": 2
+      }
+   ]
+}

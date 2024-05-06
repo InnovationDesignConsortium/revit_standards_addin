@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:viewportAttrShowLabel-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "When multiple viewports",
+         "value": 2
+      },
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 0
+      }
+   ]
+}

@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Use Building Elements",
+         "value": 0
+      },
+      {
+         "id": "Use Conceptual Masses and Building Elements",
+         "value": 2
+      },
+      {
+         "id": "Use Rooms or Spaces",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsEnergyAnalysisMode-2.0.0"
+}

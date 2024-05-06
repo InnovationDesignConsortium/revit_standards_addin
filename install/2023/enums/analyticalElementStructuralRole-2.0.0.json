@@ -1,0 +1,39 @@
+{
+   "enum": [
+      {
+         "id": "<none>",
+         "value": -1
+      },
+      {
+         "id": "Beam",
+         "value": 0
+      },
+      {
+         "id": "Column",
+         "value": 1
+      },
+      {
+         "id": "Member",
+         "value": 3
+      },
+      {
+         "id": "Girder",
+         "value": 4
+      },
+      {
+         "id": "Floor",
+         "value": 5
+      },
+      {
+         "id": "Wall",
+         "value": 6
+      },
+      {
+         "id": "Panel",
+         "value": 7
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:analyticalElementStructuralRole-2.0.0"
+}

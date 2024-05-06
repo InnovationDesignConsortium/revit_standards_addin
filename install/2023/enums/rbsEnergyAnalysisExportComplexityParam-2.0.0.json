@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Simple",
+         "value": 0
+      },
+      {
+         "id": "Simple with Shading Surfaces",
+         "value": 1
+      },
+      {
+         "id": "Complex",
+         "value": 2
+      },
+      {
+         "id": "Complex with Shading Surfaces",
+         "value": 3
+      },
+      {
+         "id": "Complex with Mullions and Shading Surfaces",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsEnergyAnalysisExportComplexityParam-2.0.0"
+}

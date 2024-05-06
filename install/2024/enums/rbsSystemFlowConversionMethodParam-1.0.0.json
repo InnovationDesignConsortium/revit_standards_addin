@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsSystemFlowConversionMethodParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Predominantly Flush Valves",
+         "value": 0
+      },
+      {
+         "id": "Predominantly Flush Tanks",
+         "value": 1
+      }
+   ]
+}

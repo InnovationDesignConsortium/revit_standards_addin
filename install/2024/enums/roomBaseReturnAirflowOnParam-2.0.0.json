@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Specified",
+         "value": 0
+      },
+      {
+         "id": "Specified Supply Airflow",
+         "value": 1
+      },
+      {
+         "id": "Calculated Supply Airflow",
+         "value": 2
+      },
+      {
+         "id": "Actual Supply Airflow",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:roomBaseReturnAirflowOnParam-2.0.0"
+}

@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Steel",
+         "value": 1
+      },
+      {
+         "id": "Concrete",
+         "value": 2
+      },
+      {
+         "id": "Precast Concrete",
+         "value": 5
+      },
+      {
+         "id": "Wood",
+         "value": 3
+      },
+      {
+         "id": "Other",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:familyStructMaterialType-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "External",
+         "value": 0
+      },
+      {
+         "id": "Internal",
+         "value": 1
+      }
+   ],
+   "typeid": "autodesk.revit.enum:stiffenerClassification-1.0.0"
+}

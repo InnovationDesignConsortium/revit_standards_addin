@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:slantedColumnBaseCutStyle-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Perpendicular",
+         "value": 0
+      },
+      {
+         "id": "Horizontal",
+         "value": 1
+      },
+      {
+         "id": "Vertical",
+         "value": 2
+      }
+   ]
+}

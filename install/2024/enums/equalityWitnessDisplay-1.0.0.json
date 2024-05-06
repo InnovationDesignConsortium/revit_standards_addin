@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:equalityWitnessDisplay-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Tick and Line",
+         "value": 0
+      },
+      {
+         "id": "Tick only",
+         "value": 1
+      },
+      {
+         "id": "Hide",
+         "value": 2
+      }
+   ]
+}

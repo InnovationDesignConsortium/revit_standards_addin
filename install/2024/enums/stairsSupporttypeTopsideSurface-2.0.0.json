@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Closed",
+         "value": 0
+      },
+      {
+         "id": "Open",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsSupporttypeTopsideSurface-2.0.0"
+}

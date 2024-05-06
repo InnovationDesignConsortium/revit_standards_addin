@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:mepProfileTypeParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Round",
+         "value": 0
+      },
+      {
+         "id": "Rectangular",
+         "value": 1
+      },
+      {
+         "id": "Oval",
+         "value": 2
+      }
+   ]
+}

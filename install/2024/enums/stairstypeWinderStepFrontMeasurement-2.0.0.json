@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "By Riser Line",
+         "value": 0
+      },
+      {
+         "id": "By Nosing Line",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairstypeWinderStepFrontMeasurement-2.0.0"
+}

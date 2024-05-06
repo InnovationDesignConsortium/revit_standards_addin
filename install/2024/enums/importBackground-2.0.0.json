@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Background",
+         "value": 1
+      },
+      {
+         "id": "Foreground",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:importBackground-2.0.0"
+}

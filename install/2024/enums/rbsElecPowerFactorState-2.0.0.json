@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Lagging",
+         "value": 1
+      },
+      {
+         "id": "Leading",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsElecPowerFactorState-2.0.0"
+}

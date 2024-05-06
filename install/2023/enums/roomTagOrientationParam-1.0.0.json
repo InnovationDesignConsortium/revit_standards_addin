@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:roomTagOrientationParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Vertical",
+         "value": 1
+      },
+      {
+         "id": "Model",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "Wall Centerline",
+         "value": 0
+      },
+      {
+         "id": "Core Centerline",
+         "value": 1
+      },
+      {
+         "id": "Finish Face: Exterior",
+         "value": 2
+      },
+      {
+         "id": "Finish Face: Interior",
+         "value": 3
+      },
+      {
+         "id": "Core Face: Exterior",
+         "value": 4
+      },
+      {
+         "id": "Core Face: Interior",
+         "value": 5
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:wallAlignKeyRefParam-2.0.0"
+}

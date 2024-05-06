@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Perpendicular",
+         "value": 0
+      },
+      {
+         "id": "Vertical Cut",
+         "value": 1
+      },
+      {
+         "id": "Horizontal Cut",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsSupportUpperEndCut-2.0.0"
+}

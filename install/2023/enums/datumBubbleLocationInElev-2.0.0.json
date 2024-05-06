@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 2
+      },
+      {
+         "id": "Bottom",
+         "value": 3
+      },
+      {
+         "id": "Both",
+         "value": 1
+      },
+      {
+         "id": "None",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:datumBubbleLocationInElev-2.0.0"
+}

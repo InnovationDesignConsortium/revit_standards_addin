@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Distance",
+         "value": 1
+      },
+      {
+         "id": "End Elevation",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralBeamEndAttachmentType-2.0.0"
+}

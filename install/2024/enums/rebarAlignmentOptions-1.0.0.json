@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:rebarAlignmentOptions-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "Aligned to Path"
+      },
+      {
+         "value": 2,
+         "id": "Parallel to Face"
+      },
+      {
+         "value": 3,
+         "id": "Perpendicular to Face"
+      },
+      {
+         "value": 1,
+         "id": "Vertical"
+      }
+   ]
+}

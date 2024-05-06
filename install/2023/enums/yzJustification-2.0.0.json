@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Uniform",
+         "value": 0
+      },
+      {
+         "id": "Independent",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:yzJustification-2.0.0"
+}

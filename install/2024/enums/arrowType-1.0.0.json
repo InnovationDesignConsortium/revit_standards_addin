@@ -1,0 +1,40 @@
+{
+   "typeid": "autodesk.revit.enum:arrowType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Diagonal",
+         "value": 0
+      },
+      {
+         "id": "Arrow",
+         "value": 8
+      },
+      {
+         "id": "Heavy end tick mark",
+         "value": 7
+      },
+      {
+         "id": "Dot",
+         "value": 3
+      },
+      {
+         "id": "Elevation Target",
+         "value": 11
+      },
+      {
+         "id": "Datum triangle",
+         "value": 9
+      },
+      {
+         "id": "Box",
+         "value": 10
+      },
+      {
+         "id": "Loop",
+         "value": 12
+      }
+   ]
+}

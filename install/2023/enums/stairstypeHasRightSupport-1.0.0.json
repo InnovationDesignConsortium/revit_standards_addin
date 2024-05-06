@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairstypeHasRightSupport-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Stringer (Closed)",
+         "value": 1
+      },
+      {
+         "id": "Carriage (Open)",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:ceilingAttrPatternParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Grid",
+         "value": 1
+      },
+      {
+         "id": "Linear",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Show as text",
+         "value": 0
+      },
+      {
+         "id": "Show as dimensions",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bendingDetailTypeSegmentLengthsDisplayOption-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:debugtabDataboundcontrolsdemoEnum-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Option 1",
+         "value": 0
+      },
+      {
+         "id": "Option 2",
+         "value": 1
+      },
+      {
+         "id": "Option 3",
+         "value": 2
+      }
+   ]
+}

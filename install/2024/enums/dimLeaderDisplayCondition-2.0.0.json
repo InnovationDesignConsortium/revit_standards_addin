@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Away From Origin",
+         "value": 0
+      },
+      {
+         "id": "Beyond Witness Lines",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dimLeaderDisplayCondition-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsElecAnalyticalAreaMeasurement-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Specified Area",
+         "value": 0
+      },
+      {
+         "id": "Area",
+         "value": 1
+      }
+   ]
+}

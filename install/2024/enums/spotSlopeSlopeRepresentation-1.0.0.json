@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:spotSlopeSlopeRepresentation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Arrow",
+         "value": 0
+      },
+      {
+         "id": "Triangle",
+         "value": 1
+      }
+   ]
+}

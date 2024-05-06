@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Top of Geometry",
+         "value": 1
+      },
+      {
+         "id": "Center of Geometry",
+         "value": 0
+      },
+      {
+         "id": "Bottom of Geometry",
+         "value": 2
+      },
+      {
+         "id": "Location Line",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralStickSymbolLocation-2.0.0"
+}

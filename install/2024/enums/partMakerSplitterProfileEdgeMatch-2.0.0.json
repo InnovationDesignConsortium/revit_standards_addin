@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Complementary",
+         "value": 0
+      },
+      {
+         "id": "Mirrored",
+         "value": 1
+      },
+      {
+         "id": "Rotated",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:partMakerSplitterProfileEdgeMatch-2.0.0"
+}

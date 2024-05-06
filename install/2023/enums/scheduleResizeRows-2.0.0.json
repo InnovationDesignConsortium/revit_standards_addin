@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "All",
+         "value": 1
+      },
+      {
+         "id": "Image Rows",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:scheduleResizeRows-2.0.0"
+}

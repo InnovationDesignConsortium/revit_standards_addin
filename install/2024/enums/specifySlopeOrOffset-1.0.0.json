@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:specifySlopeOrOffset-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Height at Tail",
+         "value": 0
+      },
+      {
+         "id": "Slope",
+         "value": 1
+      }
+   ]
+}

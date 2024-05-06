@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Normal",
+         "value": 0
+      },
+      {
+         "id": "Halftone",
+         "value": 1
+      },
+      {
+         "id": "Do not display",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewModelDisplayMode-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:roofEaveCutParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Plumb Cut",
+         "value": 33615
+      },
+      {
+         "id": "Two Cut - Plumb",
+         "value": 33619
+      },
+      {
+         "id": "Two Cut - Square",
+         "value": 33618
+      }
+   ]
+}

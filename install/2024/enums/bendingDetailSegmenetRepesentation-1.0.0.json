@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailSegmenetRepesentation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 2,
+         "id": "Offset"
+      },
+      {
+         "value": 0,
+         "id": "Standard"
+      },
+      {
+         "value": 1,
+         "id": "Unfold"
+      }
+   ]
+}

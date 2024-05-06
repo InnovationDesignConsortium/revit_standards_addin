@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Project Base Point",
+         "value": 0
+      },
+      {
+         "id": "Survey Point",
+         "value": 1
+      },
+      {
+         "id": "Relative",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:contourLabelsElevBaseType-2.0.0"
+}

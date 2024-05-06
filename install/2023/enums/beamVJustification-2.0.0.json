@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "Bottom",
+         "value": 2
+      },
+      {
+         "id": "Other",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:beamVJustification-2.0.0"
+}

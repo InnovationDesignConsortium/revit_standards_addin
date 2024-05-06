@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:viewGraphSchedLevelRelativeBaseType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Project",
+         "value": 0
+      },
+      {
+         "id": "Shared",
+         "value": 1
+      }
+   ]
+}

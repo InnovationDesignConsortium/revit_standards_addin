@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:dividedpathJustification-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Beginning",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "End",
+         "value": 2
+      }
+   ]
+}

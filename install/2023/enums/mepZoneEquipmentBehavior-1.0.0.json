@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:mepZoneEquipmentBehavior-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "One per Space",
+         "value": 0
+      },
+      {
+         "id": "Groups Spaces on Equipment",
+         "value": 1
+      }
+   ]
+}

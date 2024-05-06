@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:textAlignment-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Left of vertical",
+         "value": 1
+      },
+      {
+         "id": "Right of vertical",
+         "value": 2
+      }
+   ]
+}

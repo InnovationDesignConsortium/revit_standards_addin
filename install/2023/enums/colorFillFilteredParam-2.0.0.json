@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "All",
+         "value": 0
+      },
+      {
+         "id": "By View",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:colorFillFilteredParam-2.0.0"
+}

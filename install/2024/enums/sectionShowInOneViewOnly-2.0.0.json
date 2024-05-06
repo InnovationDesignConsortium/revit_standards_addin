@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Intersecting Views",
+         "value": 0
+      },
+      {
+         "id": "Parent View Only",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:sectionShowInOneViewOnly-2.0.0"
+}

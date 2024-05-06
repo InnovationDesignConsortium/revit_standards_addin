@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Fixed",
+         "value": 0
+      },
+      {
+         "id": "Rotate with Host",
+         "value": 1
+      },
+      {
+         "id": "Rotate and Stay Upright",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:tagOrientationBehavior-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:wallSweepOrientation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Parallel to Ground",
+         "value": 0
+      },
+      {
+         "id": "Perpendicular to Face",
+         "value": 1
+      }
+   ]
+}

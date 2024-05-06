@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rebarSpliceShiftBars-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Bar Plane",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": 1
+      }
+   ]
+}

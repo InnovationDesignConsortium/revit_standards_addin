@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 0
+      },
+      {
+         "id": "Middle",
+         "value": 1
+      },
+      {
+         "id": "Bottom",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:leaderRightAttachment-2.0.0"
+}

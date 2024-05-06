@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:modelGraphicsStyleAnonDraft-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Wireframe",
+         "value": 1
+      },
+      {
+         "id": "Hidden Line",
+         "value": 2
+      }
+   ]
+}

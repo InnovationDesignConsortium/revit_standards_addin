@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:viewerPerspective-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Orthographic",
+         "value": 0
+      },
+      {
+         "id": "Perspective",
+         "value": 1
+      }
+   ]
+}

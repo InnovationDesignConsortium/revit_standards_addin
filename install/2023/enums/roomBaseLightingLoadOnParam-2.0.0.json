@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "By Space Type",
+         "value": -1
+      },
+      {
+         "id": "Specified Lighting Load Values",
+         "value": 0
+      },
+      {
+         "id": "Actual Lighting Load Values",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:roomBaseLightingLoadOnParam-2.0.0"
+}

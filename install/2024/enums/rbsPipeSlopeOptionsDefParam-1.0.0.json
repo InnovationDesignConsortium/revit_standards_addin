@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rbsPipeSlopeOptionsDefParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Off",
+         "value": 0
+      },
+      {
+         "id": "Up",
+         "value": 1
+      },
+      {
+         "id": "Down",
+         "value": 2
+      }
+   ]
+}

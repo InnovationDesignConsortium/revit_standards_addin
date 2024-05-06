@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "By View",
+         "value": 0
+      },
+      {
+         "id": "Coarse",
+         "value": 1
+      },
+      {
+         "id": "Fine",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bendingDetailDetailLevel-2.0.0"
+}

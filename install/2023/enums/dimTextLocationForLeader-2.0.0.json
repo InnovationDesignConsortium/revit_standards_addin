@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Inline",
+         "value": 0
+      },
+      {
+         "id": "Above",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dimTextLocationForLeader-2.0.0"
+}

@@ -1,0 +1,52 @@
+{
+   "typeid": "autodesk.revit.enum:energyAnalysisBuildingOperatingSchedule-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Default",
+         "value": 0
+      },
+      {
+         "id": "24/7 Facility",
+         "value": 1
+      },
+      {
+         "id": "24/6 Facility",
+         "value": 2
+      },
+      {
+         "id": "24/5 Facility",
+         "value": 3
+      },
+      {
+         "id": "12/7 Facility",
+         "value": 4
+      },
+      {
+         "id": "12/6 Facility",
+         "value": 5
+      },
+      {
+         "id": "12/5 Facility",
+         "value": 6
+      },
+      {
+         "id": "K-12 School",
+         "value": 7
+      },
+      {
+         "id": "Year-round School",
+         "value": 8
+      },
+      {
+         "id": "Theater/Performing Arts",
+         "value": 9
+      },
+      {
+         "id": "Worship",
+         "value": 10
+      }
+   ]
+}

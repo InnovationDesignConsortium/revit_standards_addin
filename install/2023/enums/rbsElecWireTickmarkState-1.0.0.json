@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rbsElecWireTickmarkState-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Calculated",
+         "value": 0
+      },
+      {
+         "id": "On",
+         "value": 1
+      },
+      {
+         "id": "Off",
+         "value": 2
+      }
+   ]
+}

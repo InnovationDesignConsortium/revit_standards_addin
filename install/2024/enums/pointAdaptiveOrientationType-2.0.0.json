@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "Instance (xyz)",
+         "value": 9
+      },
+      {
+         "id": "Instance (z) then Host (xy)",
+         "value": 8
+      },
+      {
+         "id": "Host (xyz)",
+         "value": 2
+      },
+      {
+         "id": "Host and Loop System (xyz)",
+         "value": 3
+      },
+      {
+         "id": "Global (xyz)",
+         "value": 7
+      },
+      {
+         "id": "Global (z) then Host (xy)",
+         "value": 6
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:pointAdaptiveOrientationType-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:scheduleRotationOnSheet-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 1,
+         "id": "90\u00c2\u00b0 Clockwise"
+      },
+      {
+         "value": 2,
+         "id": "90\u00c2\u00b0 Counterclockwise"
+      },
+      {
+         "value": 0,
+         "id": "None"
+      }
+   ]
+}

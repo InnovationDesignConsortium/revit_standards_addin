@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:gridlineSpecStatus-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Dependent",
+         "value": 1
+      },
+      {
+         "id": "Independent",
+         "value": 2
+      }
+   ]
+}

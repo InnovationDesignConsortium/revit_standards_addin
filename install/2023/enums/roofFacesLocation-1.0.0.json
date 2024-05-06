@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:roofFacesLocation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Faces at Top of the Roof",
+         "value": 26
+      },
+      {
+         "id": "Faces at Bottom of the Roof",
+         "value": 27
+      }
+   ]
+}

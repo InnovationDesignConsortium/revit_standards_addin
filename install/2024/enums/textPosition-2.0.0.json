@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Below Dimension Line",
+         "value": 1
+      },
+      {
+         "id": "Above Dimension Line",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:textPosition-2.0.0"
+}

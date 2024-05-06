@@ -1,0 +1,40 @@
+{
+   "typeid": "autodesk.revit.enum:rbsFlexPatternParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Single Line",
+         "value": 0
+      },
+      {
+         "id": "Circle",
+         "value": 1
+      },
+      {
+         "id": "Oval",
+         "value": 2
+      },
+      {
+         "id": "Flex",
+         "value": 3
+      },
+      {
+         "id": "Flex 2",
+         "value": 4
+      },
+      {
+         "id": "Curve",
+         "value": 5
+      },
+      {
+         "id": "Single Line 45",
+         "value": 6
+      },
+      {
+         "id": "Undefined",
+         "value": -1
+      }
+   ]
+}

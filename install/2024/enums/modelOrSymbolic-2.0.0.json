@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Model Lines",
+         "value": 0
+      },
+      {
+         "id": "Symbolic Lines",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:modelOrSymbolic-2.0.0"
+}

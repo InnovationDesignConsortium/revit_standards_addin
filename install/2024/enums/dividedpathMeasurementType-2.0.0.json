@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Chord Length",
+         "value": 0
+      },
+      {
+         "id": "Segment Length",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dividedpathMeasurementType-2.0.0"
+}

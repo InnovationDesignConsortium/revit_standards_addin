@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:gridCenterSegmentStyle-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Continuous",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": 1
+      },
+      {
+         "id": "Custom",
+         "value": 2
+      }
+   ]
+}

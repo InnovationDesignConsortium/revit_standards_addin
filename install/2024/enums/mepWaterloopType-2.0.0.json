@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "<Undefined>",
+         "value": 0
+      },
+      {
+         "id": "Chilled Water",
+         "value": 1
+      },
+      {
+         "id": "Condenser Water",
+         "value": 2
+      },
+      {
+         "id": "Hot Water",
+         "value": 3
+      },
+      {
+         "id": "Variable Refrigerant Flow",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:mepWaterloopType-2.0.0"
+}

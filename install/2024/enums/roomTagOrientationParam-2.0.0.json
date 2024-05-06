@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Vertical",
+         "value": 1
+      },
+      {
+         "id": "Model",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:roomTagOrientationParam-2.0.0"
+}

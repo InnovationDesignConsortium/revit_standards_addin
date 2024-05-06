@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "When multiple viewports",
+         "value": 2
+      },
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewportAttrShowLabel-2.0.0"
+}

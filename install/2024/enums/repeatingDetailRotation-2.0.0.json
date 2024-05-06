@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "90\u00b0 Clockwise",
+         "value": 1
+      },
+      {
+         "id": "90\u00b0 Counterclockwise",
+         "value": 3
+      },
+      {
+         "id": "180\u00b0",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:repeatingDetailRotation-2.0.0"
+}

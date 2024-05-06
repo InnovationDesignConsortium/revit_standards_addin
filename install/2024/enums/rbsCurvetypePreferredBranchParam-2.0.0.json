@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Tee",
+         "value": 1
+      },
+      {
+         "id": "Tap",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsCurvetypePreferredBranchParam-2.0.0"
+}

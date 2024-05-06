@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:wallTypeWidthMeasuredAt-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Top",
+         "value": 0
+      },
+      {
+         "id": "Base",
+         "value": 1
+      },
+      {
+         "id": "Bottom",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:structuralBeamOrientation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Normal",
+         "value": 0
+      },
+      {
+         "id": "Horizontal",
+         "value": 1
+      }
+   ]
+}

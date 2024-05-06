@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:elevReferenceLabelPos-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Outside Left",
+         "value": 0
+      },
+      {
+         "id": "Outside Center",
+         "value": 1
+      },
+      {
+         "id": "Outside Right",
+         "value": 2
+      }
+   ]
+}

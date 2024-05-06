@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rebarGeometryType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Shape Driven",
+         "value": 0
+      },
+      {
+         "id": "Free Form",
+         "value": 1
+      }
+   ]
+}

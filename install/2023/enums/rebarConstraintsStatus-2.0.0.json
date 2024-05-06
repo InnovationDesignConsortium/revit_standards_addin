@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Enabled",
+         "value": 0
+      },
+      {
+         "id": "All Disabled",
+         "value": 1
+      },
+      {
+         "id": "Some Disabled",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarConstraintsStatus-2.0.0"
+}

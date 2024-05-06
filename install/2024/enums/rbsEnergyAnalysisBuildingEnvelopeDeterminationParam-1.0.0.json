@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsEnergyAnalysisBuildingEnvelopeDeterminationParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Use Function Parameter",
+         "value": 0
+      },
+      {
+         "id": "Identify Exterior Elements",
+         "value": 1
+      }
+   ]
+}

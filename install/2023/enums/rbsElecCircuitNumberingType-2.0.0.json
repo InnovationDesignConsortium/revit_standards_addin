@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Continue Numbering",
+         "value": 1
+      },
+      {
+         "id": "Default",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsElecCircuitNumberingType-2.0.0"
+}

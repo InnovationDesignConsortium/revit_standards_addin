@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:structFramJoinStatus-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Both joins enabled",
+         "value": 0
+      },
+      {
+         "id": "One or two joins disabled",
+         "value": 1
+      }
+   ]
+}

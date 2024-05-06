@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dimTextLocationForLeader-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Inline",
+         "value": 0
+      },
+      {
+         "id": "Above",
+         "value": 1
+      }
+   ]
+}

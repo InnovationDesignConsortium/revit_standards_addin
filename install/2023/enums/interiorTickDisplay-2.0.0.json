@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Dynamic",
+         "value": 0
+      },
+      {
+         "id": "Always Show",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:interiorTickDisplay-2.0.0"
+}

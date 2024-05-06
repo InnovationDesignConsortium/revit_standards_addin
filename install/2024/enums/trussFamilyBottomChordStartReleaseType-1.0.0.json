@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:trussFamilyBottomChordStartReleaseType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Fixed",
+         "value": 0
+      },
+      {
+         "id": "Pinned",
+         "value": 1
+      },
+      {
+         "id": "Bending Moment",
+         "value": 2
+      },
+      {
+         "id": "User Defined",
+         "value": 3
+      }
+   ]
+}

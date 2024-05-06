@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Center",
+         "value": 0
+      },
+      {
+         "id": "Right",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsCurveHorOffsetParam-2.0.0"
+}

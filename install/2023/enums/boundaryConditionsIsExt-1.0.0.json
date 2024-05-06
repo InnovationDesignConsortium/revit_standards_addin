@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:boundaryConditionsIsExt-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Internal",
+         "value": 0
+      },
+      {
+         "id": "External",
+         "value": 1
+      }
+   ]
+}

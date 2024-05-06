@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 2
+      },
+      {
+         "id": "Left and Right",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:railingSystemSecondaryHandrailsPositionParam-2.0.0"
+}

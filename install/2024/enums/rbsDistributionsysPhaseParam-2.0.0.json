@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Single",
+         "value": 0
+      },
+      {
+         "id": "Three",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsDistributionsysPhaseParam-2.0.0"
+}

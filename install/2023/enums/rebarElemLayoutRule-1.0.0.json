@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:rebarElemLayoutRule-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Single",
+         "value": 0
+      },
+      {
+         "id": "Fixed Number",
+         "value": 1
+      },
+      {
+         "id": "Maximum Spacing",
+         "value": 2
+      },
+      {
+         "id": "Number with Spacing",
+         "value": 3
+      },
+      {
+         "id": "Minimum Clear Spacing",
+         "value": 4
+      }
+   ]
+}

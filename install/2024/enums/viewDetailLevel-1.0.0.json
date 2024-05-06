@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:viewDetailLevel-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Coarse",
+         "value": 1
+      },
+      {
+         "id": "Medium",
+         "value": 2
+      },
+      {
+         "id": "Fine",
+         "value": 3
+      }
+   ]
+}

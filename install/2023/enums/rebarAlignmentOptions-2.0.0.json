@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Aligned to Path",
+         "value": 0
+      },
+      {
+         "id": "Vertical",
+         "value": 1
+      },
+      {
+         "id": "Parallel to Face",
+         "value": 2
+      },
+      {
+         "id": "Perpendicular to Face",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarAlignmentOptions-2.0.0"
+}

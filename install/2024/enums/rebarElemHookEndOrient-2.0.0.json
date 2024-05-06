@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Up",
+         "value": 0
+      },
+      {
+         "id": "Right",
+         "value": 1
+      },
+      {
+         "id": "Down",
+         "value": 2
+      },
+      {
+         "id": "Left",
+         "value": 3
+      },
+      {
+         "id": "None",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarElemHookEndOrient-2.0.0"
+}

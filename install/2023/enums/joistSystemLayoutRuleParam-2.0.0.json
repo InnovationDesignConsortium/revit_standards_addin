@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Fixed Distance",
+         "value": 1
+      },
+      {
+         "id": "Fixed Number",
+         "value": 2
+      },
+      {
+         "id": "Maximum Spacing",
+         "value": 3
+      },
+      {
+         "id": "Clear Spacing",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:joistSystemLayoutRuleParam-2.0.0"
+}

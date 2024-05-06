@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 1
+      },
+      {
+         "id": "Bottom",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:trussBearingChordTopBottomParam-2.0.0"
+}

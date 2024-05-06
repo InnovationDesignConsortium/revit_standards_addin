@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "Interior",
+         "value": 0
+      },
+      {
+         "id": "Exterior",
+         "value": 1
+      },
+      {
+         "id": "Foundation",
+         "value": 2
+      },
+      {
+         "id": "Retaining",
+         "value": 3
+      },
+      {
+         "id": "Soffit",
+         "value": 4
+      },
+      {
+         "id": "Core-shaft",
+         "value": 5
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:functionParam-2.0.0"
+}

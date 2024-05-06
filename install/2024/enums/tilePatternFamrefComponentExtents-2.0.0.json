@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Fit to Tile",
+         "value": 0
+      },
+      {
+         "id": "Overhang and Cropped",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:tilePatternFamrefComponentExtents-2.0.0"
+}

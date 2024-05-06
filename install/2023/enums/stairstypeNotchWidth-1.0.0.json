@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:stairstypeNotchWidth-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Full Run Width",
+         "value": 0
+      },
+      {
+         "id": "Custom",
+         "value": 1
+      }
+   ]
+}

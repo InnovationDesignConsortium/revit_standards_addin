@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 0
+      },
+      {
+         "id": "Bottom",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 2
+      },
+      {
+         "id": "Left",
+         "value": 3
+      },
+      {
+         "id": "Center",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:tagHeadPosition-2.0.0"
+}

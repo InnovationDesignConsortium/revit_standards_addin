@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Top Plane",
+         "value": 4
+      },
+      {
+         "id": "Current Level",
+         "value": 0
+      },
+      {
+         "id": "Project Base Point",
+         "value": 1
+      },
+      {
+         "id": "Survey Point",
+         "value": 2
+      },
+      {
+         "id": "Internal Origin",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:ssePointElevationBaseType-2.0.0"
+}

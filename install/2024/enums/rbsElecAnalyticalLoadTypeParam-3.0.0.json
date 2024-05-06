@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Equipment Load",
+         "value": 0
+      },
+      {
+         "id": "Area Based Load",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsElecAnalyticalLoadTypeParam-3.0.0"
+}

@@ -1,0 +1,39 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Left and Right",
+         "value": 1
+      },
+      {
+         "id": "Left Only",
+         "value": 2
+      },
+      {
+         "id": "Middle Only",
+         "value": 3
+      },
+      {
+         "id": "Right Only",
+         "value": 4
+      },
+      {
+         "id": "Left and Middle",
+         "value": 5
+      },
+      {
+         "id": "Middle and Right",
+         "value": 6
+      },
+      {
+         "id": "Left, Middle, and Right",
+         "value": 7
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsStringersPresent-2.0.0"
+}

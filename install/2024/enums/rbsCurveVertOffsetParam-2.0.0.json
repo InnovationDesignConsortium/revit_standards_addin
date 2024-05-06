@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 2
+      },
+      {
+         "id": "Middle",
+         "value": 0
+      },
+      {
+         "id": "Bottom",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsCurveVertOffsetParam-2.0.0"
+}

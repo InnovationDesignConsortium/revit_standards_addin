@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:boundaryParamPresetLinear-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Fixed",
+         "value": 0
+      },
+      {
+         "id": "Pinned",
+         "value": 1
+      },
+      {
+         "id": "User",
+         "value": 3
+      }
+   ]
+}

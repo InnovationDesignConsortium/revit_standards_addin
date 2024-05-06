@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:linearDimType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Continuous",
+         "value": 1
+      },
+      {
+         "id": "Baseline",
+         "value": 2
+      },
+      {
+         "id": "Ordinate",
+         "value": 3
+      }
+   ]
+}

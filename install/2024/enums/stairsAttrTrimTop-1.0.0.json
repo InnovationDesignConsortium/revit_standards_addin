@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsAttrTrimTop-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Do not trim",
+         "value": 0
+      },
+      {
+         "id": "Match Level",
+         "value": 1
+      },
+      {
+         "id": "Match Landing Stringer",
+         "value": 2
+      }
+   ]
+}

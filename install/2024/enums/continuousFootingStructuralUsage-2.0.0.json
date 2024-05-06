@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Retaining",
+         "value": 0
+      },
+      {
+         "id": "Bearing",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:continuousFootingStructuralUsage-2.0.0"
+}

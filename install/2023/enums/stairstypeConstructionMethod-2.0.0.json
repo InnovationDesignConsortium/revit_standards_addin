@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Assembled",
+         "value": 0
+      },
+      {
+         "id": "Cast-in-place Monolithic",
+         "value": 1
+      },
+      {
+         "id": "Precast Monolithic",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairstypeConstructionMethod-2.0.0"
+}

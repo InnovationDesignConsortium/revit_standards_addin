@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:rbsPipeFlowStateParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Laminar",
+         "value": 0
+      },
+      {
+         "id": "Transition",
+         "value": 1
+      },
+      {
+         "id": "Turbulent",
+         "value": 2
+      },
+      {
+         "id": "Multiple Values",
+         "value": -1
+      }
+   ]
+}

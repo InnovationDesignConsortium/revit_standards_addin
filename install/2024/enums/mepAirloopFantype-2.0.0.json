@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Constant Volume",
+         "value": 0
+      },
+      {
+         "id": "Variable Volume",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:mepAirloopFantype-2.0.0"
+}

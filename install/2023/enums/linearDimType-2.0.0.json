@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Continuous",
+         "value": 1
+      },
+      {
+         "id": "Baseline",
+         "value": 2
+      },
+      {
+         "id": "Ordinate",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:linearDimType-2.0.0"
+}

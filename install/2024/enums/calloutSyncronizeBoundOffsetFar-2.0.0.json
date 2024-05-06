@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Independent",
+         "value": 0
+      },
+      {
+         "id": "Same as parent view",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:calloutSyncronizeBoundOffsetFar-2.0.0"
+}

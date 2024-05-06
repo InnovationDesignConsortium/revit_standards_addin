@@ -1,0 +1,16 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Viewport Center",
+         "value": 0
+      },
+      {
+         "id": "View Origin",
+         "value": 1
+      }
+   ],
+   "typeid": "autodesk.revit.enum:viewportPositioning-1.0.0"
+}

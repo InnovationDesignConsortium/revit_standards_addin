@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:massDataSurfaceDataSource-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "%3CBy Energy Settings%3E",
+         "value": 0
+      },
+      {
+         "id": "%3CBy Surface%3E",
+         "value": 1
+      }
+   ]
+}

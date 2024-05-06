@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Beams and Braces",
+         "value": 0
+      },
+      {
+         "id": "Column Top",
+         "value": 1
+      },
+      {
+         "id": "Column Base",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structConnectionApplyTo-2.0.0"
+}

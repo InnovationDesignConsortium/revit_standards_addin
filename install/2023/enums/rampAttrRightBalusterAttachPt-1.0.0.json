@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rampAttrRightBalusterAttachPt-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Inset",
+         "value": 3
+      }
+   ]
+}

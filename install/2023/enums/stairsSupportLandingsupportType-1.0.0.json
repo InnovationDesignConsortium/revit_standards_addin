@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsSupportLandingsupportType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Right Support ",
+         "value": 0
+      },
+      {
+         "id": "Left Support",
+         "value": 1
+      },
+      {
+         "id": "Intermediate Support",
+         "value": 2
+      }
+   ]
+}

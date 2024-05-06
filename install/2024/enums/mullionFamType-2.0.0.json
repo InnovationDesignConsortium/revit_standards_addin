@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "Rectangular Mullion",
+         "value": 0
+      },
+      {
+         "id": "Circular Mullion",
+         "value": 1
+      },
+      {
+         "id": "L Corner Mullion",
+         "value": 2
+      },
+      {
+         "id": "V Corner Mullion",
+         "value": 3
+      },
+      {
+         "id": "Trapezoid Corner Mullion",
+         "value": 4
+      },
+      {
+         "id": "Quad Corner Mullion",
+         "value": 5
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:mullionFamType-2.0.0"
+}

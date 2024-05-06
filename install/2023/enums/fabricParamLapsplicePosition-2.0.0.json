@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Aligned",
+         "value": 0
+      },
+      {
+         "id": "Major Half-way Stagger",
+         "value": 1
+      },
+      {
+         "id": "Major Passing Stagger",
+         "value": 2
+      },
+      {
+         "id": "Minor Half-way Stagger",
+         "value": 3
+      },
+      {
+         "id": "Minor Passing Stagger",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:fabricParamLapsplicePosition-2.0.0"
+}

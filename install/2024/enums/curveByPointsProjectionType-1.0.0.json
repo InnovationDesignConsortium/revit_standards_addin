@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:curveByPointsProjectionType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Top down",
+         "value": 0
+      },
+      {
+         "id": "Parallel to level",
+         "value": 1
+      },
+      {
+         "id": "Follow surface UV",
+         "value": 2
+      }
+   ]
+}

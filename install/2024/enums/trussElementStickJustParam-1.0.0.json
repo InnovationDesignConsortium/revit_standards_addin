@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:trussElementStickJustParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Bearing Chord",
+         "value": 2
+      },
+      {
+         "id": "Top Chord",
+         "value": 0
+      },
+      {
+         "id": "Bottom Chord",
+         "value": 1
+      }
+   ]
+}

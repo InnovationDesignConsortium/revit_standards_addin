@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:roomOccupancyUnitParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "By Space Type",
+         "value": -1
+      },
+      {
+         "id": "Number of people",
+         "value": 0
+      },
+      {
+         "id": "Area per Person",
+         "value": 1
+      }
+   ]
+}

@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Pinned",
+         "value": 1
+      },
+      {
+         "id": "User",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:boundaryParamPresetArea-2.0.0"
+}

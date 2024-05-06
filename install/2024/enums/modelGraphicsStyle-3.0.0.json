@@ -1,0 +1,39 @@
+{
+   "enum": [
+      {
+         "id": "Wireframe",
+         "value": 1
+      },
+      {
+         "id": "Hidden Line",
+         "value": 2
+      },
+      {
+         "id": "Shaded",
+         "value": 3
+      },
+      {
+         "id": "Shaded with Edges",
+         "value": 4
+      },
+      {
+         "id": "Consistent Colors",
+         "value": 7
+      },
+      {
+         "id": "Textures",
+         "value": 9
+      },
+      {
+         "id": "Realistic",
+         "value": 6
+      },
+      {
+         "id": "Realistic with Edges",
+         "value": 8
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:modelGraphicsStyle-3.0.0"
+}

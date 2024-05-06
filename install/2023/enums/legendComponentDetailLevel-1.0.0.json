@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:legendComponentDetailLevel-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "From View",
+         "value": 0
+      },
+      {
+         "id": "Coarse",
+         "value": 1
+      },
+      {
+         "id": "Medium",
+         "value": 2
+      },
+      {
+         "id": "Fine",
+         "value": 3
+      }
+   ]
+}

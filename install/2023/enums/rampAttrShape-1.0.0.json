@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rampAttrShape-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Thick",
+         "value": 0
+      },
+      {
+         "id": "Solid",
+         "value": 1
+      }
+   ]
+}

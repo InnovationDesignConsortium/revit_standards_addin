@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsCurveType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Run",
+         "value": 0
+      },
+      {
+         "id": "Boundary",
+         "value": 1
+      },
+      {
+         "id": "Riser",
+         "value": 2
+      }
+   ]
+}

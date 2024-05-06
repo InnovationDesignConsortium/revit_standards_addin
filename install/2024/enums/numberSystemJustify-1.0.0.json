@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:numberSystemJustify-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Front",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "Back",
+         "value": 2
+      }
+   ]
+}

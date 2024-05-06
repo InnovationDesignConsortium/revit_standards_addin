@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Not a Reference",
+         "value": 0
+      },
+      {
+         "id": "Weak Reference",
+         "value": 1
+      },
+      {
+         "id": "Strong Reference",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:elemIsReference-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:tagOrientationBehavior-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Fixed",
+         "value": 0
+      },
+      {
+         "id": "Rotate and Stay Upright",
+         "value": 2
+      },
+      {
+         "id": "Rotate with Host",
+         "value": 1
+      }
+   ]
+}

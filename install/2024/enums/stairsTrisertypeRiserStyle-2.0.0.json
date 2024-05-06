@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Straight",
+         "value": 1
+      },
+      {
+         "id": "Slanted",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsTrisertypeRiserStyle-2.0.0"
+}

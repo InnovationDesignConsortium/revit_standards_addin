@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Right",
+         "value": 0
+      },
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Top",
+         "value": 2
+      },
+      {
+         "id": "Bottom",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bendingdetailPosition-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:mepAirloopFantype-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Constant Volume",
+         "value": 0
+      },
+      {
+         "id": "Variable Volume",
+         "value": 1
+      }
+   ]
+}

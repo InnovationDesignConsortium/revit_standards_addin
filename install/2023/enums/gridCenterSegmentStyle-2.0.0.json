@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Continuous",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": 1
+      },
+      {
+         "id": "Custom",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:gridCenterSegmentStyle-2.0.0"
+}

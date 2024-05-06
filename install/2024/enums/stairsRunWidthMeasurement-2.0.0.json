@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Total Run Width",
+         "value": 0
+      },
+      {
+         "id": "Tread Width",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsRunWidthMeasurement-2.0.0"
+}

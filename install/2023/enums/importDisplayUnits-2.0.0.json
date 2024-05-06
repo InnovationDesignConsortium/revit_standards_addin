@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "feet",
+         "value": 3
+      },
+      {
+         "id": "inch",
+         "value": 6
+      },
+      {
+         "id": "meter",
+         "value": 0
+      },
+      {
+         "id": "centimeter",
+         "value": 1
+      },
+      {
+         "id": "millimeter",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:importDisplayUnits-2.0.0"
+}

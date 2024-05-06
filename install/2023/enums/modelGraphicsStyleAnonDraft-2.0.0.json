@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Wireframe",
+         "value": 1
+      },
+      {
+         "id": "Hidden Line",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:modelGraphicsStyleAnonDraft-2.0.0"
+}

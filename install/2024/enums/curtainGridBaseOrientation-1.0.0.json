@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:curtainGridBaseOrientation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Natural face orientation",
+         "value": 0
+      },
+      {
+         "id": "Parallel to ground",
+         "value": 1
+      }
+   ]
+}

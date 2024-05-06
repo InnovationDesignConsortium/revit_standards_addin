@@ -1,0 +1,31 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Wall",
+         "value": 1
+      },
+      {
+         "id": "Roof",
+         "value": 4
+      },
+      {
+         "id": "Floor",
+         "value": 2
+      },
+      {
+         "id": "Ceiling",
+         "value": 3
+      },
+      {
+         "id": "Face",
+         "value": 5
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:familyHostingBehavior-2.0.0"
+}

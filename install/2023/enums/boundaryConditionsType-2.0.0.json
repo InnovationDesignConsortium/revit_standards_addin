@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Point",
+         "value": 0
+      },
+      {
+         "id": "Line",
+         "value": 1
+      },
+      {
+         "id": "Area",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:boundaryConditionsType-2.0.0"
+}

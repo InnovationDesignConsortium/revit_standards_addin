@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rbsCurveHorOffsetParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Center",
+         "value": 0
+      },
+      {
+         "id": "Right",
+         "value": 2
+      }
+   ]
+}

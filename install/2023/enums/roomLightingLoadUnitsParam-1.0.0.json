@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:roomLightingLoadUnitsParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Power Density",
+         "value": 0
+      },
+      {
+         "id": "Power",
+         "value": 1
+      }
+   ]
+}

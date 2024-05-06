@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Faces at Top of the Toposolid",
+         "value": 56724
+      },
+      {
+         "id": "Faces at Bottom of the Toposolid",
+         "value": 56725
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:toposolidFacesLocation-2.0.0"
+}

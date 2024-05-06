@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Vertical",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:numberSystemOrientation-2.0.0"
+}

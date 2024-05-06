@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailDetailLevel-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "By View"
+      },
+      {
+         "value": 1,
+         "id": "Coarse"
+      },
+      {
+         "value": 2,
+         "id": "Fine"
+      }
+   ]
+}

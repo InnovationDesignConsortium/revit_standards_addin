@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:massingIntegrationLevel-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Dependent",
+         "value": 4
+      },
+      {
+         "id": "Align only",
+         "value": 3
+      },
+      {
+         "id": "Independent",
+         "value": 2
+      }
+   ]
+}

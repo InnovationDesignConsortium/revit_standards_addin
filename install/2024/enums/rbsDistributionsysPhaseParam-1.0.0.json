@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsDistributionsysPhaseParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Single",
+         "value": 0
+      },
+      {
+         "id": "Three",
+         "value": 1
+      }
+   ]
+}

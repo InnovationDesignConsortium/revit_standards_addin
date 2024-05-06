@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:viewUnderlayOrientation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Look down",
+         "value": 0
+      },
+      {
+         "id": "Look up",
+         "value": 1
+      }
+   ]
+}

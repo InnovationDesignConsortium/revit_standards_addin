@@ -1,0 +1,44 @@
+{
+   "typeid": "autodesk.revit.enum:rebarHostCategory-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Other",
+         "value": 0
+      },
+      {
+         "id": "Part",
+         "value": 1
+      },
+      {
+         "id": "Structural Column",
+         "value": 2
+      },
+      {
+         "id": "Structural Framing",
+         "value": 3
+      },
+      {
+         "id": "Wall",
+         "value": 4
+      },
+      {
+         "id": "Floor",
+         "value": 5
+      },
+      {
+         "id": "Structural Foundation",
+         "value": 6
+      },
+      {
+         "id": "Stairs",
+         "value": 7
+      },
+      {
+         "id": "Slab Edge",
+         "value": 8
+      }
+   ]
+}

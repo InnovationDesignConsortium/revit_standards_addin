@@ -1,0 +1,43 @@
+{
+   "enum": [
+      {
+         "id": "Not a Reference",
+         "value": 12
+      },
+      {
+         "id": "Strong Reference",
+         "value": 13
+      },
+      {
+         "id": "Weak Reference",
+         "value": 14
+      },
+      {
+         "id": "Left",
+         "value": 0
+      },
+      {
+         "id": "Center (Left/Right)",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 2
+      },
+      {
+         "id": "Bottom",
+         "value": 3
+      },
+      {
+         "id": "Center (Front/Back)",
+         "value": 4
+      },
+      {
+         "id": "Top",
+         "value": 5
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:elemReferenceName2dXz-2.0.0"
+}

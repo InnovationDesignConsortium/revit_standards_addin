@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:viewportAttrOrientationOnSheet-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "90\u00b0 Clockwise",
+         "value": 1
+      },
+      {
+         "id": "90\u00b0 Counterclockwise",
+         "value": 2
+      }
+   ]
+}

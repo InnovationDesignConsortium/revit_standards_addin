@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Faces at Top of the Roof",
+         "value": 16
+      },
+      {
+         "id": "Faces at Bottom of the Roof",
+         "value": 17
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:roofFacesLocation-3.0.0"
+}

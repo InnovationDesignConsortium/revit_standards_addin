@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Default",
+         "value": 0
+      },
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:ifcExportElementType-2.0.0"
+}

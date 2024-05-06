@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:bendingdetailPosition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Bottom",
+         "value": 3
+      },
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 0
+      },
+      {
+         "id": "Top",
+         "value": 2
+      }
+   ]
+}

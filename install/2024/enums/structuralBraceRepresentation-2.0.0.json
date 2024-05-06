@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Parallel Line",
+         "value": 1
+      },
+      {
+         "id": "Line with Angle",
+         "value": 2
+      },
+      {
+         "id": "Kicker Brace",
+         "value": 3
+      },
+      {
+         "id": "None",
+         "value": -1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralBraceRepresentation-2.0.0"
+}

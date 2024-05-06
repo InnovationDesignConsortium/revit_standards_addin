@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:cutMarkSymbol-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Zigzag",
+         "value": 1
+      },
+      {
+         "id": "Curve",
+         "value": 2
+      }
+   ]
+}

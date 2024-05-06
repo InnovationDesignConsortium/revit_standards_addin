@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Yes",
+         "value": 1
+      },
+      {
+         "id": "No",
+         "value": 2
+      },
+      {
+         "id": "From Column",
+         "value": 0
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralAnalyticalBeamRigidLink-2.0.0"
+}

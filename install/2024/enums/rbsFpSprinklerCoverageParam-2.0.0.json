@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Standard",
+         "value": 0
+      },
+      {
+         "id": "Extended",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsFpSprinklerCoverageParam-2.0.0"
+}

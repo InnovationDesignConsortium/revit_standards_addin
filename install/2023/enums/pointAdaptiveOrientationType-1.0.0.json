@@ -1,0 +1,32 @@
+{
+   "typeid": "autodesk.revit.enum:pointAdaptiveOrientationType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Instance (xyz)",
+         "value": 9
+      },
+      {
+         "id": "Instance (z) then Host (xy)",
+         "value": 8
+      },
+      {
+         "id": "Host (xyz)",
+         "value": 2
+      },
+      {
+         "id": "Host and Loop System (xyz)",
+         "value": 3
+      },
+      {
+         "id": "Global (xyz)",
+         "value": 7
+      },
+      {
+         "id": "Global (z) then Host (xy)",
+         "value": 6
+      }
+   ]
+}

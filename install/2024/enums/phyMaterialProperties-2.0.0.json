@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "By Property Set",
+         "value": 1
+      },
+      {
+         "id": "Independent",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": -1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:phyMaterialProperties-2.0.0"
+}

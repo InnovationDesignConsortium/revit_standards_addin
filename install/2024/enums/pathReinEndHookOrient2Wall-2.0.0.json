@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Towards Exterior",
+         "value": 0
+      },
+      {
+         "id": "Towards Interior",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:pathReinEndHookOrient2Wall-2.0.0"
+}

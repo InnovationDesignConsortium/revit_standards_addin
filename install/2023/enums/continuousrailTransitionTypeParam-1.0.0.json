@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:continuousrailTransitionTypeParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Gooseneck",
+         "value": 1
+      },
+      {
+         "id": "Simple",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dimWitnsLineCntrl-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Gap to Element",
+         "value": 0
+      },
+      {
+         "id": "Fixed to Dimension Line",
+         "value": 1
+      }
+   ]
+}

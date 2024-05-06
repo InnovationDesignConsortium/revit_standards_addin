@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:stairstypeWinderStepFrontMeasurement-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "By Riser Line",
+         "value": 0
+      },
+      {
+         "id": "By Nosing Line",
+         "value": 1
+      }
+   ]
+}

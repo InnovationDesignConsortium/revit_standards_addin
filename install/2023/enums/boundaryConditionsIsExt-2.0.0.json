@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Internal",
+         "value": 0
+      },
+      {
+         "id": "External",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:boundaryConditionsIsExt-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dividedpathMeasurementType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Chord Length",
+         "value": 0
+      },
+      {
+         "id": "Segment Length",
+         "value": 1
+      }
+   ]
+}

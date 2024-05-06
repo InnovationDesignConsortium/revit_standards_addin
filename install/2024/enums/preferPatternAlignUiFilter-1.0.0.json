@@ -1,0 +1,16 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Entire Surface",
+         "value": 0
+      },
+      {
+         "id": "Selected Face",
+         "value": 1
+      }
+   ],
+   "typeid": "autodesk.revit.enum:preferPatternAlignUiFilter-1.0.0"
+}

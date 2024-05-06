@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:pointAdaptiveShowNumber-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Never",
+         "value": 0
+      },
+      {
+         "id": "When Selected",
+         "value": 1
+      },
+      {
+         "id": "Always",
+         "value": 2
+      }
+   ]
+}

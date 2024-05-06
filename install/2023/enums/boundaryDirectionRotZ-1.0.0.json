@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:boundaryDirectionRotZ-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Fixed",
+         "value": 0
+      },
+      {
+         "id": "Release",
+         "value": 1
+      },
+      {
+         "id": "Spring",
+         "value": 2
+      }
+   ]
+}

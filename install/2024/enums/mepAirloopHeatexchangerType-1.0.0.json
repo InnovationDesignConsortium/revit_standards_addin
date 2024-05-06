@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:mepAirloopHeatexchangerType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "%3CNone%3E",
+         "value": 0
+      },
+      {
+         "id": "Enthalpy",
+         "value": 1
+      },
+      {
+         "id": "Sensible",
+         "value": 2
+      }
+   ]
+}

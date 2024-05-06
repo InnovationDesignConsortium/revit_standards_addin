@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Left of vertical",
+         "value": 1
+      },
+      {
+         "id": "Right of vertical",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:textAlignment-2.0.0"
+}

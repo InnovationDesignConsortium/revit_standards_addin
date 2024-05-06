@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Bar Plane",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarSpliceShiftBars-2.0.0"
+}

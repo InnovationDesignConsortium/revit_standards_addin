@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:endYJustification-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Origin",
+         "value": 2
+      },
+      {
+         "id": "Left",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 3
+      }
+   ]
+}

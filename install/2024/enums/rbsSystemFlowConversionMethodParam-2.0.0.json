@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Predominantly Flush Valves",
+         "value": 0
+      },
+      {
+         "id": "Predominantly Flush Tanks",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsSystemFlowConversionMethodParam-2.0.0"
+}

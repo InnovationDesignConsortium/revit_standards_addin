@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Single Line",
+         "value": 0
+      },
+      {
+         "id": "Double Line",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:cutLineType-2.0.0"
+}

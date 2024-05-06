@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:structuralDisplayInHiddenViewsColumn-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Edges Hidden by Other Members",
+         "value": 0
+      },
+      {
+         "id": "Edges Hidden by Column Itself",
+         "value": 1
+      },
+      {
+         "id": "All Edges",
+         "value": 2
+      }
+   ]
+}

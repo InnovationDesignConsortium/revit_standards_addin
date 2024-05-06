@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Center",
+         "value": 0
+      },
+      {
+         "id": "Side 1",
+         "value": 1
+      },
+      {
+         "id": "Side 2",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:beamHJustification-2.0.0"
+}

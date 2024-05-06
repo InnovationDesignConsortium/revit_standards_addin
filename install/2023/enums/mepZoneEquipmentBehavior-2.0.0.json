@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "One per Space",
+         "value": 0
+      },
+      {
+         "id": "Groups Spaces on Equipment",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:mepZoneEquipmentBehavior-2.0.0"
+}

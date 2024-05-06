@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:debugtabDataboundcontrolsdemoColorCombo-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Choice 1",
+         "value": 0
+      },
+      {
+         "id": "Choice 2",
+         "value": 1
+      },
+      {
+         "id": "Choice 3",
+         "value": 2
+      },
+      {
+         "id": "Choice 4",
+         "value": 3
+      },
+      {
+         "id": "Choice 5",
+         "value": 4
+      }
+   ]
+}

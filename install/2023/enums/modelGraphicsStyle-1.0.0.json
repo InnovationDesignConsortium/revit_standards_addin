@@ -1,0 +1,40 @@
+{
+   "typeid": "autodesk.revit.enum:modelGraphicsStyle-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Wireframe",
+         "value": 1
+      },
+      {
+         "id": "Hidden Line",
+         "value": 2
+      },
+      {
+         "id": "Shaded",
+         "value": 3
+      },
+      {
+         "id": "Shaded with Edges",
+         "value": 4
+      },
+      {
+         "id": "Consistent Colors",
+         "value": 7
+      },
+      {
+         "id": "Realistic",
+         "value": 6
+      },
+      {
+         "id": "Realistic with Edges",
+         "value": 8
+      },
+      {
+         "id": "Ray Trace",
+         "value": 9
+      }
+   ]
+}

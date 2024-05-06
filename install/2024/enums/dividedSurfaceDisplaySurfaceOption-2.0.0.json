@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Show Surface",
+         "value": 2
+      },
+      {
+         "id": "Show Pattern",
+         "value": 4
+      },
+      {
+         "id": "Show Component",
+         "value": 8
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dividedSurfaceDisplaySurfaceOption-2.0.0"
+}

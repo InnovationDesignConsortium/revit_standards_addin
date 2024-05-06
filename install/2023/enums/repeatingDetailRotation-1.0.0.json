@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:repeatingDetailRotation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "90\u00b0 Clockwise",
+         "value": 1
+      },
+      {
+         "id": "90\u00b0 Counterclockwise",
+         "value": 3
+      },
+      {
+         "id": "180\u00b0",
+         "value": 2
+      }
+   ]
+}

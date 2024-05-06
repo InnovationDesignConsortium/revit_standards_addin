@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Horizontal",
+         "value": 0
+      },
+      {
+         "id": "Up, then Left",
+         "value": 1
+      },
+      {
+         "id": "Up, then Right",
+         "value": 2
+      },
+      {
+         "id": "Left, then Up",
+         "value": 3
+      },
+      {
+         "id": "Right, then Up",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dimStyleReadConvention-2.0.0"
+}

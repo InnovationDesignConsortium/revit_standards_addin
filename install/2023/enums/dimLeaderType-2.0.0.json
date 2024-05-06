@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Line",
+         "value": 0
+      },
+      {
+         "id": "Arc",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dimLeaderType-2.0.0"
+}

@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Left",
+         "value": 64
+      },
+      {
+         "id": "Center",
+         "value": 128
+      },
+      {
+         "id": "Right",
+         "value": 256
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:textAlignHorz-2.0.0"
+}

@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Wall centerlines",
+         "value": 0
+      },
+      {
+         "id": "Wall faces",
+         "value": 1
+      },
+      {
+         "id": "Center of core",
+         "value": 2
+      },
+      {
+         "id": "Faces of core",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:preferDimSideUiFilter-2.0.0"
+}

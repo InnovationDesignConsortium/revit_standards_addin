@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:structuralStickSymbolLocation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Top of Geometry",
+         "value": 1
+      },
+      {
+         "id": "Center of Geometry",
+         "value": 0
+      },
+      {
+         "id": "Bottom of Geometry",
+         "value": 2
+      },
+      {
+         "id": "Location Line",
+         "value": 3
+      }
+   ]
+}

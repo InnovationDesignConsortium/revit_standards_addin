@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Left Quarter",
+         "value": 3
+      },
+      {
+         "id": "Center",
+         "value": 0
+      },
+      {
+         "id": "Right Quarter",
+         "value": 4
+      },
+      {
+         "id": "Right",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:numberSystemReference-2.0.0"
+}

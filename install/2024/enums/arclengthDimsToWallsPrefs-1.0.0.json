@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:arclengthDimsToWallsPrefs-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Wall centerlines",
+         "value": 0
+      },
+      {
+         "id": "Wall faces",
+         "value": 1
+      },
+      {
+         "id": "Center of core",
+         "value": 2
+      },
+      {
+         "id": "Faces of core",
+         "value": 3
+      }
+   ]
+}

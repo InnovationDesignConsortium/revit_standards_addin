@@ -1,0 +1,27 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Fixed Number",
+         "value": 1
+      },
+      {
+         "id": "Fixed Distance",
+         "value": 2
+      },
+      {
+         "id": "Minimum Distance",
+         "value": 3
+      },
+      {
+         "id": "Maximum Distance",
+         "value": 4
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dividedpathLayout-2.0.0"
+}

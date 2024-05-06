@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Reference Point",
+         "value": 0
+      },
+      {
+         "id": "Placement Point (Adaptive)",
+         "value": 1
+      },
+      {
+         "id": "Shape Handle Point (Adaptive)",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:pointAdaptiveTypeParam-2.0.0"
+}

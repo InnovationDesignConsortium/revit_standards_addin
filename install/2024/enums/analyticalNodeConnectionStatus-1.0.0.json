@@ -1,0 +1,16 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Unconnected",
+         "value": 0
+      },
+      {
+         "id": "Connected",
+         "value": 1
+      }
+   ],
+   "typeid": "autodesk.revit.enum:analyticalNodeConnectionStatus-1.0.0"
+}

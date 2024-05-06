@@ -1,0 +1,24 @@
+{
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Linear",
+         "value": 0
+      },
+      {
+         "id": "Circular",
+         "value": 1
+      },
+      {
+         "id": "Oval",
+         "value": 2
+      },
+      {
+         "id": "Other",
+         "value": 3
+      }
+   ],
+   "typeid": "autodesk.revit.enum:framingShapeClassification-1.0.0"
+}

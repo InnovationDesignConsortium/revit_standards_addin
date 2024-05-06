@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:structuralAttachmentTopType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Distance",
+         "value": 1
+      },
+      {
+         "id": "Ratio",
+         "value": 2
+      }
+   ]
+}

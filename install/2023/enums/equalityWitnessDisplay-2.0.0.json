@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Tick and Line",
+         "value": 0
+      },
+      {
+         "id": "Tick only",
+         "value": 1
+      },
+      {
+         "id": "Hide",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:equalityWitnessDisplay-2.0.0"
+}

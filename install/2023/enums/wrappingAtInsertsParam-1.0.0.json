@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:wrappingAtInsertsParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Do not wrap",
+         "value": 0
+      },
+      {
+         "id": "Exterior",
+         "value": 1
+      },
+      {
+         "id": "Interior",
+         "value": 2
+      },
+      {
+         "id": "Both",
+         "value": 3
+      }
+   ]
+}

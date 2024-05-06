@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:spacingJustificationn1-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Beginning",
+         "value": 4
+      },
+      {
+         "id": "End",
+         "value": 5
+      },
+      {
+         "id": "Center",
+         "value": 2
+      }
+   ]
+}

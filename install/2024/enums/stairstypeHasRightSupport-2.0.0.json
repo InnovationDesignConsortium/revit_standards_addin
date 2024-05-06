@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Stringer (Closed)",
+         "value": 1
+      },
+      {
+         "id": "Carriage (Open)",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairstypeHasRightSupport-2.0.0"
+}

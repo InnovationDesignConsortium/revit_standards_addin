@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:interiorTickDisplay-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Dynamic",
+         "value": 0
+      },
+      {
+         "id": "Always Show",
+         "value": 1
+      }
+   ]
+}

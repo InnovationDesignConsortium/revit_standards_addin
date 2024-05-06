@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:stairsWinderpatternWinderStyle-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Balanced",
+         "value": 0
+      },
+      {
+         "id": "Single Point",
+         "value": 2
+      }
+   ]
+}

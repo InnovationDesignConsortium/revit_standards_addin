@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Extrusive",
+         "value": 0
+      },
+      {
+         "id": "true 3D",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:roomComputationMethod-2.0.0"
+}

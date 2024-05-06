@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:doorEvacuationExitType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Egress - Exterior",
+         "value": 0
+      },
+      {
+         "id": "Egress - Interior",
+         "value": 1
+      },
+      {
+         "id": "Interior Passage",
+         "value": 2
+      },
+      {
+         "id": "None",
+         "value": 3
+      }
+   ]
+}

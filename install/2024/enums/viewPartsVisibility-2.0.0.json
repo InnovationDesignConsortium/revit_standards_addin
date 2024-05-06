@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Show Parts",
+         "value": 0
+      },
+      {
+         "id": "Show Original",
+         "value": 1
+      },
+      {
+         "id": "Show Both",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewPartsVisibility-2.0.0"
+}

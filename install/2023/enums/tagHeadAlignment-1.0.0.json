@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:tagHeadAlignment-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Rebar Shape Family",
+         "value": 0
+      },
+      {
+         "id": "View",
+         "value": 1
+      }
+   ]
+}

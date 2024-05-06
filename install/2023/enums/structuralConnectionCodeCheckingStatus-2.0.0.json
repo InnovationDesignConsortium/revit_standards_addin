@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Not Calculated",
+         "value": 0
+      },
+      {
+         "id": "OK Checked",
+         "value": 1
+      },
+      {
+         "id": "Checking Failed",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralConnectionCodeCheckingStatus-2.0.0"
+}

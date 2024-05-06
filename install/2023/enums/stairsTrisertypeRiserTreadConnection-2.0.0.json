@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Extend Riser Behind Tread",
+         "value": 0
+      },
+      {
+         "id": "Extend Tread Under Riser",
+         "value": 1
+      },
+      {
+         "id": "Join All Risers And Treads",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsTrisertypeRiserTreadConnection-2.0.0"
+}

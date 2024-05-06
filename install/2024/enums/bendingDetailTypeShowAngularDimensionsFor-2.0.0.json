@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "All",
+         "value": 0
+      },
+      {
+         "id": "Different from 90 degrees",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bendingDetailTypeShowAngularDimensionsFor-2.0.0"
+}

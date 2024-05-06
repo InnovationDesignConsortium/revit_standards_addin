@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:mepWaterloopType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "%3CUndefined%3E",
+         "value": 0
+      },
+      {
+         "id": "Chilled Water",
+         "value": 1
+      },
+      {
+         "id": "Condenser Water",
+         "value": 2
+      },
+      {
+         "id": "Hot Water",
+         "value": 3
+      },
+      {
+         "id": "Variable Refrigerant Flow",
+         "value": 4
+      }
+   ]
+}

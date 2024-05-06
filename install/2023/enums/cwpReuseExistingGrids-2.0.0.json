@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Don't reuse",
+         "value": 0
+      },
+      {
+         "id": "Reuse if Elements match exactly",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:cwpReuseExistingGrids-2.0.0"
+}

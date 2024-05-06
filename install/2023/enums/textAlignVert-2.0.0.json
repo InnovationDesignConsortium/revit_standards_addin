@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Top",
+         "value": 512
+      },
+      {
+         "id": "Middle",
+         "value": 1024
+      },
+      {
+         "id": "Bottom",
+         "value": 2048
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:textAlignVert-2.0.0"
+}

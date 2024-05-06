@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Empty",
+         "value": 0
+      },
+      {
+         "id": "Partial",
+         "value": 1
+      },
+      {
+         "id": "Overhanging",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:dividedSurfaceTileBorder-2.0.0"
+}

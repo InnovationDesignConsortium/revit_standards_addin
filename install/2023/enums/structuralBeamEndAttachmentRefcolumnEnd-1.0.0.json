@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:structuralBeamEndAttachmentRefcolumnEnd-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Bottom",
+         "value": 0
+      },
+      {
+         "id": "Top",
+         "value": 1
+      }
+   ]
+}

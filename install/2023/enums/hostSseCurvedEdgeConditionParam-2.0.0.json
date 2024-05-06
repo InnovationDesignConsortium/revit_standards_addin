@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "<Not Applicable>",
+         "value": 0
+      },
+      {
+         "id": "Conform to curve",
+         "value": 1
+      },
+      {
+         "id": "Project to side",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:hostSseCurvedEdgeConditionParam-2.0.0"
+}

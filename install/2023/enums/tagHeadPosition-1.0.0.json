@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:tagHeadPosition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Bottom",
+         "value": 1
+      },
+      {
+         "id": "Center",
+         "value": 4
+      },
+      {
+         "id": "Left",
+         "value": 3
+      },
+      {
+         "id": "Right",
+         "value": 2
+      },
+      {
+         "id": "Top",
+         "value": 0
+      }
+   ]
+}

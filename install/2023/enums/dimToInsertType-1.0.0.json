@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dimToInsertType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Centers",
+         "value": 0
+      },
+      {
+         "id": "Widths",
+         "value": 1
+      }
+   ]
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:familyIsElevationMarkBody-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Body",
+         "value": 1
+      },
+      {
+         "id": "Pointer",
+         "value": 0
+      }
+   ]
+}

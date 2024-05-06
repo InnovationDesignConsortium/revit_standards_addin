@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:spotElevTextLocation-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Above Leader",
+         "value": 0
+      },
+      {
+         "id": "Below Leader",
+         "value": 1
+      },
+      {
+         "id": "In-line with Leader",
+         "value": 2
+      }
+   ]
+}

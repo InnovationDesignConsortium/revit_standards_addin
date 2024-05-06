@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rvtLinkReferenceType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Overlay",
+         "value": 2
+      },
+      {
+         "id": "Attachment",
+         "value": 3
+      }
+   ]
+}

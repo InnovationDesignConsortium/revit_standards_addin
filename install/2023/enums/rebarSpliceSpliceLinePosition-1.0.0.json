@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rebarSpliceSpliceLinePosition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "End 1",
+         "value": 0
+      },
+      {
+         "id": "End 2",
+         "value": 2
+      },
+      {
+         "id": "Middle",
+         "value": 1
+      }
+   ]
+}

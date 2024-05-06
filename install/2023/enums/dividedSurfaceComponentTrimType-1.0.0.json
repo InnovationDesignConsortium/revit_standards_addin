@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:dividedSurfaceComponentTrimType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Smooth",
+         "value": 0
+      },
+      {
+         "id": "Faceted",
+         "value": 1
+      }
+   ]
+}

@@ -1,0 +1,39 @@
+{
+   "enum": [
+      {
+         "id": "Single Line",
+         "value": 0
+      },
+      {
+         "id": "Circle",
+         "value": 1
+      },
+      {
+         "id": "Oval",
+         "value": 2
+      },
+      {
+         "id": "Flex",
+         "value": 3
+      },
+      {
+         "id": "Flex 2",
+         "value": 4
+      },
+      {
+         "id": "Curve",
+         "value": 5
+      },
+      {
+         "id": "Single Line 45",
+         "value": 6
+      },
+      {
+         "id": "Undefined",
+         "value": -1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsFlexPatternParam-2.0.0"
+}

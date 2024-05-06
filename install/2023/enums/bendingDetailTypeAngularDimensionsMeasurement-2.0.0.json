@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Inside angles",
+         "value": 0
+      },
+      {
+         "id": "Outside angles",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bendingDetailTypeAngularDimensionsMeasurement-2.0.0"
+}

@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Location Line",
+         "value": 3
+      },
+      {
+         "id": "Top of Beam",
+         "value": 0
+      },
+      {
+         "id": "Center of Beam",
+         "value": 1
+      },
+      {
+         "id": "Bottom of Beam",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:slantedColumnGeometryTreatmentBase-2.0.0"
+}

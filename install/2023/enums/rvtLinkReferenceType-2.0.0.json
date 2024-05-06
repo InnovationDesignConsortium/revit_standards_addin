@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Overlay",
+         "value": 2
+      },
+      {
+         "id": "Attachment",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rvtLinkReferenceType-2.0.0"
+}

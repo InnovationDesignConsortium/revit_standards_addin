@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsRailingBalusterShape-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Rectangular",
+         "value": 0
+      },
+      {
+         "id": "Circle",
+         "value": 1
+      },
+      {
+         "id": "None",
+         "value": 2
+      }
+   ]
+}

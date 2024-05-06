@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:scheduleResizeRows-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 1,
+         "id": "All"
+      },
+      {
+         "value": 2,
+         "id": "Image Rows"
+      },
+      {
+         "value": 0,
+         "id": "None"
+      }
+   ]
+}

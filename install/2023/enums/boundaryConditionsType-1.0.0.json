@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:boundaryConditionsType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Point",
+         "value": 0
+      },
+      {
+         "id": "Line",
+         "value": 1
+      },
+      {
+         "id": "Area",
+         "value": 2
+      }
+   ]
+}

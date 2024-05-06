@@ -1,0 +1,24 @@
+{
+   "typeid": "autodesk.revit.enum:fabricParamLocationGeneric-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Top",
+         "value": 0
+      },
+      {
+         "id": "Bottom",
+         "value": 1
+      },
+      {
+         "id": "External",
+         "value": 2
+      },
+      {
+         "id": "Internal",
+         "value": 3
+      }
+   ]
+}

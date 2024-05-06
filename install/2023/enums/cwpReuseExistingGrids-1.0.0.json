@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:cwpReuseExistingGrids-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Don't reuse",
+         "value": 0
+      },
+      {
+         "id": "Reuse if Elements match exactly",
+         "value": 1
+      }
+   ]
+}

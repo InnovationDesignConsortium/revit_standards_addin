@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsRailingTangentConnection-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Add Vertical/Horizontal Segments",
+         "value": 0
+      },
+      {
+         "id": "No Connector",
+         "value": 1
+      },
+      {
+         "id": "Extend Rails to Meet",
+         "value": 2
+      }
+   ]
+}

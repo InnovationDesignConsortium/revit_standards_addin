@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Right Support ",
+         "value": 0
+      },
+      {
+         "id": "Left Support",
+         "value": 1
+      },
+      {
+         "id": "Intermediate Support",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsSupportLandingsupportType-2.0.0"
+}

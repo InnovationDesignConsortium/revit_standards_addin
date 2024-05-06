@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:stairsSupporttypeUndersideSurface-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Stepped",
+         "value": 0
+      },
+      {
+         "id": "Smooth",
+         "value": 1
+      }
+   ]
+}

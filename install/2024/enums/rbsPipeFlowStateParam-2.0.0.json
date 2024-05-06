@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Laminar",
+         "value": 0
+      },
+      {
+         "id": "Transition",
+         "value": 1
+      },
+      {
+         "id": "Turbulent",
+         "value": 2
+      },
+      {
+         "id": "Multiple Values",
+         "value": -1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rbsPipeFlowStateParam-2.0.0"
+}

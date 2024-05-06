@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:stairsTrisertypeRiserTreadConnection-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Extend Riser Behind Tread",
+         "value": 0
+      },
+      {
+         "id": "Extend Tread Under Riser",
+         "value": 1
+      },
+      {
+         "id": "Join All Risers And Treads",
+         "value": 2
+      }
+   ]
+}

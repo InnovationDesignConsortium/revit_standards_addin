@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:structConnectionApplyTo-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Beams and Braces",
+         "value": 0
+      },
+      {
+         "id": "Column Top",
+         "value": 1
+      },
+      {
+         "id": "Column Base",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailAngularDimensionTextPosition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "Dimension style default"
+      },
+      {
+         "value": 1,
+         "id": "Outside of the dimension line"
+      }
+   ]
+}

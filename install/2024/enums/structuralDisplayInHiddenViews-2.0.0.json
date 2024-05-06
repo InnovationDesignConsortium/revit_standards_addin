@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Edges Hidden by Other Members",
+         "value": 0
+      },
+      {
+         "id": "Edges Hidden by Element Itself",
+         "value": 1
+      },
+      {
+         "id": "All Edges",
+         "value": 2
+      },
+      {
+         "id": "None",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralDisplayInHiddenViews-2.0.0"
+}

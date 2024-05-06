@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailRepresentationFor3dBars-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Isometric",
+         "value": 0
+      },
+      {
+         "id": "Plan",
+         "value": 1
+      }
+   ]
+}

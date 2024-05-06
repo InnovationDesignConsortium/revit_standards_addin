@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Don't reuse",
+         "value": 0
+      },
+      {
+         "id": "Reuse if Elements match exactly",
+         "value": 1
+      },
+      {
+         "id": "Reuse if within offset",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:cwpReuseExistingLevels-2.0.0"
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:familyNestingBehavior-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Embedded",
+         "value": 0
+      },
+      {
+         "id": "Shared",
+         "value": 1
+      },
+      {
+         "id": "Sub-element",
+         "value": 2
+      }
+   ]
+}

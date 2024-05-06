@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Major",
+         "value": 0
+      },
+      {
+         "id": "Minor",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:bentFabricParamBendDirection-2.0.0"
+}

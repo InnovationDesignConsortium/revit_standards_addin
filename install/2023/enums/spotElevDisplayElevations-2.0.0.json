@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Actual (Selected) Elevation",
+         "value": 0
+      },
+      {
+         "id": "Top Elevation",
+         "value": 1
+      },
+      {
+         "id": "Bottom Elevation",
+         "value": 2
+      },
+      {
+         "id": "Top & Bottom Elevations",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:spotElevDisplayElevations-2.0.0"
+}

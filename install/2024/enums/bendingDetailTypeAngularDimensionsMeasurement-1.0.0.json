@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailTypeAngularDimensionsMeasurement-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "Inside angles"
+      },
+      {
+         "value": 1,
+         "id": "Outside angles"
+      }
+   ]
+}

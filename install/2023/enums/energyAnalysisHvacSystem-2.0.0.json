@@ -1,0 +1,55 @@
+{
+   "enum": [
+      {
+         "id": "12 SEER/0.9 AFUE Split/Packaged Gas, 5-11 Ton",
+         "value": 0
+      },
+      {
+         "id": "11.3 EER Packaged VAV, 84.4% boiler heating",
+         "value": 1
+      },
+      {
+         "id": "Central VAV, HW Heat, Chiller 5.96 COP, Boilers 84.5 eff",
+         "value": 2
+      },
+      {
+         "id": "4-Pipe Fan Coil System, Chiller 5.96 COP, Boilers 84.5 eff",
+         "value": 3
+      },
+      {
+         "id": "Central VAV, Electric Resistance Heat, Chiller 5.96 COP",
+         "value": 4
+      },
+      {
+         "id": "12 SEER/7.7 HSPF Split Packaged Heat Pump",
+         "value": 5
+      },
+      {
+         "id": "2-Pipe Fan Coil System, Chiller 5.96 COP, Boilers 84.5 eff",
+         "value": 6
+      },
+      {
+         "id": "12 SEER/8.3 HSPF Packaged Terminal Heat Pump (PTAC)",
+         "value": 7
+      },
+      {
+         "id": "Residential 17 SEER/9.6 HSPF Split HP <5.5 ton",
+         "value": 8
+      },
+      {
+         "id": "Underfloor Air Distribution",
+         "value": 9
+      },
+      {
+         "id": "Residential 14 SEER/0.9 AFUE Split/Packaged Gas <5.5 ton",
+         "value": 10
+      },
+      {
+         "id": "Residential 14 SEER/8.3 HSPF Split Packaged Heat Pump",
+         "value": 11
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:energyAnalysisHvacSystem-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:bendingDetailTypeShowAngularDimensionsFor-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "value": 0,
+         "id": "All"
+      },
+      {
+         "value": 1,
+         "id": "Different from 90 degrees"
+      }
+   ]
+}

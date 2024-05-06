@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:spliceByRulesRunout-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "End",
+         "value": 1
+      },
+      {
+         "id": "Start",
+         "value": 0
+      }
+   ]
+}

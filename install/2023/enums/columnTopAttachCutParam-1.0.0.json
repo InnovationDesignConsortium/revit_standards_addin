@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:columnTopAttachCutParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Cut Column",
+         "value": 0
+      },
+      {
+         "id": "Cut Target",
+         "value": 1
+      },
+      {
+         "id": "Do Not Cut",
+         "value": 2
+      }
+   ]
+}

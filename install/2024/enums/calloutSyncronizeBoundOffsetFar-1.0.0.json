@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:calloutSyncronizeBoundOffsetFar-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Independent",
+         "value": 0
+      },
+      {
+         "id": "Same as parent view",
+         "value": 1
+      }
+   ]
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rebarWorkshopInstructions-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Keep Straight",
+         "value": 1
+      },
+      {
+         "id": "Bend",
+         "value": 0
+      }
+   ]
+}

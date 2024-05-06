@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:phyMaterialProperties-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "By Property Set",
+         "value": 1
+      },
+      {
+         "id": "Independent",
+         "value": 0
+      },
+      {
+         "id": "None",
+         "value": -1
+      }
+   ]
+}

@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Round",
+         "value": 0
+      },
+      {
+         "id": "Rectangular",
+         "value": 1
+      },
+      {
+         "id": "Oval",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:mepProfileTypeParam-2.0.0"
+}

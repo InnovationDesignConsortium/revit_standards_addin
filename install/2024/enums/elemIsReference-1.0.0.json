@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:elemIsReference-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Not a Reference",
+         "value": 0
+      },
+      {
+         "id": "Weak Reference",
+         "value": 1
+      },
+      {
+         "id": "Strong Reference",
+         "value": 2
+      }
+   ]
+}

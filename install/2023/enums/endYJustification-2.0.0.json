@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Origin",
+         "value": 2
+      },
+      {
+         "id": "Left",
+         "value": 0
+      },
+      {
+         "id": "Center",
+         "value": 1
+      },
+      {
+         "id": "Right",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:endYJustification-2.0.0"
+}

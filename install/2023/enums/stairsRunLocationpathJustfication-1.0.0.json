@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:stairsRunLocationpathJustfication-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Exterior Support: Left",
+         "value": 3
+      },
+      {
+         "id": "Run: Left",
+         "value": 0
+      },
+      {
+         "id": "Run: Center",
+         "value": 1
+      },
+      {
+         "id": "Run: Right",
+         "value": 2
+      },
+      {
+         "id": "Exterior Support: Right",
+         "value": 4
+      }
+   ]
+}

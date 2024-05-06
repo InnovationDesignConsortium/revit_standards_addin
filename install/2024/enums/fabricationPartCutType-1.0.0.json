@@ -1,0 +1,52 @@
+{
+   "typeid": "autodesk.revit.enum:fabricationPartCutType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Not Set",
+         "value": 0
+      },
+      {
+         "id": "Machine",
+         "value": 1
+      },
+      {
+         "id": "Decoiled Straight",
+         "value": 2
+      },
+      {
+         "id": "Spiral Straight",
+         "value": 3
+      },
+      {
+         "id": "Oval Spiral Straight",
+         "value": 4
+      },
+      {
+         "id": "Draw Only",
+         "value": 5
+      },
+      {
+         "id": "Guillotine",
+         "value": 6
+      },
+      {
+         "id": "Equipment",
+         "value": 7
+      },
+      {
+         "id": "Pipework",
+         "value": 8
+      },
+      {
+         "id": "Wrapped",
+         "value": 9
+      },
+      {
+         "id": "Rotary",
+         "value": 10
+      }
+   ]
+}

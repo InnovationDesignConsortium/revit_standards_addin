@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Add Vertical/Horizontal Segments",
+         "value": 0
+      },
+      {
+         "id": "No Connector",
+         "value": 1
+      },
+      {
+         "id": "Extend Rails to Meet",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:stairsRailingTangentConnection-2.0.0"
+}

@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:elementContext-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Instance",
+         "value": 0
+      },
+      {
+         "id": "Type",
+         "value": 1
+      }
+   ]
+}

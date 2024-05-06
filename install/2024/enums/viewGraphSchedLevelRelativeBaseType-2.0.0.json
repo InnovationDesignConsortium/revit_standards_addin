@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Project",
+         "value": 0
+      },
+      {
+         "id": "Shared",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:viewGraphSchedLevelRelativeBaseType-2.0.0"
+}

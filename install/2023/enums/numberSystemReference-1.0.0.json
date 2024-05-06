@@ -1,0 +1,28 @@
+{
+   "typeid": "autodesk.revit.enum:numberSystemReference-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Left",
+         "value": 1
+      },
+      {
+         "id": "Left Quarter",
+         "value": 3
+      },
+      {
+         "id": "Center",
+         "value": 0
+      },
+      {
+         "id": "Right Quarter",
+         "value": 4
+      },
+      {
+         "id": "Right",
+         "value": 2
+      }
+   ]
+}

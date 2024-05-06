@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:rbsElecWireType-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Arc",
+         "value": 0
+      },
+      {
+         "id": "Chamfer",
+         "value": 1
+      }
+   ]
+}

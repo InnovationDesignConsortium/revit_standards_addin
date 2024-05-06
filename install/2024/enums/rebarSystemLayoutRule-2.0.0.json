@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Maximum Spacing",
+         "value": 3
+      },
+      {
+         "id": "Fixed Number",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:rebarSystemLayoutRule-2.0.0"
+}

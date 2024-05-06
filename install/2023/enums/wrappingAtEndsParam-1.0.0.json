@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:wrappingAtEndsParam-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "Exterior",
+         "value": 1
+      },
+      {
+         "id": "Interior",
+         "value": 2
+      }
+   ]
+}

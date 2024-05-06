@@ -1,0 +1,16 @@
+{
+   "typeid": "autodesk.revit.enum:viewCameraPosition-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "Adjusting",
+         "value": 0
+      },
+      {
+         "id": "Explicit",
+         "value": 1
+      }
+   ]
+}

@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:rebarConstraintsStatus-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "All Disabled",
+         "value": 1
+      },
+      {
+         "id": "Enabled",
+         "value": 0
+      },
+      {
+         "id": "Some Disabled",
+         "value": 2
+      }
+   ]
+}

@@ -1,0 +1,19 @@
+{
+   "enum": [
+      {
+         "id": "Unconnected",
+         "value": 0
+      },
+      {
+         "id": "Connected - Manual",
+         "value": 1
+      },
+      {
+         "id": "Connected - Auto-detect",
+         "value": 2
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:nodeConnectionStatus-2.0.0"
+}

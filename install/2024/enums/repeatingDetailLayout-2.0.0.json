@@ -1,0 +1,23 @@
+{
+   "enum": [
+      {
+         "id": "Fill Available Space",
+         "value": 4
+      },
+      {
+         "id": "Fixed Distance",
+         "value": 1
+      },
+      {
+         "id": "Fixed Number",
+         "value": 2
+      },
+      {
+         "id": "Maximum Spacing",
+         "value": 3
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:repeatingDetailLayout-2.0.0"
+}

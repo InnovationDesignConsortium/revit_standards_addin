@@ -1,0 +1,20 @@
+{
+   "typeid": "autodesk.revit.enum:spotElevBotValue-1.0.0",
+   "inherits": [
+      "Enum"
+   ],
+   "properties": [
+      {
+         "id": "None",
+         "value": 0
+      },
+      {
+         "id": "North / South",
+         "value": 1
+      },
+      {
+         "id": "East / West",
+         "value": 2
+      }
+   ]
+}

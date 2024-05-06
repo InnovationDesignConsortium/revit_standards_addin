@@ -1,0 +1,15 @@
+{
+   "enum": [
+      {
+         "id": "Arrow",
+         "value": 0
+      },
+      {
+         "id": "Triangle",
+         "value": 1
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:spotSlopeSlopeRepresentation-2.0.0"
+}
