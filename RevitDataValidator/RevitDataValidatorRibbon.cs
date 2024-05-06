@@ -7,6 +7,7 @@ using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
+using RevitDataValidator.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -102,6 +103,13 @@ namespace RevitDataValidator
                 cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             }
 
+            ShowErrors();
+
+            return Result.Succeeded;
+        }
+
+        private void ShowErrors()
+        {
             if (Utils.errors.Any())
             {
                 var errorfile = Path.Combine(Path.GetDirectoryName(Path.GetTempPath()), @"..\RevitValidator-ErrorLog-" + DateTime.Now.ToString().Replace(":", "-").Replace("/", "_") + ".txt");
@@ -110,9 +118,9 @@ namespace RevitDataValidator
                     sw.Write(string.Join(Environment.NewLine, Utils.errors));
                 }
                 Process.Start(errorfile);
+                Utils.errors.Clear();
             }
 
-            return Result.Succeeded;
         }
 
         private void Application_Idling(object sender, IdlingEventArgs e)
@@ -184,14 +192,8 @@ namespace RevitDataValidator
             if (packSet != null)
             {
                 var packSetName = packSet.Name;
-                try
-                {
-                    Utils.propertiesPanel.cbo.SelectedItem = packSetName;
-                    Utils.propertiesPanel.Refresh(packSetName);
-                }
-                catch (Exception ex)
-                {
-                }
+                Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
+                Utils.propertiesPanel.Refresh(packSetName);
             }
         }
 
@@ -369,7 +371,11 @@ namespace RevitDataValidator
             if (!File.Exists(file))
                 return;
             var json = File.ReadAllText(file);
-            Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json);
+            Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json, new JsonSerializerSettings
+            {
+                Error = HandleDeserializationError,
+                MissingMemberHandling = MissingMemberHandling.Error
+            });
         }
 
         private void GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules)
@@ -377,7 +383,7 @@ namespace RevitDataValidator
             parameterRules = new List<ParameterRule>();
             worksetRules = new List<WorksetRule>();
             var ruleFile = Properties.Settings.Default.ActiveRuleFile;
-            if (ruleFile == NONE)
+            if (ruleFile == NONE || ruleFile?.Length == 0)
             {
                 return;
             }
@@ -395,7 +401,12 @@ namespace RevitDataValidator
                     RuleData rules = null;
                     try
                     {
-                        rules = JsonConvert.DeserializeObject<RuleData>(json);
+                        rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
+                        {
+                            Error = HandleDeserializationError,
+                            MissingMemberHandling = MissingMemberHandling.Error
+                        });
+                        ShowErrors();
                     }
                     catch (Exception ex)
                     {
@@ -427,6 +438,13 @@ namespace RevitDataValidator
             {
                 Utils.Log("File not found: " + Properties.Settings.Default.ActiveRuleFile, Utils.LogLevel.Error);
             }
+        }
+
+        private void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            var currentError = e.ErrorContext.Error.Message;
+            Utils.Log($"Error deserializing JSON in '{Path.GetFileName(Properties.Settings.Default.ActiveRuleFile)}': {currentError}", Utils.LogLevel.Error);
+            e.ErrorContext.Handled = true;
         }
 
         public Result OnShutdown(UIControlledApplication application)

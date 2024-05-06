@@ -155,7 +155,7 @@ namespace RevitDataValidator
             {
                 var parameterStringMatch = inputParameterValues.Find(q => q.Parameter.Definition.Name == rule.ParameterName);
                 parameter = parameterStringMatch.Parameter;
-                parameterValueAsString = parameterStringMatch.Value;
+                parameterValueAsString = parameterStringMatch.NewValue;
             }
             if (parameterValueAsString == null)
             {
@@ -216,7 +216,7 @@ namespace RevitDataValidator
                             i++;
                             suffix = " " + i.ToString();
                         }
-                        parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedString + suffix));
+                        parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedString + suffix, parameterValueAsString));
 
                         Utils.Log($"Rename {element.Name} = {formattedString + suffix}");
                     }
@@ -341,6 +341,17 @@ namespace RevitDataValidator
             return null;
         }
 
+        public static TaskDialog GetTaskDialogForFormatRenaming(ParameterRule rule, List<ParameterString> thisRuleParametersToSetForFormatRules)
+        {
+            return new TaskDialog("Alert")
+            {
+                MainInstruction =
+        $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed",
+                MainContent = string.Join(Environment.NewLine, thisRuleParametersToSetForFormatRules.Select(q => $"From '{q.OldValue}' to '{q.NewValue}'")),
+                CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
+            };
+        }
+
         public static List<RuleFailure> GetFailures(ElementId id, List<ParameterString> inputParameterValues, out List<ParameterString> parametersToSet)
         {
             var ret = new List<RuleFailure>();
@@ -358,13 +369,7 @@ namespace RevitDataValidator
 
                 if (thisRuleParametersToSetForFormatRules.Any())
                 {
-                    var td = new TaskDialog("Alert")
-                    {
-                        MainInstruction =
-        $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to",
-                        MainContent = string.Join(Environment.NewLine, thisRuleParametersToSetForFormatRules.Select(q => q.Value)),
-                        CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
-                    };
+                    var td = GetTaskDialogForFormatRenaming(rule, thisRuleParametersToSetForFormatRules);
                     if (td.Show() == TaskDialogResult.Ok)
                     {
                         parametersToSet.AddRange(thisRuleParametersToSetForFormatRules);

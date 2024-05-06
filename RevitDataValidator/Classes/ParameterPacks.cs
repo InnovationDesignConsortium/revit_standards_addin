@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace RevitDataValidator
 {
+    [DebuggerDisplay("{Name} {Category}")]
     public class PackSet
     {
         public string Name { get; set; }
@@ -18,6 +20,7 @@ namespace RevitDataValidator
         public List<string> ShowAllOtherParametersExcluding { get; set; }
     }
 
+    [DebuggerDisplay("{Name} {Category}")]
     public class ParameterPack
     {
         public string Name { get; set; }

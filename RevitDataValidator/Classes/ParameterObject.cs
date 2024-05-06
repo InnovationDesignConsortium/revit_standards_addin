@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RevitDataValidator
 {
-    [DebuggerDisplay("{Name} {Value}")]
+    [DebuggerDisplay("{Name} {NewValue}")]
     public class ParameterObject
     {
         public ParameterObject(List<Parameter> parameters, object value)

@@ -61,7 +61,7 @@ namespace RevitDataValidator
                         ruleFailures.AddRange(failuresForThisRule);
                         foreach (var parameterString in parametersToSet)
                         {
-                            SetParam(parameterString.Parameter, parameterString.Value);
+                            SetParam(parameterString.Parameter, parameterString.NewValue);
                         }
                     }
                     if (ruleFailures.Any())

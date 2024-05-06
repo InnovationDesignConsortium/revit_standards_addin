@@ -15,14 +15,14 @@ namespace RevitDataValidator
     {
         private const string OTHER = "Others";
         public ObservableCollection<PackData> PackData { get; set; }
-        public ObservableCollection<string> cboData { get; set; }
+        public ObservableCollection<string> PackSets { get; set; }
 
         public ObservableCollection<WorksetRuleData> WorksetRuleDatas { get; set; }
         public ObservableCollection<ParameterRuleData> ParameterRuleDatas { get; set; }
 
         public PropertyViewModel()
         {
-            cboData = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
+            PackSets = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
         }
 
         public PropertyViewModel(string name)
@@ -47,7 +47,7 @@ namespace RevitDataValidator
 
             var catName = element.Category.Name;
 
-            cboData = new ObservableCollection<string>(
+            PackSets = new ObservableCollection<string>(
                 Utils.parameterUIData.PackSets
                 .Where(q => q.Category == catName).Select(q => q.Name));
 

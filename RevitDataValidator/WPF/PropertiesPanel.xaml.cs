@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Xml.Linq;
 
 namespace RevitDataValidator
 {
@@ -30,23 +31,29 @@ namespace RevitDataValidator
             data.InitialState = state;
         }
 
-        private void cbo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void cboParameterPack_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cbo.SelectedItem == null)
+            if (cboParameterPack.SelectedItem == null)
                 return;
 
-            DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
+            DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
 
-            var element = Utils.doc.GetElement(Utils.selectedIds.First());
+            Element element;
+            if (Utils.selectedIds.Any())
+            {
+                element = Utils.doc.GetElement(Utils.selectedIds[0]);
+            }
+            else
+            {
+                element = Utils.doc.ActiveView;
+            }
+
             if (element.Category == null)
                 return;
 
             var catName = element.Category.Name;
 
-            if (Utils.dictCategoryPackSet.ContainsKey(catName))
-                Utils.dictCategoryPackSet[catName] = Utils.propertiesPanel.cbo.SelectedItem.ToString();
-            else
-                Utils.dictCategoryPackSet.Add(catName, Utils.propertiesPanel.cbo.SelectedItem.ToString());
+            Utils.dictCategoryPackSet[catName] = Utils.propertiesPanel.cboParameterPack.SelectedItem.ToString();
         }
 
         public void Refresh(string packSetName)
@@ -56,10 +63,10 @@ namespace RevitDataValidator
 
         public void Refresh()
         {
-            if (cbo.SelectedItem == null)
+            if (cboParameterPack.SelectedItem == null)
                 return;
 
-            DataContext = new PropertyViewModel(cbo.SelectedItem.ToString());
+            DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
         }
 
         public void SaveTextBoxValues()
@@ -269,24 +276,18 @@ namespace RevitDataValidator
 
                 if (parametersToSetForFormatRules.Any())
                 {
-                    var td = new TaskDialog("Alert")
-                    {
-                        MainInstruction =
-        $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed to",
-                        MainContent = string.Join(Environment.NewLine, parametersToSetForFormatRules.Select(q => q.Value)),
-                        CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
-                    };
+                    var td = Utils.GetTaskDialogForFormatRenaming(rule, parametersToSetForFormatRules);
                     if (td.Show() == TaskDialogResult.Ok)
                     {
                         Utils.eventHandlerWithParameterObject.Raise(
-                            parametersToSetForFormatRules.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.Value)));
+                            parametersToSetForFormatRules.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.NewValue)));
                     }
                 }
 
                 if (parametersToSet.Any())
                 {
                     Utils.eventHandlerWithParameterObject.Raise(
-                        parametersToSet.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.Value)));
+                        parametersToSet.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.NewValue)));
                 }
 
                 if (ruleFailures.Any())

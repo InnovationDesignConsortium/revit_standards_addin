@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 
 namespace RevitDataValidator
 {
-    [DebuggerDisplay("{Name} {Value}")]
+    [DebuggerDisplay("{Name} {NewValue}")]
     public class ParameterString
     {
-        public ParameterString(Parameter parameter, string value)
+        public ParameterString(Parameter parameter, string newValue, string oldValue = null)
         {
             Parameter = parameter;
-            Value = value;
+            NewValue = newValue;
+            OldValue = oldValue;
         }
 
         public string Name => Parameter.Definition.Name;
 
         public Parameter Parameter { get; set; }
-        public string Value { get; set; }
+        public string NewValue { get; set; }
+        public string OldValue { get; set; }
     }
 }

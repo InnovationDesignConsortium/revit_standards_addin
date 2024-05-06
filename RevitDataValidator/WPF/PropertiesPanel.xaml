@@ -23,13 +23,13 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <ComboBox
-            x:Name="cbo"
+            x:Name="cboParameterPack"
             Grid.Row="0"
             HorizontalContentAlignment="Stretch"
-            ItemsSource="{Binding cboData}"
+            ItemsSource="{Binding PackSets}"
             Margin="5,5,5,5"
             IsEditable="False"
-            SelectionChanged="cbo_SelectionChanged" />
+            SelectionChanged="cboParameterPack_SelectionChanged" />
                 <ItemsControl
                 Grid.Row="1"
                 HorizontalContentAlignment="Stretch"
