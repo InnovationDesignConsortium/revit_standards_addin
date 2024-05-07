@@ -1,0 +1,91 @@
+{
+   "enum": [
+      {
+         "id": "CustomSymbol",
+         "value": -1
+      },
+      {
+         "id": "NoSymbol",
+         "value": 0
+      },
+      {
+         "id": "Outline",
+         "value": 1
+      },
+      {
+         "id": "Cross",
+         "value": 2
+      },
+      {
+         "id": "CrossFilled",
+         "value": 3
+      },
+      {
+         "id": "Slash",
+         "value": 4
+      },
+      {
+         "id": "SlashFilled",
+         "value": 5
+      },
+      {
+         "id": "Backslash",
+         "value": 6
+      },
+      {
+         "id": "BackslashFilled",
+         "value": 7
+      },
+      {
+         "id": "Wye",
+         "value": 8
+      },
+      {
+         "id": "ReverseWye",
+         "value": 9
+      },
+      {
+         "id": "OutlineFilled",
+         "value": 10
+      },
+      {
+         "id": "YinYang",
+         "value": 11
+      },
+      {
+         "id": "YinYangFilled",
+         "value": 12
+      },
+      {
+         "id": "BendThreeQuarterCircle",
+         "value": 13
+      },
+      {
+         "id": "BendFullCircle",
+         "value": 14
+      },
+      {
+         "id": "TeeHalfCircle",
+         "value": 15
+      },
+      {
+         "id": "TeeFullCircle",
+         "value": 16
+      },
+      {
+         "id": "CrossNoOutline",
+         "value": 17
+      },
+      {
+         "id": "WyeFilled",
+         "value": 18
+      },
+      {
+         "id": "ReverseWyeFilled",
+         "value": 19
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:riseDropSymbol-1.0.0"
+}

@@ -1,0 +1,143 @@
+{
+   "enum": [
+      {
+         "id": "Invalid",
+         "value": -1
+      },
+      {
+         "id": "NotDefined",
+         "value": 0
+      },
+      {
+         "id": "RectangleParameterized",
+         "value": 2
+      },
+      {
+         "id": "PipeStandard",
+         "value": 5
+      },
+      {
+         "id": "IParallelFlange",
+         "value": 6
+      },
+      {
+         "id": "ISlopedFlange",
+         "value": 7
+      },
+      {
+         "id": "IWideFlange",
+         "value": 8
+      },
+      {
+         "id": "CParallelFlange",
+         "value": 9
+      },
+      {
+         "id": "CSlopedFlange",
+         "value": 10
+      },
+      {
+         "id": "LAngle",
+         "value": 11
+      },
+      {
+         "id": "RectangularBar",
+         "value": 12
+      },
+      {
+         "id": "RoundBar",
+         "value": 13
+      },
+      {
+         "id": "RectangleHSS",
+         "value": 14
+      },
+      {
+         "id": "RoundHSS",
+         "value": 15
+      },
+      {
+         "id": "ISplitParallelFlange",
+         "value": 17
+      },
+      {
+         "id": "ISplitSlopedFlange",
+         "value": 18
+      },
+      {
+         "id": "StructuralTees",
+         "value": 19
+      },
+      {
+         "id": "IWelded",
+         "value": 16
+      },
+      {
+         "id": "CProfile",
+         "value": 20
+      },
+      {
+         "id": "CProfileWithLips",
+         "value": 21
+      },
+      {
+         "id": "CProfileWithFold",
+         "value": 22
+      },
+      {
+         "id": "LProfile",
+         "value": 23
+      },
+      {
+         "id": "LProfileWithLips",
+         "value": 24
+      },
+      {
+         "id": "ZProfile",
+         "value": 25
+      },
+      {
+         "id": "ZProfileWithLips",
+         "value": 26
+      },
+      {
+         "id": "SigmaProfile",
+         "value": 27
+      },
+      {
+         "id": "SigmaProfileWithLips",
+         "value": 28
+      },
+      {
+         "id": "SigmaProfileWithFold",
+         "value": 29
+      },
+      {
+         "id": "UserDefined",
+         "value": 30
+      },
+      {
+         "id": "ConcreteRectangle",
+         "value": 31
+      },
+      {
+         "id": "ConcreteRectangleCut",
+         "value": 32
+      },
+      {
+         "id": "ConcreteT",
+         "value": 33
+      },
+      {
+         "id": "ConcreteCross",
+         "value": 34
+      },
+      {
+         "id": "ConcreteRound",
+         "value": 35
+      }
+   ],
+   "schemaSpecification": "forge-data-schema-2.0.0",
+   "schemaType": "enum",
+   "typeid": "autodesk.revit.enum:structuralSectionShape-1.0.0"
+}
