@@ -2,7 +2,7 @@
 
 ```json
 {
-  "Rules": 
+  "Parameter Rules": 
   [
     {
       "Categories": [

@@ -2,7 +2,7 @@
 
 ```json
 {
-  "Rules": 
+  "Parameter Rules": 
   [
     {
       "Rule Name": "Comments a b c d e",

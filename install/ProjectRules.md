@@ -25,6 +25,27 @@
   ],
   "Parameter Rules": 
   [
+   {
+      "Rule Name": "Roof Offset",
+      "Categories": ["Roofs"],
+      "Parameter Name": "Base Offset From Level",
+      "Requirement": "IF {Cutoff Offset} > 0 THEN {Base Offset From Level} > 0",
+      "User Message": "IF {Cutoff Offset} > 0 THEN {Base Offset From Level} > 0",
+    },
+    {
+      "Rule Name": "Window Sill Height",
+      "Categories": ["Windows"],
+      "Parameter Name": "Sill Height",
+      "Requirement": "> {Width}",
+      "User Message": "Sill height must greater than width",
+    },
+{
+      "Rule Name": "Door Sill Height",
+      "Categories": ["Doors"],
+      "Parameter Name": "Sill Height",
+      "Requirement": "= 0",
+      "User Message": "Sill height must be 0",
+    },
   {
     "Rule Name": "Set Wall Type Function",
       "Element Classes": [

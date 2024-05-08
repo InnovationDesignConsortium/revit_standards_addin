@@ -98,7 +98,7 @@ namespace RevitDataValidator.Forms
                 });
 
                 var labelY = 10;
-                var multiUiX = 250;
+                const int multiUiX = 250;
                 foreach (var group in rulesByParameterName)
                 {
                     labelY += 35;
@@ -111,7 +111,9 @@ namespace RevitDataValidator.Forms
                     };
                     panel1.Controls.Add(parameterMultiLabel);
 
-                    if (rule.Regex != null || rule.PreventDuplicates != null)
+                    if (rule.Regex != null ||
+                        rule.PreventDuplicates != null ||
+                        rule.Requirement != null)
                     {
                         var multiTextbox = new System.Windows.Forms.TextBox
                         {

@@ -113,6 +113,7 @@ namespace RevitDataValidator
         INVALID,
         List,
         Regex,
+        IfThen,
         PreventDuplicates
     }
 

@@ -45,9 +45,10 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Row="0"
-                               Content="{Binding PackName}"
-                               Margin="2" />
+                                   Content="{Binding PackName}"
+                                   Margin="0,-5,0,-5" />
                                 <DataGrid Grid.Row="1"
+                                  Margin="0,0,0,-5"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
                                   CanUserDeleteRows="False"
