@@ -52,6 +52,8 @@
     <ROW Component="BoostYourBIMTerrificTools.addin_8" ComponentId="{B0FC7AB0-DC71-4312-B8C4-F750A208D08A}" Directory_="__8_Dir" Attributes="0" KeyPath="RevitDataValidator.addin_2" Type="0"/>
     <ROW Component="Flee.dll" ComponentId="{223676A3-B457-419D-ACC7-4A9E18807E4D}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Flee.dll"/>
     <ROW Component="Flee.dll_1" ComponentId="{9AF925FD-3CE4-4597-A0F6-17DA4A84CA20}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Flee.dll_1"/>
+    <ROW Component="InPlaceFamilyCheck.cs" ComponentId="{E99D0633-0D29-46B7-954F-FACA5CBE14E4}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="InPlaceFamilyCheck.cs" Type="0"/>
+    <ROW Component="InPlaceFamilyCheck.cs_1" ComponentId="{0D4949D7-547F-4D97-869D-8AC13AFD79AE}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="InPlaceFamilyCheck.cs_1" Type="0"/>
     <ROW Component="Markdig.dll" ComponentId="{4BF2C555-F028-4C36-A81E-E26644DEC495}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Markdig.dll"/>
     <ROW Component="Markdig.dll_2" ComponentId="{510DB0C6-416C-40C4-AFD8-1EFBE7B9F731}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Markdig.dll_2"/>
     <ROW Component="MathParser.orgmXparser.dll_1" ComponentId="{5F064E64-59DC-4B8F-89D1-A10C60553623}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="MathParser.orgmXparser.dll_1"/>
@@ -1305,6 +1307,8 @@
     <ROW File="wrappingAtInsertsParam2.0.0.json_1" Component_="alternateUnits1.0.0.json_1" FileName="WRAPPI~4.JSO|wrappingAtInsertsParam-2.0.0.json" Attributes="0" SourcePath="install\2024\enums\wrappingAtInsertsParam-2.0.0.json" SelfReg="false"/>
     <ROW File="yzJustification1.0.0.json_1" Component_="alternateUnits1.0.0.json_1" FileName="YZJUST~1.JSO|yzJustification-1.0.0.json" Attributes="0" SourcePath="install\2024\enums\yzJustification-1.0.0.json" SelfReg="false"/>
     <ROW File="yzJustification2.0.0.json_1" Component_="alternateUnits1.0.0.json_1" FileName="YZJUST~2.JSO|yzJustification-2.0.0.json" Attributes="0" SourcePath="install\2024\enums\yzJustification-2.0.0.json" SelfReg="false"/>
+    <ROW File="InPlaceFamilyCheck.cs" Component_="InPlaceFamilyCheck.cs" FileName="INPLAC~1.CS|InPlaceFamilyCheck.cs" Attributes="0" SourcePath="install\InPlaceFamilyCheck.cs" SelfReg="false"/>
+    <ROW File="InPlaceFamilyCheck.cs_1" Component_="InPlaceFamilyCheck.cs_1" FileName="INPLAC~1.CS|InPlaceFamilyCheck.cs" Attributes="0" SourcePath="install\InPlaceFamilyCheck.cs" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -1410,6 +1414,8 @@
     <ROW Feature_="MainFeature" Component_="Microsoft.CodeAnalysis.Scripting.dll_1"/>
     <ROW Feature_="MainFeature" Component_="alternateUnits1.0.0.json"/>
     <ROW Feature_="MainFeature" Component_="alternateUnits1.0.0.json_1"/>
+    <ROW Feature_="MainFeature" Component_="InPlaceFamilyCheck.cs"/>
+    <ROW Feature_="MainFeature" Component_="InPlaceFamilyCheck.cs_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
