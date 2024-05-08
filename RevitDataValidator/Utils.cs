@@ -235,15 +235,28 @@ namespace RevitDataValidator
                     var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
                     var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
 
-                    var ifExp = BuildExpressionString(element, ifClause);
-                    var result = CSharpScript.EvaluateAsync<bool>(ifExp,
+                    var ifExp = BuildExpressionString(element, ifClause, inputParameterValues);
+                    var ifExpIsTrue = CSharpScript.EvaluateAsync<bool>(ifExp,
                          Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
                          .WithImports("System")
                          ).Result;
 
-                    if (result)
+                    if (ifExpIsTrue)
                     {
-                        var thenExp = BuildExpressionString(element, thenClause);
+                        var thenExp = BuildExpressionString(element, thenClause, inputParameterValues);
+                        var thenExpIsTrue = CSharpScript.EvaluateAsync<bool>(thenExp,
+                         Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+                         .WithImports("System")
+                         ).Result;
+                        if (!thenExpIsTrue)
+                        {
+                            return new RuleFailure
+                            {
+                                Rule = rule,
+                                ElementId = id,
+                                FailureType = FailureType.IfThen
+                            };
+                        }
                     }
                 }
                 else
@@ -406,9 +419,13 @@ namespace RevitDataValidator
             return null;
         }
 
-        public static string BuildExpressionString(Element element, string input)
+        public static string BuildExpressionString(Element element, string input, List<ParameterString> inputParameterValues = null)
         {
             var matches = Regex.Matches(input, PARAMETER_PARSE_PATTERN);
+            if (matches.Count == 0)
+            {
+                return input;
+            }
 
             var s = string.Empty;
             for (int i = 0; i < matches.Count; i++)
@@ -416,23 +433,59 @@ namespace RevitDataValidator
                 var match = matches[i];
                 var matchValueCleaned = match.Value.Replace(PARAMETER_PARSE_START, string.Empty).Replace(PARAMETER_PARSE_END, string.Empty);
                 var matchEnd = match.Index + match.Length;
-                if (s == string.Empty)
+                if (s?.Length == 0)
                     s += input.Substring(0, match.Index);
                 var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
                 if (parameter != null)
                 {
+                    string parameterNewValueAsString = null;
+                    if (inputParameterValues?.FirstOrDefault(q => q.Parameter.Definition.Name == parameter.Definition.Name) != null)
+                    {
+                        var parameterStringMatch = inputParameterValues.Find(q => q.Parameter.Definition.Name == parameter.Definition.Name);
+                        parameter = parameterStringMatch.Parameter;
+                        parameterNewValueAsString = parameterStringMatch.NewValue;
+                    }
+
                     if (parameter.StorageType == StorageType.Integer || parameter.StorageType == StorageType.Double)
                     {
-                        double paramValue = GetParamAsDouble(parameter);
-                        s += paramValue;
+                        if (parameterNewValueAsString != null)
+                        {
+                            if (int.TryParse(parameterNewValueAsString, out int iValue))
+                            {
+                                s += iValue;
+                            }
+                            else if (double.TryParse(parameterNewValueAsString, out double dValue))
+                            {
+                                s += dValue;
+                            }
+                        }
+                        else
+                        {
+                            double paramValue = UnitUtils.ConvertFromInternalUnits(GetParamAsDouble(parameter), parameter.GetUnitTypeId());
+                            s += paramValue;
+                        }
                     }
                     else if (parameter.StorageType == StorageType.String)
                     {
-                        s += "\"" + parameter.AsString() + "\"";
+                        if (parameterNewValueAsString != null)
+                        {
+                            s += "\"" + parameterNewValueAsString + "\"";
+                        }
+                        else
+                        {
+                            s += "\"" + parameter.AsString() + "\"";
+                        }
                     }
                     else if (parameter.StorageType == StorageType.ElementId)
                     {
-                        s += "\"" + parameter.AsValueString() + "\"";
+                        if (parameterNewValueAsString != null)
+                        {
+                            s += "\"" + parameterNewValueAsString + "\"";
+                        }
+                        else
+                        {
+                            s += "\"" + parameter.AsValueString() + "\"";
+                        }
                     }
                 }
 
@@ -564,10 +617,9 @@ namespace RevitDataValidator
 
         public static List<ParameterRule> GetApplicableParameterRules()
         {
-            var applicableParameterRules = Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
+            return Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
                        rule.RevitFileNames.FirstOrDefault() == Utils.ALL ||
                        rule.RevitFileNames.Contains(doc.PathName)).ToList();
-            return applicableParameterRules;
         }
 
         public static Parameter GetParameter(Element e, string name)
@@ -575,7 +627,7 @@ namespace RevitDataValidator
             if (e == null) return null;
 
             var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name);
-            if (parameters.Count() == 0)
+            if (!parameters.Any())
             {
                 return null;
             }
@@ -636,13 +688,13 @@ namespace RevitDataValidator
 
         public static List<BuiltInCategory> GetBuiltInCats(Rule rule)
         {
-            if (rule.Categories.Count() == 1 && rule.Categories.First() == Utils.ALL)
+            if (rule.Categories.Count == 1 && rule.Categories[0] == Utils.ALL)
             {
                 return catMap.Values.ToList();
             }
             else
             {
-                var builtInCats = rule.Categories.Select(q => catMap[q]).ToList();
+                var builtInCats = rule.Categories.ConvertAll(q => catMap[q]);
                 if (rule is ParameterRule parameterRule &&
                     parameterRule.FromHostInstance != null)
                 {
