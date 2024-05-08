@@ -2,11 +2,19 @@
     "Parameter Packs": 
     [
         {
-            "Name": "View Crop",
+            "Name": "View Extents",
             "Category": "Views",
             "Parameters":
             [
-                "Crop View", "Crop Region Visible", "Annotation Crop"
+                "Crop View", "Crop Region Visible", "Annotation Crop", "Associated Level", "Scope Box"
+            ]
+        },
+        {
+            "Name": "Identity Data",
+            "Category": "Views",
+            "Parameters": 
+            [
+                "View Template", "View Name", "Dependency", "Title on Sheet", "Referencing Sheet", "Referencing Detail"
             ]
         },
         {
@@ -112,9 +120,32 @@
             "Show All Other Parameters": false,
             "Parameter Packs":
             [
-                    "View Crop"
+                "View Extents", "Identity Data"
             ]
-        },        {
+        },      
+        {
+            "Name": "View Tools + All Others",
+            "Category": "Views",
+            "Show All Other Parameters": true,
+            "Parameter Packs":
+            [
+                "View Extents", "Identity Data"
+            ]
+        },   
+        {
+            "Name": "View Tools + Some Others",
+            "Category": "Views",
+            "Show All Other Parameters": true,
+            "Show All Other Parameters Excluding":
+            [
+                "Wall Join Display", "Sheet Number", "Parts Visibility", "Display Model"
+            ],
+            "Parameter Packs":
+            [
+                "View Extents", "Identity Data"
+            ]
+        },  
+        {
             "Name": "My Window Tools",
             "Category": "Windows",
             "Show All Other Parameters": true,
