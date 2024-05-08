@@ -61,6 +61,10 @@ namespace RevitDataValidator
 
             foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
             {
+                if (bic.ToString().Contains("_gbXML_"))
+                {
+                    continue;
+                }
                 try
                 {
                     Utils.catMap.Add(LabelUtils.GetLabelFor(bic), bic);
@@ -284,7 +288,7 @@ namespace RevitDataValidator
                 if (rule.CustomCode != null)
                 {
                     var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    var filename = Path.Combine(assemblyFolder, rule.CustomCode + ".txt");
+                    var filename = Path.Combine(assemblyFolder, rule.CustomCode + ".cs");
                     if (File.Exists(filename))
                     {
                         using (var sr = new StreamReader(filename))
