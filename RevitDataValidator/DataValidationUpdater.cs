@@ -120,6 +120,10 @@ namespace RevitDataValidator
                 {
                     p.Set(sInt);
                 }
+                else if (double.TryParse(s, out double d))
+                {
+                    p.Set(Convert.ToInt32(d));
+                }
                 else if (s == "No")
                 {
                     p.Set(0);
