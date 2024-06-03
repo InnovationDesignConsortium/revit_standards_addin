@@ -32,9 +32,9 @@ namespace RevitDataValidator
                             }
 
                             if (parameter.StorageType == StorageType.String &&
-                                args.Value is string s)
+                                args.Value is StringInt stringInt)
                             {
-                                parameter.Set(s);
+                                parameter.Set(stringInt.String);
                             }
                             else if (parameter.StorageType == StorageType.Integer)
                             {
