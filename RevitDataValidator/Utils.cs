@@ -461,7 +461,17 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            double paramValue = UnitUtils.ConvertFromInternalUnits(GetParamAsDouble(parameter), parameter.GetUnitTypeId());
+                            var paramAsDouble = GetParamAsDouble(parameter);
+                            double paramValue;
+                            try
+                            {
+                                var unitTypeId = parameter.GetUnitTypeId();
+                                paramValue = UnitUtils.ConvertFromInternalUnits(paramAsDouble, unitTypeId);
+                            }
+                            catch
+                            {
+                                paramValue = paramAsDouble;
+                            }
                             s += paramValue;
                         }
                     }
