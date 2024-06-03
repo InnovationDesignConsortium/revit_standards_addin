@@ -114,15 +114,18 @@ namespace RevitDataValidator
                             }
                             var paramValue = GetParameterValue(pname);
                             var selected = choices.Find(q => q.String == paramValue);
-                            packParameters.Add(new ChoiceStateParameter
+                            if (parameters.Any(q => q != null))
                             {
-                                Parameters = parameters,
-                                Name = pname,
-                                Choices = choices,
-                                SelectedChoice = selected,
-                                IsEnabled = !parameters[0].IsReadOnly
-                            });
-                            foundRule = true;
+                                packParameters.Add(new ChoiceStateParameter
+                                {
+                                    Parameters = parameters,
+                                    Name = pname,
+                                    Choices = choices,
+                                    SelectedChoice = selected,
+                                    IsEnabled = !parameters[0].IsReadOnly
+                                });
+                                foundRule = true;
+                            }
                             break;
                         }
                     }
