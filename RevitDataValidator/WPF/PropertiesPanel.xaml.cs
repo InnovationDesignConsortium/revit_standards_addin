@@ -137,7 +137,6 @@ namespace RevitDataValidator
             }
         }
 
-
         private void TextBox_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
             System.Windows.Controls.TextBox tb = (System.Windows.Controls.TextBox)sender;
@@ -179,7 +178,7 @@ namespace RevitDataValidator
                     List<StringInt> elements = new FilteredElementCollector(Utils.doc)
                         .OfClass(typeof(FamilySymbol))
                         .WherePasses(new ElementMulticategoryFilter(
-                            new List<BuiltInCategory> { 
+                            new List<BuiltInCategory> {
                                 BuiltInCategory.OST_Furniture,
                                 BuiltInCategory.OST_SpecialityEquipment
                             }))

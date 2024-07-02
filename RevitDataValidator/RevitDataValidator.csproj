@@ -115,6 +115,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -139,6 +142,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="NLog">
+      <Version>5.3.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -173,9 +179,10 @@ copy /Y $(ProjectDir)$(TargetName).addin "C:\ProgramData\Autodesk\Revit\Addins\$
 copy /Y $(TargetPath) "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 copy /Y $(TargetDir)$(TargetName).pdb "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
 
-copy /Y $(SolutionDir)install\ProjectRules.md "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)\Rules"
+copy /Y $(SolutionDir)install\*.cs "C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)"
+copy /Y $(SolutionDir)install\*.md "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)\Rules"
 copy /Y $(SolutionDir)install\ParameterPacks.json "C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)"
 
-REM "C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
+"C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe" "C:\Users\harry\Documents\rvt\2023.rvt"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RevitDataValidator
 {
@@ -30,9 +31,12 @@ namespace RevitDataValidator
 
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }
+
         public FailureDefinitionId FailureId { get; set; }
+
         [JsonProperty("Rule Name")]
         public string RuleName { get; set; }
+
         [JsonProperty("When Run")]
         public string WhenRun { get; set; }
 
@@ -87,12 +91,21 @@ namespace RevitDataValidator
         [JsonProperty("description")]
         public string Description { get; set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     public class ParameterData
     {
         public string Name { get; set; }
         public string Value { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " = " + Value;
+        }
     }
 
     public class WorksetRule : Rule
@@ -102,10 +115,16 @@ namespace RevitDataValidator
 
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }
+
         public string Workset { get; set; }
         public List<ParameterData> Parameters { get; set; }
 
         public Guid Guid { get; set; }
+
+        public override string ToString()
+        {
+            return $"'{Workset}' [{string.Join(",", Categories)}] [{string.Join(",", Parameters)}]";
+        }
     }
 
     public enum FailureType
@@ -120,7 +139,7 @@ namespace RevitDataValidator
     public class RuleFailure
     {
         public ParameterRule Rule { get; set; }
-        public FailureType FailureType { get; set;}
+        public FailureType FailureType { get; set; }
         public ElementId ElementId { get; set; }
     }
 }

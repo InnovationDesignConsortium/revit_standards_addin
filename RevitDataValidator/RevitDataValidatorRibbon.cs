@@ -131,7 +131,6 @@ namespace RevitDataValidator
                 Process.Start(errorfile);
                 Utils.errors.Clear();
             }
-
         }
 
         private void Application_Idling(object sender, IdlingEventArgs e)
@@ -147,6 +146,7 @@ namespace RevitDataValidator
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
             Utils.doc = e.Document;
+            Utils.userName = e.Document.Application.Username;
         }
 
         private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
@@ -223,7 +223,6 @@ namespace RevitDataValidator
 
         public void RegisterRules()
         {
-            Utils.Log($"Registering rules");
             if (Utils.doc != null)
             {
                 try
@@ -260,6 +259,7 @@ namespace RevitDataValidator
 
         private void RegisterWorksetRule(WorksetRule worksetRule)
         {
+            Utils.Log("Registering workset rule " + worksetRule, Utils.LogLevel.Trace);
             if (worksetRule.Categories != null)
             {
                 var builtInCats = Utils.GetBuiltInCats(worksetRule);
@@ -282,7 +282,7 @@ namespace RevitDataValidator
 
         private void RegisterParameterRule(ParameterRule rule)
         {
-            Utils.Log(" Registering rule " + rule);
+            Utils.Log("Registering parameter rule " + rule, Utils.LogLevel.Trace);
             try
             {
                 if (rule.CustomCode != null)
@@ -373,7 +373,6 @@ namespace RevitDataValidator
             {
                 rule.FailureId = genericFailureId;
             }
-            Utils.Log("Completed registering rule " + rule.ToString());
         }
 
         private void GetParameterPacks()
@@ -401,6 +400,7 @@ namespace RevitDataValidator
 
             if (File.Exists(ruleFile))
             {
+                Utils.Log($"Reading rule file {ruleFile}", Utils.LogLevel.Trace);
                 var markdown = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
                 MarkdownDocument document = Markdown.Parse(markdown);
                 var descendents = document.Descendants();

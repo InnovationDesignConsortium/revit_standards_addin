@@ -3,13 +3,16 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NLog;
+using NLog.Config;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Windows.Forms.VisualStyles;
 
 namespace RevitDataValidator
 {
@@ -36,6 +39,7 @@ namespace RevitDataValidator
         private const string PARAMETER_PARSE_START = "{";
         private const string PARAMETER_PARSE_END = "}";
         public static string dllPath;
+        public static string userName;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -49,7 +53,7 @@ namespace RevitDataValidator
         public static void RunWorksetRule(WorksetRule rule, List<ElementId> ids)
         {
             if (rule.RevitFileNames != null &&
-                rule.RevitFileNames.FirstOrDefault() != Utils.ALL &&
+                rule.RevitFileNames.FirstOrDefault() != ALL &&
                 rule.RevitFileNames.Contains(doc.PathName))
             {
                 return;
@@ -58,7 +62,7 @@ namespace RevitDataValidator
             var workset = new FilteredWorksetCollector(Utils.doc).FirstOrDefault(q => q.Name == rule.Workset);
             if (workset == null)
             {
-                Utils.Log($"Worksest does not exist {rule.Workset}", Utils.LogLevel.Error);
+                Log($"Workset does not exist {rule.Workset} so will not evaluate rule {rule}", LogLevel.Warn);
                 return;
             }
 
@@ -69,8 +73,8 @@ namespace RevitDataValidator
                 if (element is ElementType ||
                     element.Category == null ||
                     rule.Categories == null ||
-                    (rule.Categories[0] != Utils.ALL &&
-                    !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                    (rule.Categories[0] != ALL &&
+                    !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
                 {
                     continue;
                 }
@@ -78,14 +82,14 @@ namespace RevitDataValidator
                 bool pass = true;
                 foreach (var p in rule.Parameters)
                 {
-                    var parameter = Utils.GetParameterFromElementOrHostOrType(element, p.Name);
+                    var parameter = GetParameterFromElementOrHostOrType(element, p.Name);
                     if (parameter == null)
                     {
                         pass = false;
                         break;
                     }
 
-                    var paramValue = Utils.GetParamAsString(parameter);
+                    var paramValue = GetParamAsString(parameter);
                     if (paramValue != p.Value)
                     {
                         pass = false;
@@ -96,14 +100,21 @@ namespace RevitDataValidator
                 if (pass)
                 {
                     var parameter = element.get_Parameter(BuiltInParameter.ELEM_PARTITION_PARAM);
-                    if (!parameter.IsReadOnly)
+                    if (parameter.IsReadOnly)
+                    {
+                        Log($"Workset parameter is readonly for {GetElementInfo(element)}", LogLevel.Warn);
+                    }
+                    else
                     {
                         try
                         {
                             parameter.Set(workset.Id.IntegerValue);
+                            Log($"Set workset of {GetElementInfo(element)} to {workset.Name}", LogLevel.Info);
                         }
-                        catch
-                        { }
+                        catch (Exception ex)
+                        {
+                            LogException($"Exception setting workset for {GetElementInfo(element)}", ex);
+                        }
                     }
                 }
             }
@@ -111,13 +122,13 @@ namespace RevitDataValidator
 
         public static List<ElementId> RunCustomRule(ParameterRule rule)
         {
-            Type type = Utils.dictCustomCode[rule.CustomCode];
+            Type type = dictCustomCode[rule.CustomCode];
             object obj = Activator.CreateInstance(type);
             object x = type.InvokeMember("Run",
                                 BindingFlags.Default | BindingFlags.InvokeMethod,
                                 null,
                                 obj,
-                                new object[] { Utils.doc });
+                                new object[] { doc });
             if (x is List<ElementId> ids)
             {
                 return ids;
@@ -140,13 +151,13 @@ namespace RevitDataValidator
             if (element.Category == null ||
                 (rule.Categories == null && rule.ElementClasses == null) ||
                 (rule.ElementClasses?.Any(q => q.EndsWith(element.GetType().Name)) == false) ||
-                (rule.Categories != null && rule.Categories.FirstOrDefault() != Utils.ALL &&
-                !Utils.GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                (rule.Categories != null && rule.Categories.FirstOrDefault() != ALL &&
+                !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
             {
                 return null;
             }
 
-            var parameter = Utils.GetParameter(element, rule.ParameterName);
+            var parameter = GetParameter(element, rule.ParameterName);
             if (parameter == null)
                 return null;
 
@@ -162,7 +173,7 @@ namespace RevitDataValidator
                 return null;
             }
 
-            Utils.Log($"RunParameterRule on {Utils.GetElementInfo(element)} for parameter {parameter.Definition.Name}");
+            Log($"{rule.RuleName}|'{GetElementInfo(element)}'| Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
 
             if (rule.KeyValues != null ||
                 rule.ListOptions != null)
@@ -170,6 +181,7 @@ namespace RevitDataValidator
                 if (rule.ListOptions != null && (parameterValueAsString == null ||
                     !rule.ListOptions.Select(q => q.Name).Contains(parameterValueAsString)))
                 {
+                    Log($"{rule.RuleName}|{GetElementInfo(element)}|'{parameter.Definition.Name}' value '{parameterValueAsString}' is not a valid value. Valid values are [{string.Join(", ", rule.ListOptions)}]", LogLevel.Warn);
                     return new RuleFailure
                     {
                         Rule = rule,
@@ -182,6 +194,7 @@ namespace RevitDataValidator
                     var keys = rule.KeyValues.Find(q => q[0] == parameterValueAsString);
                     if (keys == null)
                     {
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|{parameterValueAsString} is not a valid key value. Valid values are [{string.Join(", ", rule.KeyValues)}]", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -191,9 +204,12 @@ namespace RevitDataValidator
                     }
                     for (var i = 0; i < rule.DrivenParameters.Count; i++)
                     {
-                        var drivenParam = Utils.GetParameter(element, rule.DrivenParameters[i]);
+                        var drivenParam = GetParameter(element, rule.DrivenParameters[i]);
                         if (drivenParam == null)
+                        {
+                            Log($"{rule.RuleName}|{GetElementInfo(element)}|Cannot set the driven parameter {rule.DrivenParameters[i]} which does not exist", LogLevel.Warn);
                             continue;
+                        }
                         parametersToSet.Add(new ParameterString(drivenParam, keys[i + 1]));
                     }
                 }
@@ -216,12 +232,13 @@ namespace RevitDataValidator
                             i++;
                             suffix = " " + i.ToString();
                         }
-                        parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedString + suffix, parameterValueAsString));
-
-                        Utils.Log($"Rename {element.Name} = {formattedString + suffix}");
+                        var formattedWithSuffix = formattedString + suffix;
+                        parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedWithSuffix, parameterValueAsString));
+                        Log($"Renaming type '{element.Name}' to '{formattedString + suffix}' to match format '{rule.Format}'", LogLevel.Info);
                     }
                     else
                     {
+                        Log($"Renaming '{GetElementInfo(element)}' '{parameter.Definition.Name}' to '{formattedString}' to match format '{rule.Format}'", LogLevel.Info);
                         parametersToSet.Add(new ParameterString(parameter, formattedString));
                     }
                 }
@@ -234,7 +251,7 @@ namespace RevitDataValidator
 
                     var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
                     var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
-
+                    Log($"Evaluating IF {ifClause} THEN {thenClause}", LogLevel.Trace);
                     var ifExp = BuildExpressionString(element, ifClause, inputParameterValues);
                     var ifExpIsTrue = CSharpScript.EvaluateAsync<bool>(ifExp,
                          Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
@@ -243,13 +260,19 @@ namespace RevitDataValidator
 
                     if (ifExpIsTrue)
                     {
+                        Log("IF clause is True: " + ifExp, LogLevel.Trace);
                         var thenExp = BuildExpressionString(element, thenClause, inputParameterValues);
                         var thenExpIsTrue = CSharpScript.EvaluateAsync<bool>(thenExp,
                          Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
                          .WithImports("System")
                          ).Result;
-                        if (!thenExpIsTrue)
+                        if (thenExpIsTrue)
                         {
+                            Log("THEN clause is True: " + thenExp, LogLevel.Trace);
+                        }
+                        else
+                        {
+                            Log($"{rule.RuleName}|{GetElementInfo(element)}| THEN clause '{thenClause}' is False: {thenExp}", LogLevel.Warn);
                             return new RuleFailure
                             {
                                 Rule = rule,
@@ -258,16 +281,25 @@ namespace RevitDataValidator
                             };
                         }
                     }
+                    else
+                    {
+                        Log("IF clause is False: " + ifExp, LogLevel.Trace);
+                    }
                 }
                 else
                 {
                     var expressionString = BuildExpressionString(element, rule.Requirement);
-                    var exp = parameterValueAsString + expressionString;
+                    string exp = parameterValueAsString + " " + expressionString;
                     var context = new ExpressionContext();
                     var e = context.CompileGeneric<bool>(exp);
                     var result = e.Evaluate();
-                    if (!result)
+                    if (result)
                     {
+                        Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. Rule passed", LogLevel.Trace);
+                    }
+                    else
+                    {
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. Rule failed!", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -283,6 +315,7 @@ namespace RevitDataValidator
                 var context = new ExpressionContext();
                 var e = context.CompileGeneric<double>(exp);
                 var result = e.Evaluate();
+                Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula}", LogLevel.Info);
                 parametersToSet.Add(new ParameterString(parameter, result.ToString()));
             }
             else if (
@@ -292,12 +325,17 @@ namespace RevitDataValidator
                 if (parameterValueAsString == null ||
                     !Regex.IsMatch(parameterValueAsString, rule.Regex))
                 {
+                    Log($"{rule.RuleName}|{GetElementInfo(element)}|'{rule.ParameterName}' value '{parameterValueAsString}' does not match regex {rule.Regex}", LogLevel.Warn);
                     return new RuleFailure
                     {
                         Rule = rule,
                         ElementId = id,
                         FailureType = FailureType.Regex
                     };
+                }
+                else
+                {
+                    Log($"{rule.ParameterName} value {parameterValueAsString} matches regex {rule.Regex}", LogLevel.Trace);
                 }
             }
             else if (rule.PreventDuplicates != null)
@@ -311,6 +349,7 @@ namespace RevitDataValidator
                     others.Select(q => GetParamAsString(Utils.GetParameter(q, rule.ParameterName))).ToList();
                 if (othersParams.Contains(parameterValueAsString))
                 {
+                    Log($"{rule.RuleName}|{GetElementInfo(element)}|Found duplicates of {parameterValueAsString} for {rule.ParameterName}", LogLevel.Warn);
                     return new RuleFailure
                     {
                         Rule = rule,
@@ -332,6 +371,7 @@ namespace RevitDataValidator
                             parametersToSet.Add(new ParameterString(parameter, value));
                             TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
                         }
+                        Log($"Using value '{value}' from insert {GetElementInfo(fi)} to set value of {parameter.Definition.Name} for host {GetElementInfo(host)}", LogLevel.Info);
                     }
                 }
                 else if (element is HostObject host)
@@ -340,7 +380,8 @@ namespace RevitDataValidator
                     var inserts = new FilteredElementCollector(doc)
                         .OfClass(typeof(FamilyInstance))
                         .Cast<FamilyInstance>()
-                        .Where(q => q.Host != null && q.Host.Id == host.Id);
+                        .Where(q => q.Host != null && q.Host.Id == host.Id).ToList();
+                    Log($"Using value '{value}' from host {GetElementInfo(host)} to set values for {rule.FromHostInstance} for inserts {string.Join(", ", inserts.Select(q => GetElementInfo(q)))}", LogLevel.Info);
                     foreach (var insert in inserts)
                     {
                         parametersToSet.Add(new ParameterString(Utils.GetParameter(insert, rule.FromHostInstance), value));
@@ -349,7 +390,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.Log($"Rule Not Implmented {rule.RuleName}");
+                Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
             }
             return null;
         }
@@ -393,7 +434,7 @@ namespace RevitDataValidator
                     }
                 }
 
-                    if (ruleFailure != null)
+                if (ruleFailure != null)
                     ret.Add(ruleFailure);
             }
             return ret;
@@ -404,19 +445,33 @@ namespace RevitDataValidator
             if (p == null)
                 return null;
 
-            switch (p.StorageType)
+            if (p.StorageType == StorageType.String)
             {
-                case StorageType.String:
-                    return p.AsString();
-                case StorageType.Double:
-                    return p.AsDouble().ToString();
-                case StorageType.Integer:
-                    return p.AsInteger().ToString();
-                case StorageType.ElementId:
-                    return p.AsValueString();
+                return p.AsString();
             }
-
-            return null;
+            else if (p.StorageType == StorageType.Integer)
+            {
+                return p.AsInteger().ToString();
+            }
+            else if (p.StorageType == StorageType.Double)
+            {
+                var paramAsDouble = GetParamAsDouble(p);
+                double paramValue;
+                try
+                {
+                    var unitTypeId = p.GetUnitTypeId();
+                    paramValue = UnitUtils.ConvertFromInternalUnits(paramAsDouble, unitTypeId);
+                }
+                catch
+                {
+                    paramValue = paramAsDouble;
+                }
+                return paramValue.ToString();
+            }
+            else
+            {
+                return p.AsValueString();
+            }
         }
 
         public static string BuildExpressionString(Element element, string input, List<ParameterString> inputParameterValues = null)
@@ -532,7 +587,7 @@ namespace RevitDataValidator
                 var parameter = GetParameterFromElementOrHostOrType(element, matchValueCleaned);
                 if (parameter == null)
                 {
-                    Utils.Log($"BuildFormattedString parameter {matchValueCleaned} does not exist for element {element.Id.IntegerValue}");
+                    Log($"BuildFormattedString parameter {matchValueCleaned} does not exist for element {GetElementInfo(element)}", LogLevel.Info);
                     return null;
                 }
 
@@ -568,7 +623,6 @@ namespace RevitDataValidator
                 {
                     s += parameter.AsValueString();
                 }
-                
 
                 if (i == matches.Count - 1)
                 {
@@ -643,9 +697,11 @@ namespace RevitDataValidator
             }
             else
             {
-                if (parameters.Count() > 1)
+                var internalDuplicates = new List<string> { "Level", "Design Option", "View Template" };
+                if ((parameters.Count() > 1 && !internalDuplicates.Contains(parameters.First().Definition.Name)) ||
+                    (parameters.Count() > 2 && internalDuplicates.Contains(parameters.First().Definition.Name)))
                 {
-                    Utils.Log($"Element {GetElementInfo(e)} has multiple parameters named '{name}'", LogLevel.Error);
+                    Utils.Log($"{GetElementInfo(e)} has multiple '{name}' parameters", LogLevel.Warn);
                 }
                 return parameters.First();
             }
@@ -662,24 +718,26 @@ namespace RevitDataValidator
 
         public static string GetElementInfo(Element e)
         {
-            var ret = e.Id.IntegerValue.ToString();
+            var ret = "";
             if (e.Category != null)
             {
-                ret += " " + e.Category.Name;
+                ret += e.Category.Name + ":";
             }
             if (e is FamilyInstance fi)
             {
-                ret += " " + fi.Symbol.Family.Name;
+                ret += fi.Symbol.Family.Name + ":";
             }
-            ret += " " + e.Name;
+            ret += $"{e.Name}:{e.Id.IntegerValue}";
             return ret;
         }
 
         public enum LogLevel
         {
+            Warn,
             Info,
             Error,
-            Exception
+            Exception,
+            Trace
         }
 
         public static void LogException(string s, Exception ex)
@@ -687,13 +745,47 @@ namespace RevitDataValidator
             Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
         }
 
-        public static void Log(string message, LogLevel level = LogLevel.Info)
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        private static string GetFileName()
         {
-            if (level == LogLevel.Error || level == LogLevel.Exception)
+            if (doc == null)
+                return "";
+
+            if (doc.IsWorkshared)
+                return ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
+
+            return doc.PathName;
+        }
+
+        public static void Log(string message, LogLevel level)
+        {
+            LogManager.Configuration = new XmlLoggingConfiguration(Path.Combine(dllPath, "NLog.config"));
+            message = Path.GetFileName(GetFileName()) + "|" + message;
+            if (level == LogLevel.Info)
             {
-                errors.Add(message);
+                Logger.Info(message);
             }
-            app.WriteJournalComment($"{PRODUCT_NAME} {level} {message}", true);
+            else if (level == LogLevel.Error)
+            {
+                Logger.Error(message);
+            }
+            else if (level == LogLevel.Warn)
+            {
+                Logger.Warn(message);
+            }
+            else if (level == LogLevel.Exception)
+            {
+                Logger.Error(message);
+            }
+            else if (level == LogLevel.Trace)
+            {
+                Logger.Trace(message);
+            }
+            else
+            {
+                Logger.Error(message);
+            }
         }
 
         public static List<BuiltInCategory> GetBuiltInCats(Rule rule)

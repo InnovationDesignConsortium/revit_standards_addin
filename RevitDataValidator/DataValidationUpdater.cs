@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 
 namespace RevitDataValidator
 {
@@ -31,9 +30,12 @@ namespace RevitDataValidator
                 List<ElementId> addedAndModifiedIds = addedIds.ToList();
                 addedAndModifiedIds.AddRange(modifiedIds);
 
-                foreach (var rule in Utils.allWorksetRules)
+                if (doc.IsWorkshared)
                 {
-                    Utils.RunWorksetRule(rule, addedAndModifiedIds);
+                    foreach (var rule in Utils.allWorksetRules)
+                    {
+                        Utils.RunWorksetRule(rule, addedAndModifiedIds);
+                    }
                 }
 
                 var applicableParameterRules = Utils.GetApplicableParameterRules();
@@ -44,6 +46,7 @@ namespace RevitDataValidator
                         var ids = Utils.RunCustomRule(rule);
                         if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
                         {
+                            Utils.Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", Utils.LogLevel.Warn);
                             FailureMessage failureMessage = new FailureMessage(rule.FailureId);
                             failureMessage.SetFailingElements(ids);
                             if (doc.IsModifiable)
@@ -108,7 +111,17 @@ namespace RevitDataValidator
             if (p == null)
                 return;
 
-            Utils.Log($"Set {p.Definition.Name} = {s}");
+            if (p.Definition.Name == "Type Name")
+            {
+                p.Element.Name = s;
+                return;
+            }
+
+            if (p.IsReadOnly)
+            {
+                Utils.Log($"Parameter {p.Definition.Name} for element '{Utils.GetElementInfo(p.Element)}' is readonly", Utils.LogLevel.Error);
+                return;
+            }
 
             if (p.StorageType == StorageType.String)
             {

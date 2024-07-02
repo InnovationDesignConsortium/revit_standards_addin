@@ -51,6 +51,7 @@ namespace RevitDataValidator.Forms
                     dr["Category"] = element.Category.Name;
                     dr["Name"] = element.Name;
                     dr["Id"] = element.Id.IntegerValue.ToString();
+                    dr["Message"] = ruleFailure.Rule.UserMessage;
                     if (element is FamilyInstance fi)
                     {
                         dr["Family"] = fi.Symbol.Family.Name;
@@ -165,8 +166,15 @@ namespace RevitDataValidator.Forms
                     }
                 }
 
-                dataGridView1.DataSource = dt;
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "Message",
+                    HeaderText = "Rule",
+                    ReadOnly = true,
+                });
 
+                dataGridView1.DataSource = dt;
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             }
             catch (Exception ex)
             {

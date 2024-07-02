@@ -66,6 +66,8 @@
     <ROW Component="Microsoft.CodeAnalysis.Scripting.dll_1" ComponentId="{128FFEB0-8F0B-43C7-BF7D-AF33DF67F255}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.Scripting.dll_1"/>
     <ROW Component="Microsoft.CodeAnalysis.dll" ComponentId="{C9B67E08-C944-49F7-A978-5B609812F6B6}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll"/>
     <ROW Component="Microsoft.CodeAnalysis.dll_1" ComponentId="{4B49674A-B0EF-41F5-BD9A-96885DF0E77C}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll_1"/>
+    <ROW Component="NLog.dll" ComponentId="{AEFB88B6-556F-40A9-9F83-58CA214149BE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="NLog.dll"/>
+    <ROW Component="NLog.dll_1" ComponentId="{521096D4-D77E-4DE0-8A79-FFBDEADB6F3F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="NLog.dll_1"/>
     <ROW Component="ParameterPacks.json" ComponentId="{AF7F01FC-18D2-4BF8-8246-6BA09AEE3D18}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="ParameterPacks.json_1" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{33AF353B-E245-44C8-934C-10AD69395E2A}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="ProjectRules.md_1" ComponentId="{206B7734-9D08-425E-BBF0-420EE7ECDAC5}" Directory_="Rules_Dir" Attributes="0" KeyPath="ProjectRules.md_1" Type="0"/>
@@ -1309,6 +1311,10 @@
     <ROW File="yzJustification2.0.0.json_1" Component_="alternateUnits1.0.0.json_1" FileName="YZJUST~2.JSO|yzJustification-2.0.0.json" Attributes="0" SourcePath="install\2024\enums\yzJustification-2.0.0.json" SelfReg="false"/>
     <ROW File="InPlaceFamilyCheck.cs" Component_="InPlaceFamilyCheck.cs" FileName="INPLAC~1.CS|InPlaceFamilyCheck.cs" Attributes="0" SourcePath="install\InPlaceFamilyCheck.cs" SelfReg="false"/>
     <ROW File="InPlaceFamilyCheck.cs_1" Component_="InPlaceFamilyCheck.cs_1" FileName="INPLAC~1.CS|InPlaceFamilyCheck.cs" Attributes="0" SourcePath="install\InPlaceFamilyCheck.cs" SelfReg="false"/>
+    <ROW File="NLog.dll" Component_="NLog.dll" FileName="NLog.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\NLog.dll" SelfReg="false"/>
+    <ROW File="NLog.dll_1" Component_="NLog.dll_1" FileName="NLog.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\NLog.dll" SelfReg="false"/>
+    <ROW File="NLog.config" Component_="InPlaceFamilyCheck.cs" FileName="NLOG~1.CON|NLog.config" Attributes="0" SourcePath="RevitDataValidator\NLog.config" SelfReg="false"/>
+    <ROW File="NLog.config_1" Component_="InPlaceFamilyCheck.cs_1" FileName="NLOG~1.CON|NLog.config" Attributes="0" SourcePath="RevitDataValidator\NLog.config" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -1416,6 +1422,8 @@
     <ROW Feature_="MainFeature" Component_="alternateUnits1.0.0.json_1"/>
     <ROW Feature_="MainFeature" Component_="InPlaceFamilyCheck.cs"/>
     <ROW Feature_="MainFeature" Component_="InPlaceFamilyCheck.cs_1"/>
+    <ROW Feature_="MainFeature" Component_="NLog.dll"/>
+    <ROW Feature_="MainFeature" Component_="NLog.dll_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
