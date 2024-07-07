@@ -1,13 +1,11 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
-using Autodesk.Revit.UI.Selection;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
-using RevitDataValidator.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;

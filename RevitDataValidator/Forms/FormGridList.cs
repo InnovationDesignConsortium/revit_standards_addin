@@ -1,36 +1,34 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Media;
 
 namespace RevitDataValidator.Forms
 {
     public partial class FormGridList : System.Windows.Forms.Form
     {
-        const string PARAM = "PARAM";
+        private const string PARAM = "PARAM";
+
         public FormGridList(List<RuleFailure> failures)
         {
             InitializeComponent();
 
             try
             {
-                DataTable dt = new DataTable();
+                DataTable dt = new DataTable
+                {
+                    TableName = "ResolveErrorsTable"
+                };
                 dt.Columns.Add("Category");
                 dt.Columns.Add("Family");
                 dt.Columns.Add("Name");
                 dt.Columns.Add("Parameter");
                 dt.Columns.Add("Id");
                 dt.Columns.Add("Message");
+                dt.Columns.Add("RuleName");
 
                 var rulesByParameterName = failures.GroupBy(q => q.Rule.ParameterName);
                 foreach (var group in rulesByParameterName)
@@ -51,7 +49,10 @@ namespace RevitDataValidator.Forms
                     dr["Category"] = element.Category.Name;
                     dr["Name"] = element.Name;
                     dr["Id"] = element.Id.IntegerValue.ToString();
-                    dr["Message"] = ruleFailure.Rule.UserMessage;
+                    dr["Message"] += $"'{ruleFailure.Rule.UserMessage}' ";
+                    dr["RuleName"] += $"'{ruleFailure.Rule.RuleName}' ";
+                    dr["Parameter"] = ruleFailure.Rule.ParameterName;
+
                     if (element is FamilyInstance fi)
                     {
                         dr["Family"] = fi.Symbol.Family.Name;
@@ -173,6 +174,28 @@ namespace RevitDataValidator.Forms
                     ReadOnly = true,
                 });
 
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "Exception",
+                    Name = "Exception",
+                    HeaderText = "Reason For Exception",
+                    ReadOnly = false,
+                });
+
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "RuleName",
+                    ReadOnly = true,
+                    Visible = false
+                });
+
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "Parameter",
+                    ReadOnly = true,
+                    Visible = false
+                });
+
                 dataGridView1.DataSource = dt;
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             }
@@ -180,7 +203,6 @@ namespace RevitDataValidator.Forms
             {
                 Utils.LogException("formGridList", ex);
             }
-
         }
 
         private const string prefix = "MULTIPARAM";
@@ -225,6 +247,18 @@ namespace RevitDataValidator.Forms
                 var idValue = ((DataGridViewRow)row).Cells["Id"].Value;
                 var id = new ElementId(int.Parse(idValue.ToString()));
                 var element = Utils.doc.GetElement(id);
+                var cells = ((DataGridViewRow)row).Cells;
+                var ruleName = cells["RuleName"].Value;
+
+                var reasonForException = ((DataGridViewRow)row).Cells["Exception"].Value;
+                var parameter = ((DataGridViewRow)row).Cells["Parameter"].Value;
+                if (!string.IsNullOrEmpty(reasonForException?.ToString()))
+                {
+                    Utils.Log($"{ruleName}|EXCEPTION|{Utils.GetElementInfo(element)}|{parameter}|{reasonForException}", Utils.LogLevel.Warn);
+                    Utils.SetExceptionData(element, ruleName?.ToString(), parameter.ToString(), reasonForException.ToString());
+                    continue;
+                }
+
                 var parameterStrings = new List<ParameterString>();
                 foreach (var col in dataGridView1.Columns
                                     .Cast<DataGridViewColumn>()
@@ -243,14 +277,12 @@ namespace RevitDataValidator.Forms
                     var parameters = new List<Parameter> { Utils.GetParameter(element, parameterName) };
                     var item = new ParameterObject(parameters, value.ToString());
                     parameterObjects.Add(item);
-
                 }
                 var failuresForThisId = Utils.GetFailures(id, parameterStrings, out _);
                 if (failuresForThisId.Any())
                 {
                     failures.AddRange(failuresForThisId);
                 }
-
             }
             if (failures.Count(q => q.FailureType == FailureType.PreventDuplicates) > 1 ||
                 failures.Any(q => q.FailureType != FailureType.PreventDuplicates))
@@ -311,7 +343,7 @@ namespace RevitDataValidator.Forms
             //    {
             //        var cell = dataGridView1.Rows[r].Cells[c];
             //        cell.Style = style;
-                   
+
             //     //   var value = cell.Value;
             //     //   cell.ReadOnly = true;
             //    }

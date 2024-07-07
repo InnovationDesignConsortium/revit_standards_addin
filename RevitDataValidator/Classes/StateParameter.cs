@@ -26,6 +26,5 @@ namespace RevitDataValidator
 
     public class PushButtonParameter : StateParameter<object>
     {
-
     }
 }

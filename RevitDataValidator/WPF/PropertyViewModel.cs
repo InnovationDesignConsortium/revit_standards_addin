@@ -413,7 +413,7 @@ namespace RevitDataValidator
                 if (rule.ElementClasses != null)
                 {
                     v.ParameterRuleCategories = new ObservableCollection<string>(
-                        rule.ElementClasses.Select(q => q.Replace("Autodesk.Revit.DB.","")));
+                        rule.ElementClasses.Select(q => q.Replace("Autodesk.Revit.DB.", "")));
                 }
                 else if (rule.Categories != null)
                 {
@@ -421,7 +421,6 @@ namespace RevitDataValidator
                 }
                 ParameterRuleDatas.Add(v);
             }
-
 
             WorksetRuleDatas = new ObservableCollection<WorksetRuleData>();
             foreach (var rule in Utils.allWorksetRules)

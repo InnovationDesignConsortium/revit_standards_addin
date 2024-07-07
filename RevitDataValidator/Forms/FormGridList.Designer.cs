@@ -41,7 +41,7 @@
             // btnOk
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOk.Location = new System.Drawing.Point(653, 688);
+            this.btnOk.Location = new System.Drawing.Point(902, 688);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(135, 52);
             this.btnOk.TabIndex = 2;
@@ -65,7 +65,7 @@
             this.dataGridView1.RowHeadersWidth = 82;
             this.dataGridView1.RowTemplate.Height = 33;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(776, 467);
+            this.dataGridView1.Size = new System.Drawing.Size(1025, 467);
             this.dataGridView1.TabIndex = 3;
             this.dataGridView1.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dataGridView1_DataBindingComplete);
             // 
@@ -89,13 +89,13 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(12, 485);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(776, 187);
+            this.panel1.Size = new System.Drawing.Size(1025, 187);
             this.panel1.TabIndex = 6;
             // 
             // btnSelAll
             // 
             this.btnSelAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSelAll.Location = new System.Drawing.Point(641, 10);
+            this.btnSelAll.Location = new System.Drawing.Point(890, 10);
             this.btnSelAll.Name = "btnSelAll";
             this.btnSelAll.Size = new System.Drawing.Size(120, 40);
             this.btnSelAll.TabIndex = 1;
@@ -117,7 +117,7 @@
             this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 752);
+            this.ClientSize = new System.Drawing.Size(1049, 752);
             this.ControlBox = false;
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btnShow);

@@ -139,7 +139,7 @@
                 </ItemsControl>
             </Grid>
             <Separator />
-            
+
             <Grid Grid.Row="1">
                 <ItemsControl
                     ItemsSource="{Binding WorksetRuleDatas}">

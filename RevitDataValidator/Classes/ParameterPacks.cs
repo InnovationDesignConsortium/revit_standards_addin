@@ -29,6 +29,7 @@ namespace RevitDataValidator
         public string URL { get; set; }
         public string PDF { get; set; }
         public string Video { get; set; }
+
         [JsonProperty("Custom Tools")]
         public List<string> CustomTools { get; set; }
     }
@@ -41,6 +42,4 @@ namespace RevitDataValidator
         [JsonProperty("Pack Sets")]
         public List<PackSet> PackSets { get; set; }
     }
-
-
 }

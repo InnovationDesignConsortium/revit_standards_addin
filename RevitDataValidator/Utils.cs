@@ -1,9 +1,9 @@
 ﻿using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NLog;
 using NLog.Config;
 using System;
@@ -40,6 +40,11 @@ namespace RevitDataValidator
         private const string PARAMETER_PARSE_END = "}";
         public static string dllPath;
         public static string userName;
+        private const string SCHEMA_NAME = "RevitDataValidator";
+        private const string SCHEMA_GUID_STRING = "0B968BB1-3BC4-4458-B4BB-1452AD418F43";
+        private const string FIELD_EXCEPTION = "Exception";
+        private const string FIELD_RULENAME = "RuleName";
+        private const string FIELD_PARAMETERNAME = "ParameterName";
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -49,6 +54,84 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
+
+        public static Result SetExceptionData(Element e, string ruleName, string parameterName, string exceptionMessage)
+        {
+            if (e == null)
+                return Result.Failed;
+
+            Document doc = e.Document;
+
+            Schema mySchema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
+
+            if (mySchema == null)
+            {
+                var guid = Guid.Parse(SCHEMA_GUID_STRING);
+                SchemaBuilder sb = new SchemaBuilder(guid);
+                sb.SetSchemaName(SCHEMA_NAME);
+                sb.AddSimpleField(FIELD_EXCEPTION, typeof(string));
+                sb.AddSimpleField(FIELD_RULENAME, typeof(string));
+                sb.AddSimpleField(FIELD_PARAMETERNAME, typeof(string));
+                mySchema = sb.Finish();
+            }
+
+            Entity myEntity = new Entity(mySchema);
+            myEntity.Set<string>(mySchema.GetField(FIELD_EXCEPTION), exceptionMessage);
+            myEntity.Set<string>(mySchema.GetField(FIELD_RULENAME), ruleName);
+            myEntity.Set<string>(mySchema.GetField(FIELD_PARAMETERNAME), ruleName);
+
+            using (Transaction t = new Transaction(doc, "Store Data"))
+            {
+                bool started = false;
+                try
+                {
+                    t.Start();
+                    started = true;
+                }
+                catch (Exception ex)
+                {
+                    string message = ex.Message;
+                }
+
+                e.SetEntity(myEntity);
+
+                if (started)
+                {
+                    t.Commit();
+                }
+            }
+
+            return Result.Succeeded;
+        }
+
+        public static bool ElementHasExceptionForRule(Element e, string ruleName, string parameterName, out string exception)
+        {
+            Schema schema = schema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
+            exception = "";
+            if (schema == null)
+            {
+                return false;
+            }
+
+            Entity fiEntity = e.GetEntity(schema);
+            try
+            {
+                var ruleFromElement = fiEntity.Get<string>(schema.GetField(FIELD_RULENAME));
+                var parameterFromElement = fiEntity.Get<string>(schema.GetField(FIELD_PARAMETERNAME));
+                exception = fiEntity.Get<string>(schema.GetField(FIELD_EXCEPTION));
+                if (ruleFromElement == ruleName &&
+                    parameterFromElement == parameterName)
+                {
+                    return true;
+                }
+            }
+            catch (Autodesk.Revit.Exceptions.ArgumentException)
+            {
+                return false;
+            }
+
+            return false;
+        }
 
         public static void RunWorksetRule(WorksetRule rule, List<ElementId> ids)
         {
@@ -173,7 +256,12 @@ namespace RevitDataValidator
                 return null;
             }
 
-            Log($"{rule.RuleName}|'{GetElementInfo(element)}'| Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
+            if (ElementHasExceptionForRule(element, rule.RuleName, rule.ParameterName, out string execption))
+            {
+                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}' due to exception {execption}", LogLevel.Trace);
+            }
+
+            Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
 
             if (rule.KeyValues != null ||
                 rule.ListOptions != null)
@@ -272,7 +360,7 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            Log($"{rule.RuleName}|{GetElementInfo(element)}| THEN clause '{thenClause}' is False: {thenExp}", LogLevel.Warn);
+                            Log($"{rule.RuleName}|{GetElementInfo(element)}|THEN clause '{thenClause}' is False: {thenExp}", LogLevel.Warn);
                             return new RuleFailure
                             {
                                 Rule = rule,

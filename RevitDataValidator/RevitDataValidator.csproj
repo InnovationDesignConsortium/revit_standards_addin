@@ -95,6 +95,16 @@
       <DependentUpon>FormSelectElements.cs</DependentUpon>
     </Compile>
     <Compile Include="ShowPaneCommand.cs" />
+    <Compile Include="VCExtensibleStorageExtension\AttributeExtractor.cs" />
+    <Compile Include="VCExtensibleStorageExtension\Attributes\FieldAttribute.cs" />
+    <Compile Include="VCExtensibleStorageExtension\Attributes\SchemaNameAttribute.cs" />
+    <Compile Include="VCExtensibleStorageExtension\ElementExtensions\RevitEntityElementExtension.cs" />
+    <Compile Include="VCExtensibleStorageExtension\EntityConverter.cs" />
+    <Compile Include="VCExtensibleStorageExtension\IEntityConverter.cs" />
+    <Compile Include="VCExtensibleStorageExtension\IFieldFactory.cs" />
+    <Compile Include="VCExtensibleStorageExtension\IRevitEntity.cs" />
+    <Compile Include="VCExtensibleStorageExtension\ISchemaCreator.cs" />
+    <Compile Include="VCExtensibleStorageExtension\SchemaCreator.cs" />
     <Compile Include="WPF\ParameterRuleData.cs" />
     <Compile Include="WPF\PropertiesPanel.xaml.cs">
       <DependentUpon>PropertiesPanel.xaml</DependentUpon>

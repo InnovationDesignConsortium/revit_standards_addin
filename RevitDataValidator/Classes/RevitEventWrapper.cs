@@ -2,7 +2,7 @@
 
 namespace RevitDataValidator
 {
-    abstract public class RevitEventWrapper<T> : IExternalEventHandler
+    public abstract class RevitEventWrapper<T> : IExternalEventHandler
     {
         private object @lock;
         private T savedArgs;
@@ -42,6 +42,6 @@ namespace RevitDataValidator
             revitEvent.Raise();
         }
 
-        abstract public void Execute(UIApplication app, T args);
+        public abstract void Execute(UIApplication app, T args);
     }
 }
