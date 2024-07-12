@@ -110,7 +110,16 @@
         "<all>"
       ],
       "Parameter Name": "Mark",
-      "Regex": "^[0-9]+$"
+      "Regex": "^[0-9]+$|^$"
+    },
+        {
+      "Rule Name": "Cost is Number",
+      "User Message": "Cost must be a number",
+      "Categories": [
+        "<all>"
+      ],
+      "Parameter Name": "Cost",
+      "Regex": "^[0-9]+$|^$"
     },
     {
       "Rule Name": "Room Number Dup",

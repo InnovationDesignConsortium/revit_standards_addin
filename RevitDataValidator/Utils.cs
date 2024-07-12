@@ -55,7 +55,7 @@ namespace RevitDataValidator
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
 
-        public static Result SetExceptionData(Element e, string ruleName, string parameterName, string exceptionMessage)
+        public static Result SetReasonAllowed(Element e, string ruleName, string parameterName, string exceptionMessage)
         {
             if (e == null)
                 return Result.Failed;
@@ -78,7 +78,7 @@ namespace RevitDataValidator
             Entity myEntity = new Entity(mySchema);
             myEntity.Set<string>(mySchema.GetField(FIELD_EXCEPTION), exceptionMessage);
             myEntity.Set<string>(mySchema.GetField(FIELD_RULENAME), ruleName);
-            myEntity.Set<string>(mySchema.GetField(FIELD_PARAMETERNAME), ruleName);
+            myEntity.Set<string>(mySchema.GetField(FIELD_PARAMETERNAME), parameterName);
 
             using (Transaction t = new Transaction(doc, "Store Data"))
             {
@@ -104,7 +104,7 @@ namespace RevitDataValidator
             return Result.Succeeded;
         }
 
-        public static bool ElementHasExceptionForRule(Element e, string ruleName, string parameterName, out string exception)
+        public static bool ElementHasReasonAllowedForRule(Element e, string ruleName, string parameterName, out string exception)
         {
             Schema schema = schema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
             exception = "";
@@ -256,9 +256,10 @@ namespace RevitDataValidator
                 return null;
             }
 
-            if (ElementHasExceptionForRule(element, rule.RuleName, rule.ParameterName, out string execption))
+            if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
             {
-                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}' due to exception {execption}", LogLevel.Trace);
+                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}'. It is allowed because '{reasonAllowed}'", LogLevel.Trace);
+                return null;
             }
 
             Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
