@@ -67,7 +67,11 @@ namespace RevitDataValidator
                 .Where(q =>
                     !allParameterNames.Contains(q.Definition.Name) &&
                     (packSet.ShowAllOtherParametersExcluding?.Contains(q.Definition.Name) != true) &&
+#if R2022 || R2023 || R2024
                     q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID &&
+#else
+                    q.Definition.GetGroupTypeId() != new ForgeTypeId(string.Empty) &&
+#endif
                     q.StorageType != StorageType.None)
                 .OrderBy(q => q.Definition.Name)
                 .Select(q => q.Definition.Name).ToList()

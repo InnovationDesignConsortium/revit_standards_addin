@@ -48,7 +48,7 @@ namespace RevitDataValidator
                         {
                             Utils.Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", Utils.LogLevel.Warn);
                             FailureMessage failureMessage = new FailureMessage(rule.FailureId);
-                            failureMessage.SetFailingElements(ids);
+                            failureMessage.SetFailingElements(ids.ToList());
                             if (doc.IsModifiable)
                             {
                                 doc.PostFailure(failureMessage);

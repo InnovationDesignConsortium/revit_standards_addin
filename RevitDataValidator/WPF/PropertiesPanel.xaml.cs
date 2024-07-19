@@ -146,14 +146,24 @@ namespace RevitDataValidator
         {
             // for .NET Core you need to add UseShellExecute = true
             // see https://learn.microsoft.com/dotnet/api/system.diagnostics.processstartinfo.useshellexecute#property-value
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(e.Uri.AbsoluteUri)
+                {
+                    UseShellExecute = true
+                }
+            }.Start();
         }
 
         private void Hyperlink_RequestNavigate_Pdf(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(e.Uri.AbsoluteUri)
+                {
+                    UseShellExecute = true
+                }
+            }.Start();
         }
 
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
@@ -299,7 +309,13 @@ namespace RevitDataValidator
             var ruleFile = Properties.Settings.Default.ActiveRuleFile;
             if (File.Exists(ruleFile))
             {
-                Process.Start(ruleFile);
+                new Process
+                {
+                    StartInfo = new ProcessStartInfo(ruleFile)
+                    {
+                        UseShellExecute = true
+                    }
+                }.Start();
             }
         }
     }

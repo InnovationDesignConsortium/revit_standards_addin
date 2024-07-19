@@ -215,7 +215,7 @@ namespace RevitDataValidator.Forms
         {
             if (dataGridView1.SelectedRows.Count == 0)
             {
-                TaskDialog.Show("Error", "No rows are selected");
+                Autodesk.Revit.UI.TaskDialog.Show("Error", "No rows are selected");
                 return;
             }
             var cbo = sender as System.Windows.Forms.ComboBox;
@@ -231,7 +231,7 @@ namespace RevitDataValidator.Forms
         {
             if (dataGridView1.SelectedRows.Count == 0)
             {
-                TaskDialog.Show("Error", "No rows are selected");
+                Autodesk.Revit.UI.TaskDialog.Show("Error", "No rows are selected");
                 return;
             }
             var txt = sender as System.Windows.Forms.TextBox;
@@ -282,7 +282,7 @@ namespace RevitDataValidator.Forms
                     var value = row.Cells[col.Name].Value;
                     if (value == null)
                     {
-                        TaskDialog.Show("Error", "Must select a value for all elements");
+                        Autodesk.Revit.UI.TaskDialog.Show("Error", "Must select a value for all elements");
                         return;
                     }
 
@@ -301,7 +301,7 @@ namespace RevitDataValidator.Forms
             if (failures.Count(q => q.FailureType == FailureType.PreventDuplicates) > 1 ||
                 failures.Any(q => q.FailureType != FailureType.PreventDuplicates))
             {
-                var td = new TaskDialog("Errors")
+                var td = new Autodesk.Revit.UI.TaskDialog("Errors")
                 {
                     MainInstruction = "Errors need to be resolved",
                     MainContent = string.Join(

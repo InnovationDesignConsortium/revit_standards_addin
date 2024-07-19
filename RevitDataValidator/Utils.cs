@@ -203,7 +203,7 @@ namespace RevitDataValidator
             }
         }
 
-        public static List<ElementId> RunCustomRule(ParameterRule rule)
+        public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule)
         {
             Type type = dictCustomCode[rule.CustomCode];
             object obj = Activator.CreateInstance(type);
@@ -212,7 +212,7 @@ namespace RevitDataValidator
                                 null,
                                 obj,
                                 new object[] { doc });
-            if (x is List<ElementId> ids)
+            if (x is IEnumerable<ElementId> ids)
             {
                 return ids;
             }
@@ -231,7 +231,8 @@ namespace RevitDataValidator
             parametersToSet = new List<ParameterString>();
             var element = doc.GetElement(id);
 
-            if (element.Category == null ||
+            if (element == null ||
+                element.Category == null ||
                 (rule.Categories == null && rule.ElementClasses == null) ||
                 (rule.ElementClasses?.Any(q => q.EndsWith(element.GetType().Name)) == false) ||
                 (rule.Categories != null && rule.Categories.FirstOrDefault() != ALL &&
