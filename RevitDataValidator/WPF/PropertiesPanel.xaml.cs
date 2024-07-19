@@ -35,7 +35,14 @@ namespace RevitDataValidator
             if (cboParameterPack.SelectedItem == null)
                 return;
 
-            DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+            if (cboParameterPack?.SelectedItem == null)
+            {
+                DataContext = new PropertyViewModel();
+            }
+            else
+            {
+                DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+            }
 
             Element element;
             if (Utils.selectedIds.Any())
@@ -63,9 +70,13 @@ namespace RevitDataValidator
         public void Refresh()
         {
             if (cboParameterPack.SelectedItem == null)
-                return;
-
-            DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+            {
+                DataContext = new PropertyViewModel();
+            }
+            else
+            {
+                DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+            }
         }
 
         public void SaveTextBoxValues()

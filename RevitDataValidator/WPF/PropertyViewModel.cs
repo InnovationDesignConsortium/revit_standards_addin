@@ -22,24 +22,32 @@ namespace RevitDataValidator
 
         public PropertyViewModel()
         {
-            PackSets = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
+            if (Utils.parameterUIData?.PackSets == null)
+            {
+                SetRuleDatas();
+                PackSets = new ObservableCollection<string>();
+            }
+            else
+            {
+                PackSets = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
+            }
         }
 
         public PropertyViewModel(string name)
         {
-            if (name == null)
+            if (name == null || Utils.parameterUIData == null)
             {
                 PackData = new ObservableCollection<PackData>();
                 return;
             }
             Element element = null;
-            if (Utils.selectedIds.Any())
+            if (Utils.selectedIds?.Any() == true)
             {
                 element = Utils.doc.GetElement(Utils.selectedIds[0]);
             }
             else
             {
-                element = Utils.doc.ActiveView;
+                element = Utils.doc?.ActiveView;
             }
 
             if (element == null || element.Category == null)
@@ -405,7 +413,10 @@ namespace RevitDataValidator
                     PdfPath = parameterPack.PDF
                 });
             }
+        }
 
+        private void SetRuleDatas()
+        {
             ParameterRuleDatas = new ObservableCollection<ParameterRuleData>();
             foreach (var rule in Utils.allParameterRules)
             {

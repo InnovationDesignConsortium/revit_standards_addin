@@ -44,18 +44,12 @@ namespace RevitDataValidator
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             GetParameterPacks();
-            if (Utils.parameterUIData != null)
-            {
-                Utils.propertiesPanel = new PropertiesPanel();
-            }
+            Utils.propertiesPanel = new PropertiesPanel();
 
             application.ControlledApplication.DocumentChanged += ControlledApplication_DocumentChanged;
 
-            if (Utils.propertiesPanel != null)
-            {
-                application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
-                application.SelectionChanged += Application_SelectionChanged;
-            }
+            application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
+            application.SelectionChanged += Application_SelectionChanged;
 
             foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
             {
@@ -106,6 +100,7 @@ namespace RevitDataValidator
 
                 cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             }
+            Utils.propertiesPanel.Refresh();
 
             ShowErrors();
 
@@ -184,6 +179,12 @@ namespace RevitDataValidator
                 return;
 
             var catName = element.Category.Name;
+
+            if (Utils.parameterUIData == null)
+            {
+                return;
+            }
+
             var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
             if (!validPacks.Any())
             {
