@@ -5,17 +5,15 @@ using Autodesk.Revit.UI;
 namespace RevitDataValidator
 {
     [Transaction(TransactionMode.ReadOnly)]
-    public class ShowPaneCommand : IExternalCommand
+    public class ShowPaneCommand : Nice3point.Revit.Toolkit.External.ExternalCommand
     {
-        Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        public override void Execute()
         {
-            var pane = commandData.Application.GetDockablePane(Utils.paneId);
-            if (pane == null || pane.IsShown())
-                return Result.Cancelled;
+            var pane = ExternalCommandData.Application.GetDockablePane(Utils.paneId);
+            if (pane?.IsShown() != false)
+                return;
 
             pane.Show();
-
-            return Result.Succeeded;
         }
     }
 }

@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace RevitDataValidator
 {
-    internal class Ribbon : IExternalApplication
+    internal class Ribbon : Nice3point.Revit.Toolkit.External.ExternalApplication
     {
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
         private readonly string RULE_FILE_EXT = ".md";
@@ -27,18 +27,18 @@ namespace RevitDataValidator
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
 
-        public Result OnStartup(UIControlledApplication application)
+        public override void OnStartup()
         {
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
-            Utils.app = application.ControlledApplication;
+            Utils.app = Application.ControlledApplication;
             Utils.errors = new List<string>();
             Utils.allParameterRules = new List<ParameterRule>();
             Utils.allWorksetRules = new List<WorksetRule>();
-            application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
-            application.ViewActivated += Application_ViewActivated;
-            application.DialogBoxShowing += Application_DialogBoxShowing;
-            application.Idling += Application_Idling;
+            Application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            Application.ViewActivated += Application_ViewActivated;
+            Application.DialogBoxShowing += Application_DialogBoxShowing;
+            Application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
@@ -46,10 +46,10 @@ namespace RevitDataValidator
             GetParameterPacks();
             Utils.propertiesPanel = new PropertiesPanel();
 
-            application.ControlledApplication.DocumentChanged += ControlledApplication_DocumentChanged;
+            Application.ControlledApplication.DocumentChanged += ControlledApplication_DocumentChanged;
 
-            application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
-            application.SelectionChanged += Application_SelectionChanged;
+            Application.RegisterDockablePane(Utils.paneId, "Properties Panel", Utils.propertiesPanel as IDockablePaneProvider);
+            Application.SelectionChanged += Application_SelectionChanged;
 
             foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
             {
@@ -65,7 +65,7 @@ namespace RevitDataValidator
                 { }
             }
 
-            DataValidationUpdater dataValidationUpdater = new DataValidationUpdater(application.ActiveAddInId);
+            DataValidationUpdater dataValidationUpdater = new DataValidationUpdater(Application.ActiveAddInId);
             DataValidationUpdaterId = dataValidationUpdater.GetUpdaterId();
             UpdaterRegistry.RegisterUpdater(dataValidationUpdater, true);
 
@@ -76,7 +76,7 @@ namespace RevitDataValidator
                 RULE_DEFAULT_MESSAGE);
 
             const string panelName = "Data Validator";
-            var panel = application.GetRibbonPanels().Find(q => q.Name == panelName) ?? application.CreateRibbonPanel(panelName);
+            var panel = Application.GetRibbonPanels().Find(q => q.Name == panelName) ?? Application.CreateRibbonPanel(panelName);
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
@@ -103,8 +103,6 @@ namespace RevitDataValidator
             Utils.propertiesPanel.Refresh();
 
             ShowErrors();
-
-            return Result.Succeeded;
         }
 
         private void ControlledApplication_DocumentChanged(object sender, Autodesk.Revit.DB.Events.DocumentChangedEventArgs e)
