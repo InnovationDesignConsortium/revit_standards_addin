@@ -1,11 +1,13 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
+using Autodesk.Windows;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,6 +15,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ComboBox = Autodesk.Revit.UI.ComboBox;
 
 namespace RevitDataValidator
 {
@@ -26,6 +29,10 @@ namespace RevitDataValidator
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
+        private static ComboBox cboRuleFile;
+        private const string panelName = "Data Validator";
+        private const string cboName = "cboRuleFile";
+        private const string TAB_NAME = "Add-Ins";
 
         public override void OnStartup()
         {
@@ -43,7 +50,6 @@ namespace RevitDataValidator
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
-            GetParameterPacks();
             Utils.propertiesPanel = new PropertiesPanel();
 
             Application.ControlledApplication.DocumentChanged += ControlledApplication_DocumentChanged;
@@ -75,33 +81,14 @@ namespace RevitDataValidator
                 FailureSeverity.Error,
                 RULE_DEFAULT_MESSAGE);
 
-            const string panelName = "Data Validator";
+            // change tab name below in ClearComboBoxItems() as needed
             var panel = Application.GetRibbonPanels().Find(q => q.Name == panelName) ?? Application.CreateRibbonPanel(panelName);
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
-            var cboRuleFile = panel.AddItem(new ComboBoxData("cboRuleFile")) as Autodesk.Revit.UI.ComboBox;
-            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
-                .OrderBy(q => q);
-            if (ruleFiles.Any())
-            {
-                foreach (string ruleFile in ruleFiles)
-                {
-                    var member = cboRuleFile.AddItem(new ComboBoxMemberData(ruleFile, Path.GetFileNameWithoutExtension(ruleFile)));
-                    if (ruleFile == Properties.Settings.Default.ActiveRuleFile)
-                    {
-                        cboRuleFile.Current = member;
-                    }
-                }
-                cboRuleFile.AddItem(new ComboBoxMemberData(NONE, NONE));
-
-                RegisterRules();
-
-                cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
-            }
-            Utils.propertiesPanel.Refresh();
-
+            cboRuleFile = panel.AddItem(new ComboBoxData(cboName)) as ComboBox;
+            cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
         }
 
@@ -110,9 +97,9 @@ namespace RevitDataValidator
             Utils.propertiesPanel?.Refresh();
         }
 
-        private void ShowErrors()
+        private static void ShowErrors()
         {
-            if (Utils.errors.Any())
+            if (Utils.errors.Count != 0)
             {
                 var errorfile = Path.Combine(Path.GetDirectoryName(Path.GetTempPath()), @"..\RevitValidator-ErrorLog-" + DateTime.Now.ToString().Replace(":", "-").Replace("/", "_") + ".txt");
                 using (StreamWriter sw = new StreamWriter(errorfile, true))
@@ -134,23 +121,229 @@ namespace RevitDataValidator
             Utils.dialogIdShowing = e.DialogId;
         }
 
+        private void GetRulesAndParameterPacks()
+        {
+            GetParameterPacks();
+            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
+                .OrderBy(q => q).ToList();
+            if (ruleFiles.Count == 0)
+            {
+                ruleFiles = GetGitRuleFiles();
+            }
+
+            ClearComboBoxItems();
+
+            if (ruleFiles?.Count > 0)
+            {
+                var wasDefaultRuleFileSet = false;
+                var cbo = GetAdwindowsComboBox();
+                foreach (string ruleFile in ruleFiles)
+                {
+                    AddComboBoxItem(ruleFile, Path.GetFileNameWithoutExtension(ruleFile));
+                    if (ruleFile == Properties.Settings.Default.ActiveRuleFile)
+                    {
+                        cbo.Current = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().FirstOrDefault(q => q.Text == ruleFile);
+                        wasDefaultRuleFileSet = true;
+                    }
+                }
+
+                if (!wasDefaultRuleFileSet)
+                {
+                    cbo.Current = cbo.Items[0];
+                }
+
+                AddComboBoxItem(NONE, NONE);
+
+                RegisterRules();
+            }
+            Utils.propertiesPanel.Refresh();
+        }
+
+        private static void ClearComboBoxItems()
+        {
+            var combobox = GetAdwindowsComboBox();
+            if (combobox == null)
+                return;
+            combobox.Items.Clear();
+        }
+
+        private static RibbonList GetAdwindowsComboBox()
+        {
+            // https://forums.autodesk.com/t5/revit-api-forum/ribbon-combobox-clear-change-data/m-p/5068342#M6501
+            var tabRibbon = ComponentManager.Ribbon.FindTab(TAB_NAME);
+            if (tabRibbon.FindItem($"CustomCtrl_%CustomCtrl_%{TAB_NAME}%{panelName}%{cboName}") is RibbonList comboList)
+            {
+                return comboList;
+            }
+            return null;
+        }
+
+        private static void AddComboBoxItem(string id, string text)
+        {
+            var combobox = GetAdwindowsComboBox();
+            if (combobox == null)
+                return;
+
+            combobox.Items.Add(new Autodesk.Windows.RibbonItem
+            {
+                Id = id,
+                Text = text
+            });
+        }
+
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
-            Utils.doc = e.Document;
-            Utils.userName = e.Document.Application.Username;
+            if (Utils.GetFileName(e.Document) != Utils.doc?.PathName)
+            {
+                Utils.allParameterRules.Clear();
+                Utils.allWorksetRules.Clear();
+                Utils.doc = e.Document;
+                Utils.userName = e.Document.Application.Username;
+                GetRulesAndParameterPacks();
+                var cbo = GetAdwindowsComboBox();
+                var ruleOptions = cbo.Items.Cast<Autodesk.Windows.RibbonItem>();
+                if (ruleOptions.Any())
+                {
+                    if (Properties.Settings.Default.ActiveRuleFile != null)
+                    {
+                        var defaultRuleFileOption = ruleOptions.FirstOrDefault(q => q.Text == Properties.Settings.Default.ActiveRuleFile);
+                        if (defaultRuleFileOption != null)
+                        {
+                            cbo.Current = defaultRuleFileOption;
+                        }
+                    }
+                    else if (Utils.activeRuleFiles.TryGetValue(Utils.GetFileName(), out string value))
+                    {
+                        Properties.Settings.Default.ActiveRuleFile = value;
+                        Properties.Settings.Default.Save();
+                        if (value != null)
+                        {
+                            if (ruleOptions.Any())
+                            {
+                                cbo.Current = ruleOptions.FirstOrDefault(q =>
+                                    q.Text == value);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Utils.activeRuleFiles.Add(Utils.GetFileName(), null);
+                    }
+                }
+                SetupPane();
+            }
+        }
+
+        public static string GetGitParameterPacks()
+        {
+            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
+            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
+            if (directory != null)
+            {
+                var folder = GetGitData("ParameterPacks", ContentType.Dir,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
+                if (folder != null)
+                {
+                    var data = GetGitData("ParameterPacks.json", ContentType.File,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json");
+                    return data?.FirstOrDefault().Content;
+                }
+            }
+            return null;
+        }
+
+        public static string GetGitRuleFileContents(string filename)
+        {
+            Utils.GitRuleFileUrl = null;
+            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
+            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
+            if (directory != null)
+            {
+                var folder = GetGitData("ParameterPacks", ContentType.Dir,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
+                if (folder != null)
+                {
+                    var data = GetGitData($"{filename}.md", ContentType.File,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules/{filename}.md");
+                    Utils.GitRuleFileUrl = data?.FirstOrDefault().HtmlUrl;
+                    return data?.FirstOrDefault().Content;
+                }
+            }
+            return null;
+        }
+
+        private static List<string> GetGitRuleFiles()
+        {
+            if (Utils.doc == null || Utils.GetFileName().Length == 0)
+            {
+                return new List<string>();
+            }
+
+            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
+            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
+            if (directory != null)
+            {
+                var folder = GetGitData("Rules", ContentType.Dir,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
+                if (folder != null)
+                {
+                    var data = GetGitData(null, ContentType.File,
+                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules");
+                    return data.Select(q => q.Name).ToList();
+                }
+            }
+            return null;
+        }
+
+        private static IEnumerable<RepositoryContent> GetGitData(string projectName, ContentType contentType, string path)
+        {
+            var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+            {
+                Credentials = new Credentials("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")
+            };
+            const string OWNER = "InnovationDesignConsortium";
+            const string REPO = "revit_standards_settings_demo";
+            try
+            {
+                var contents = client.Repository.Content.GetAllContents(OWNER, REPO, path)?
+                    .Result.Where(q => q.Type == contentType);
+
+                if (projectName != null)
+                {
+                    contents = contents.Where(q => q.Name == projectName);
+                }
+                return contents;
+            }
+            catch (Exception ex)
+            {
+                Utils.Log($"Could not get Git data: {ex.Message}", Utils.LogLevel.Error);
+                return null;
+            }
         }
 
         private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
         {
-            Properties.Settings.Default.ActiveRuleFile = e.NewValue.Name;
-            Properties.Settings.Default.Save();
             Utils.allParameterRules = new List<ParameterRule>();
             Utils.allWorksetRules = new List<WorksetRule>();
+            Utils.GitRuleFileUrl = null;
+
+            var cbo = GetAdwindowsComboBox();
+
+            if (cbo.Items.Count == 0)
+            {
+                return;
+            }
+
+            var current = cbo.Current;
+            var ri = current as Autodesk.Windows.RibbonItem;
+            Utils.activeRuleFiles[Utils.GetFileName()] = ri.Text;
+            Properties.Settings.Default.ActiveRuleFile = ri.Text;
+            Properties.Settings.Default.Save();
             RegisterRules();
             Utils.propertiesPanel.Refresh();
         }
 
-        private void SetupPane()
+        private static void SetupPane()
         {
             var doc = Utils.doc;
             if (doc == null)
@@ -164,13 +357,13 @@ namespace RevitDataValidator
             Utils.propertiesPanel.SaveTextBoxValues();
 
             Element element = null;
-            if (Utils.selectedIds.Any())
+            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
             {
-                element = doc.GetElement(Utils.selectedIds[0]);
+                element = doc.ActiveView;
             }
             else
             {
-                element = doc.ActiveView;
+                element = doc.GetElement(Utils.selectedIds[0]);
             }
 
             if (element.Category == null)
@@ -183,29 +376,39 @@ namespace RevitDataValidator
                 return;
             }
 
-            var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName);
-            if (!validPacks.Any())
+            var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName).ToList();
+            if (validPacks.Count == 0)
             {
                 Utils.propertiesPanel.Refresh(null);
-                return;
             }
-
-            PackSet packSet = null;
-            if (Utils.dictCategoryPackSet.ContainsKey(catName))
-                packSet = validPacks.FirstOrDefault(q => q.Name == Utils.dictCategoryPackSet[catName]);
-
-            if (packSet == null)
-                packSet = validPacks.First();
-
-            if (packSet != null)
+            else if (Utils.dictFileActivePackSet.TryGetValue(Utils.GetFileName(), out string selectedPackSet) &&
+                validPacks.Find(q => q.Name == selectedPackSet) != null)
             {
-                var packSetName = packSet.Name;
-                Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
-                Utils.propertiesPanel.Refresh(packSetName);
+                Utils.propertiesPanel.cboParameterPack.SelectedItem = selectedPackSet;
+                Utils.propertiesPanel.Refresh(selectedPackSet);
+            }
+            else if (validPacks?.Count > 0)
+            {
+                PackSet packSet = null;
+                if (Utils.dictCategoryPackSet.TryGetValue(catName, out string value))
+                {
+                    packSet = validPacks.Find(q => q.Name == value);
+                }
+                if (packSet == null)
+                {
+                    packSet = validPacks[0];
+                }
+
+                if (packSet != null)
+                {
+                    var packSetName = packSet.Name;
+                    Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
+                    Utils.propertiesPanel.Refresh(packSetName);
+                }
             }
         }
 
-        private void Application_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Application_SelectionChanged(object sender, Autodesk.Revit.UI.Events.SelectionChangedEventArgs e)
         {
             Utils.selectedIds = e.GetSelectedElements().ToList();
             SetupPane();
@@ -213,13 +416,14 @@ namespace RevitDataValidator
 
         private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
-            Utils.selectedIds = new List<ElementId>();
             Utils.doc = e.Document;
-            SetupPane();
         }
 
         public void RegisterRules()
         {
+            Utils.allParameterRules.Clear();
+            Utils.allWorksetRules.Clear();
+
             if (Utils.doc != null)
             {
                 try
@@ -236,7 +440,7 @@ namespace RevitDataValidator
             {
                 foreach (var parameterRule in parameterRules.Where(q =>
                     q.RevitFileNames == null ||
-                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)))))
+                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())))))
                 {
                     RegisterParameterRule(parameterRule);
                     Utils.allParameterRules.Add(parameterRule);
@@ -246,7 +450,7 @@ namespace RevitDataValidator
             {
                 foreach (var worksetRule in worksetRules.Where(q =>
                     q.RevitFileNames == null ||
-                    (Utils.doc != null && q.RevitFileNames?.Contains(Path.GetFileNameWithoutExtension(Utils.doc.PathName)) == true)))
+                    (Utils.doc != null && q.RevitFileNames?.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())) == true)))
                 {
                     RegisterWorksetRule(worksetRule);
                     Utils.allWorksetRules.Add(worksetRule);
@@ -254,7 +458,7 @@ namespace RevitDataValidator
             }
         }
 
-        private void RegisterWorksetRule(WorksetRule worksetRule)
+        private static void RegisterWorksetRule(WorksetRule worksetRule)
         {
             Utils.Log("Registering workset rule " + worksetRule, Utils.LogLevel.Trace);
             if (worksetRule.Categories != null)
@@ -375,9 +579,20 @@ namespace RevitDataValidator
         private void GetParameterPacks()
         {
             var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
-            if (!File.Exists(file))
+            string json = "";
+            if (File.Exists(file))
+            {
+                json = File.ReadAllText(file);
+            }
+            else if (!string.IsNullOrEmpty(Utils.GetFileName()))
+            {
+                json = GetGitParameterPacks();
+            }
+            if (string.IsNullOrEmpty(json))
+            {
+                Utils.parameterUIData = new ParameterUIData();
                 return;
-            var json = File.ReadAllText(file);
+            }
             Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json, new JsonSerializerSettings
             {
                 Error = HandleDeserializationError,
@@ -394,57 +609,65 @@ namespace RevitDataValidator
             {
                 return;
             }
-
+            var fileContents = "";
             if (File.Exists(ruleFile))
             {
-                Utils.Log($"Reading rule file {ruleFile}", Utils.LogLevel.Trace);
-                var markdown = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
-                MarkdownDocument document = Markdown.Parse(markdown);
-                var descendents = document.Descendants();
-                var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
-                foreach (var block in codeblocks)
-                {
-                    var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
-                    var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
-                    RuleData rules = null;
-                    try
-                    {
-                        rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
-                        {
-                            Error = HandleDeserializationError,
-                            MissingMemberHandling = MissingMemberHandling.Error
-                        });
-                        ShowErrors();
-                    }
-                    catch (Exception ex)
-                    {
-                        Utils.LogException("JsonConvert.DeserializeObject", ex);
-                    }
-                    if (rules != null)
-                    {
-                        parameterRules = rules.ParameterRules;
-                        worksetRules = rules.WorksetRules;
-
-                        if (parameterRules != null)
-                        {
-                            foreach (var rule in parameterRules)
-                            {
-                                rule.Guid = Guid.NewGuid();
-                            }
-                        }
-                        if (worksetRules != null)
-                        {
-                            foreach (var rule in worksetRules)
-                            {
-                                rule.Guid = Guid.NewGuid();
-                            }
-                        }
-                    }
-                }
+                fileContents = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
             }
             else
             {
+                fileContents = GetGitRuleFileContents(Path.GetFileNameWithoutExtension(Properties.Settings.Default.ActiveRuleFile));
+                Path.GetTempFileName();
+            }
+
+            if (string.IsNullOrEmpty(fileContents))
+            {
                 Utils.Log("File not found: " + Properties.Settings.Default.ActiveRuleFile, Utils.LogLevel.Error);
+                return;
+            }
+
+            Utils.Log($"Reading rule file {ruleFile}", Utils.LogLevel.Trace);
+            MarkdownDocument document = Markdown.Parse(fileContents);
+            var descendents = document.Descendants();
+            var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+            foreach (var block in codeblocks)
+            {
+                var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
+                var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
+                RuleData rules = null;
+                try
+                {
+                    rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
+                    {
+                        Error = HandleDeserializationError,
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    });
+                    ShowErrors();
+                }
+                catch (Exception ex)
+                {
+                    Utils.LogException("JsonConvert.DeserializeObject", ex);
+                }
+                if (rules != null)
+                {
+                    parameterRules = rules.ParameterRules;
+                    worksetRules = rules.WorksetRules;
+
+                    if (parameterRules != null)
+                    {
+                        foreach (var rule in parameterRules)
+                        {
+                            rule.Guid = Guid.NewGuid();
+                        }
+                    }
+                    if (worksetRules != null)
+                    {
+                        foreach (var rule in worksetRules)
+                        {
+                            rule.Guid = Guid.NewGuid();
+                        }
+                    }
+                }
             }
         }
 
@@ -453,11 +676,6 @@ namespace RevitDataValidator
             var currentError = e.ErrorContext.Error.Message;
             Utils.Log($"Error deserializing JSON in '{Path.GetFileName(Properties.Settings.Default.ActiveRuleFile)}': {currentError}", Utils.LogLevel.Error);
             e.ErrorContext.Handled = true;
-        }
-
-        public Result OnShutdown(UIControlledApplication application)
-        {
-            return Result.Succeeded;
         }
     }
 }

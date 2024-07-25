@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
+using NLog;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -22,26 +23,15 @@ namespace RevitDataValidator
 
         public PropertyViewModel()
         {
-            if (Utils.parameterUIData?.PackSets == null)
-            {
-                SetRuleDatas();
-                PackSets = new ObservableCollection<string>();
-            }
-            else
-            {
-                PackSets = new ObservableCollection<string>(Utils.parameterUIData.PackSets.Select(q => q.Name));
-            }
+            SetRuleDatas();
+            SetPackSets();
         }
 
-        public PropertyViewModel(string name)
+        private Element SetPackSets()
         {
-            if (name == null || Utils.parameterUIData == null)
-            {
-                PackData = new ObservableCollection<PackData>();
-                return;
-            }
             Element element = null;
-            if (Utils.selectedIds?.Any() == true)
+
+            if (Utils.selectedIds?.Count > 0)
             {
                 element = Utils.doc.GetElement(Utils.selectedIds[0]);
             }
@@ -51,15 +41,40 @@ namespace RevitDataValidator
             }
 
             if (element == null || element.Category == null)
+                return null;
+
+            if (Utils.parameterUIData?.PackSets == null)
+            {
+                PackSets = new ObservableCollection<string>();
+                PackData = new ObservableCollection<PackData>();
+            }
+            else
+            {
+                var catName = element.Category.Name;
+
+                PackSets = new ObservableCollection<string>(
+                    Utils.parameterUIData.PackSets
+                    .Where(q => q.Category == catName).Select(q => q.Name));
+            }
+            return element;
+        }
+
+        public PropertyViewModel(string name)
+        {
+            SetRuleDatas();
+            if (name == null || Utils.parameterUIData == null)
+            {
+                PackData = new ObservableCollection<PackData>();
                 return;
-
-            var catName = element.Category.Name;
-
-            PackSets = new ObservableCollection<string>(
-                Utils.parameterUIData.PackSets
-                .Where(q => q.Category == catName).Select(q => q.Name));
+            }
+            Element element = SetPackSets();
 
             var packSet = Utils.parameterUIData.PackSets.Find(q => q.Name == name);
+            if (packSet == null)
+            {
+                return;
+            }
+                
             if (packSet.ParameterPacks == null)
                 packSet.ParameterPacks = new List<string>();
 
@@ -191,7 +206,7 @@ namespace RevitDataValidator
                                     }
                                 }
 
-                                if (choices.Any())
+                                if (choices.Count != 0)
                                 {
                                     var selected = choices.Find(q => q.Int == parameter.AsInteger());
                                     packParameters.Add(new ChoiceStateParameter
@@ -346,7 +361,7 @@ namespace RevitDataValidator
                                             choices.Add(new StringInt("<None>", -1));
                                         }
                                     }
-                                    if (choices.Any())
+                                    if (choices.Count != 0)
                                     {
                                         try
                                         {
@@ -473,16 +488,16 @@ namespace RevitDataValidator
                 return null;
             }
 
-            if (Utils.selectedIds.Any())
+            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
+            {
+                return new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
+            }
+            else
             {
                 return Utils.selectedIds.ConvertAll(w =>
                 Utils.doc.GetElement(w).Parameters.
                     Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
-            }
-            else
-            {
-                return new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
             }
         }
 
@@ -510,7 +525,15 @@ namespace RevitDataValidator
             }
 
             var parameters = new List<Parameter>();
-            if (Utils.selectedIds.Any())
+            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
+            {
+                var viewParam = Utils.GetParameter(Utils.doc.ActiveView, parameterName);
+                if (viewParam != null)
+                {
+                    parameters.Add(viewParam);
+                }
+            }
+            else
             {
                 foreach (var id in Utils.selectedIds)
                 {
@@ -519,14 +542,6 @@ namespace RevitDataValidator
                     if (parameter == null)
                         continue;
                     parameters.Add(parameter);
-                }
-            }
-            else
-            {
-                var viewParam = Utils.GetParameter(Utils.doc.ActiveView, parameterName);
-                if (viewParam != null)
-                {
-                    parameters.Add(viewParam);
                 }
             }
 

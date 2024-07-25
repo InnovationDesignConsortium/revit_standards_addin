@@ -4,53 +4,31 @@ namespace RevitDataValidator
 {
     public class PackData
     {
-        private string _linkURL;
-        private string _PdfPath;
         public string PackName { get; set; }
 
         public string LinkText
         {
             get
             {
-                if (_linkURL == null || _linkURL == string.Empty)
+                if (string.IsNullOrEmpty(LinkURL))
                     return null;
                 return "URL";
             }
         }
 
-        public string LinkURL
-        {
-            get
-            {
-                return _linkURL;
-            }
-            set
-            {
-                _linkURL = value;
-            }
-        }
+        public string LinkURL { get; set; }
 
         public string PdfText
         {
             get
             {
-                if (_PdfPath == null || _PdfPath == string.Empty)
+                if (string.IsNullOrEmpty(PdfPath))
                     return null;
                 return "PDF";
             }
         }
 
-        public string PdfPath
-        {
-            get
-            {
-                return _PdfPath;
-            }
-            set
-            {
-                _PdfPath = value;
-            }
-        }
+        public string PdfPath { get; set; }
 
         public ObservableCollection<IStateParameter> PackParameters { get; set; }
     }

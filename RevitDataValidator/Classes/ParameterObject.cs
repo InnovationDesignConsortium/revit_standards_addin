@@ -14,7 +14,7 @@ namespace RevitDataValidator
             Value = value;
         }
 
-        public string Name => Parameters.First().Definition.Name;
+        public string Name => Parameters[0].Definition.Name;
 
         public List<Parameter> Parameters { get; set; }
         public object Value { get; set; }

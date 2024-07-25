@@ -48,7 +48,7 @@ namespace RevitDataValidator.Forms
                     var element = Utils.doc.GetElement(ruleFailure.ElementId);
                     dataRow["Category"] = element.Category.Name;
                     dataRow["Name"] = element.Name;
-                    dataRow["Id"] = element.Id.IntegerValue.ToString();
+                    dataRow["Id"] = Utils.GetElementIdValue(element.Id).ToString();
                     dataRow["Message"] = ruleFailure.Rule.UserMessage;
                     dataRow["RuleName"] = ruleFailure.Rule.RuleName;
                     dataRow["Parameter"] = ruleFailure.Rule.ParameterName;
@@ -136,7 +136,7 @@ namespace RevitDataValidator.Forms
                     }
                     else if (rule.ListOptions != null || rule.KeyValues != null)
                     {
-                        List<string> dataSource = new List<string>();
+                        List<string> dataSource = null;
                         if (rule.ListOptions != null)
                         {
                             dataSource = rule.ListOptions.ConvertAll(q => q.Name);
@@ -200,8 +200,6 @@ namespace RevitDataValidator.Forms
 
                 dataGridView1.DataSource = dataTable;
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-
-                
             }
             catch (Exception ex)
             {
@@ -253,9 +251,8 @@ namespace RevitDataValidator.Forms
             var failures = new List<RuleFailure>();
             foreach (var row in dataGridView1.Rows.Cast<DataGridViewRow>())
             {
-
                 var idValue = row.Cells["Id"].Value;
-                var id = new ElementId(int.Parse(idValue.ToString()));
+                var id = Utils.CreateElementId(int.Parse(idValue.ToString()));
                 var element = Utils.doc.GetElement(id);
                 var cells = row.Cells;
                 var ruleName = cells["RuleName"].Value?.ToString();
@@ -293,7 +290,7 @@ namespace RevitDataValidator.Forms
                     parameterObjects.Add(item);
                 }
                 var failuresForThisId = Utils.GetFailures(id, parameterStrings, out _).Where(q => q.Rule.ParameterName == parameter).ToList();
-                if (failuresForThisId.Any())
+                if (failuresForThisId.Count != 0)
                 {
                     failures.AddRange(failuresForThisId);
                 }
@@ -306,7 +303,7 @@ namespace RevitDataValidator.Forms
                     MainInstruction = "Errors need to be resolved",
                     MainContent = string.Join(
                         Environment.NewLine,
-                        failures.Select(q => $"{q.ElementId.IntegerValue} - {q.Rule.ParameterName} - {q.Rule.UserMessage}"))
+                        failures.Select(q => $"{Utils.GetElementIdValue(q.ElementId)} - {q.Rule.ParameterName} - {q.Rule.UserMessage}"))
                 };
                 td.Show();
             }
@@ -325,13 +322,13 @@ namespace RevitDataValidator.Forms
 
             var row = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex];
             var cell = row.Cells["Id"];
-            var id = new ElementId(int.Parse(cell.Value.ToString()));
+            var id = Utils.CreateElementId(int.Parse(cell.Value.ToString()));
             var idList = new List<ElementId> { id };
 
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 var ids = dataGridView1.SelectedRows.Cast<DataGridViewRow>()
-                    .Select(q => new ElementId(int.Parse(q.Cells["Id"].Value.ToString())))
+                    .Select(q => Utils.CreateElementId(int.Parse(q.Cells["Id"].Value.ToString())))
                     .ToList();
                 idList = ids;
             }
@@ -351,7 +348,7 @@ namespace RevitDataValidator.Forms
                 for (int c = 0; c < dataGridView1.ColumnCount; c++)
                 {
                     var col = dataGridView1.Columns[c];
-                    if (col.Name != PARAM + row.Cells["Parameter"].Value.ToString() &&
+                    if (col.Name != PARAM + row.Cells["Parameter"].Value &&
                         col.Name.StartsWith(PARAM)
                         )
                     {

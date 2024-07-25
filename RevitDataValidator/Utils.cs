@@ -6,13 +6,27 @@ using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using NLog;
 using NLog.Config;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+
+#if REVIT_2020
+using ElementIdType = System.Int32;
+#else
+
+using ElementIdType = System.Int64;
+
+#endif
+
+#if !PRE_NET_8
+[assembly: SupportedOSPlatform("windows")]
+#endif
 
 namespace RevitDataValidator
 {
@@ -45,6 +59,9 @@ namespace RevitDataValidator
         private const string FIELD_EXCEPTION = "Exception";
         private const string FIELD_RULENAME = "RuleName";
         private const string FIELD_PARAMETERNAME = "ParameterName";
+        public static string GitRuleFileUrl = "";
+        public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
+        public static Dictionary<string, string> activeRuleFiles = new Dictionary<string, string>();
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -137,7 +154,7 @@ namespace RevitDataValidator
         {
             if (rule.RevitFileNames != null &&
                 rule.RevitFileNames.FirstOrDefault() != ALL &&
-                rule.RevitFileNames.Contains(doc.PathName))
+                rule.RevitFileNames.Contains(Utils.GetFileName()))
             {
                 return;
             }
@@ -430,13 +447,13 @@ namespace RevitDataValidator
             }
             else if (rule.PreventDuplicates != null)
             {
-                var bic = (BuiltInCategory)element.Category.Id.IntegerValue;
+                var bic = (BuiltInCategory)GetElementIdValue(element.Category.Id);
                 var others = new FilteredElementCollector(doc)
                     .OfCategory(bic)
                     .WhereElementIsNotElementType()
                     .Where(q => q.Id != element.Id);
                 List<string> othersParams =
-                    others.Select(q => GetParamAsString(Utils.GetParameter(q, rule.ParameterName))).ToList();
+                    others.Select(q => GetParamAsString(GetParameter(q, rule.ParameterName))).ToList();
                 if (othersParams.Contains(parameterValueAsString))
                 {
                     Log($"{rule.RuleName}|{GetElementInfo(element)}|Found duplicates of {parameterValueAsString} for {rule.ParameterName}", LogLevel.Warn);
@@ -511,7 +528,7 @@ namespace RevitDataValidator
                     );
                 parametersToSet.AddRange(thisRuleParametersToSet);
 
-                if (thisRuleParametersToSetForFormatRules.Any())
+                if (thisRuleParametersToSetForFormatRules.Count != 0)
                 {
                     var td = GetTaskDialogForFormatRenaming(rule, thisRuleParametersToSetForFormatRules);
                     if (td.Show() == TaskDialogResult.Ok)
@@ -773,7 +790,7 @@ namespace RevitDataValidator
         {
             return Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
                        rule.RevitFileNames.FirstOrDefault() == Utils.ALL ||
-                       rule.RevitFileNames.Contains(doc.PathName)).ToList();
+                       rule.RevitFileNames.Contains(Utils.GetFileName())).ToList();
         }
 
         public static Parameter GetParameter(Element e, string name)
@@ -781,11 +798,7 @@ namespace RevitDataValidator
             if (e == null) return null;
 
             var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name);
-            if (!parameters.Any())
-            {
-                return null;
-            }
-            else
+            if (parameters.Any())
             {
                 var internalDuplicates = new List<string> { "Level", "Design Option", "View Template" };
                 if ((parameters.Count() > 1 && !internalDuplicates.Contains(parameters.First().Definition.Name)) ||
@@ -794,6 +807,10 @@ namespace RevitDataValidator
                     Utils.Log($"{GetElementInfo(e)} has multiple '{name}' parameters", LogLevel.Warn);
                 }
                 return parameters.First();
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -817,7 +834,7 @@ namespace RevitDataValidator
             {
                 ret += fi.Symbol.Family.Name + ":";
             }
-            ret += $"{e.Name}:{e.Id.IntegerValue}";
+            ret += $"{e.Name}:{Utils.GetElementIdValue(e.Id)}";
             return ret;
         }
 
@@ -837,14 +854,16 @@ namespace RevitDataValidator
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static string GetFileName()
+        public static string GetFileName(Document doc = null)
         {
-            if (doc == null)
-                return "";
-
-            if (doc.IsWorkshared)
+            if (doc != null)
+            {
+                doc = Utils.doc;
+            }
+            else if (doc.IsWorkshared)
+            {
                 return ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
-
+            }
             return doc.PathName;
         }
 
@@ -893,15 +912,33 @@ namespace RevitDataValidator
                     var hostCats = new List<BuiltInCategory>();
                     foreach (var bic in builtInCats)
                     {
-                        if (CatToHostCatMap.ContainsKey(bic))
+                        if (CatToHostCatMap.TryGetValue(bic, out List<BuiltInCategory> value))
                         {
-                            hostCats.AddRange(CatToHostCatMap[bic]);
+                            hostCats.AddRange(value);
                         }
                     }
                     builtInCats.AddRange(hostCats);
                 }
                 return builtInCats;
             }
+        }
+
+        public static ElementId CreateElementId(ElementIdType idValue)
+        {
+#if R2022 || R2023
+    return new ElementId((int)idValue);
+#else
+            return new ElementId(idValue);
+#endif
+        }
+
+        public static ElementIdType GetElementIdValue(ElementId elementId)
+        {
+#if R2022 || R2023
+        return elementId.IntegerValue;
+#else
+            return elementId.Value;
+#endif
         }
     }
 }

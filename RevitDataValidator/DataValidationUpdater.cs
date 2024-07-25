@@ -39,7 +39,7 @@ namespace RevitDataValidator
                 }
 
                 var applicableParameterRules = Utils.GetApplicableParameterRules();
-                if (applicableParameterRules.Any())
+                if (applicableParameterRules.Count != 0)
                 {
                     foreach (var rule in applicableParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
                     {
@@ -67,7 +67,7 @@ namespace RevitDataValidator
                             SetParam(parameterString.Parameter, parameterString.NewValue);
                         }
                     }
-                    if (ruleFailures.Any())
+                    if (ruleFailures.Count != 0)
                     {
                         FormGridList form = new FormGridList(ruleFailures);
                         form.Show();

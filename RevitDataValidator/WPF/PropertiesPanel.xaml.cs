@@ -32,10 +32,20 @@ namespace RevitDataValidator
 
         private void cboParameterPack_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cboParameterPack.SelectedItem == null)
+            if (cboParameterPack == null || cboParameterPack.SelectedItem == null)
                 return;
 
-            if (cboParameterPack?.SelectedItem == null)
+            var filename = Utils.GetFileName();
+            if (Utils.dictFileActivePackSet.ContainsKey(filename))
+            {
+                Utils.dictFileActivePackSet[filename] = cboParameterPack.SelectedItem.ToString();
+            }
+            else
+            {
+                Utils.dictFileActivePackSet.Add(filename, cboParameterPack.SelectedItem.ToString());
+            }
+
+            if (cboParameterPack.SelectedItem == null)
             {
                 DataContext = new PropertyViewModel();
             }
@@ -45,13 +55,13 @@ namespace RevitDataValidator
             }
 
             Element element;
-            if (Utils.selectedIds.Any())
+            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
             {
-                element = Utils.doc.GetElement(Utils.selectedIds[0]);
+                element = Utils.doc.ActiveView;
             }
             else
             {
-                element = Utils.doc.ActiveView;
+                element = Utils.doc.GetElement(Utils.selectedIds[0]);
             }
 
             if (element.Category == null)
@@ -69,7 +79,7 @@ namespace RevitDataValidator
 
         public void Refresh()
         {
-            if (cboParameterPack.SelectedItem == null)
+            if (cboParameterPack.SelectedItem == null || Utils.parameterUIData?.PackSets == null)
             {
                 DataContext = new PropertyViewModel();
             }
@@ -92,7 +102,7 @@ namespace RevitDataValidator
             SaveTextBoxValue(sender as System.Windows.Controls.TextBox);
         }
 
-        private void SaveTextBoxValue(System.Windows.Controls.TextBox textBox)
+        private static void SaveTextBoxValue(System.Windows.Controls.TextBox textBox)
         {
             if (textBox.Tag is List<Parameter> parameters)
             {
@@ -123,7 +133,7 @@ namespace RevitDataValidator
             SetCheckboxValue(sender as CheckBox);
         }
 
-        private void SetCheckboxValue(CheckBox control)
+        private static void SetCheckboxValue(CheckBox control)
         {
             if (control.Tag is List<Parameter> parameters)
             {
@@ -291,7 +301,7 @@ namespace RevitDataValidator
                     }
                 }
 
-                if (parametersToSetForFormatRules.Any())
+                if (parametersToSetForFormatRules.Count != 0)
                 {
                     var td = Utils.GetTaskDialogForFormatRenaming(rule, parametersToSetForFormatRules);
                     if (td.Show() == TaskDialogResult.Ok)
@@ -301,13 +311,13 @@ namespace RevitDataValidator
                     }
                 }
 
-                if (parametersToSet.Any())
+                if (parametersToSet.Count != 0)
                 {
                     Utils.eventHandlerWithParameterObject.Raise(
                         parametersToSet.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.NewValue)));
                 }
 
-                if (ruleFailures.Any())
+                if (ruleFailures.Count != 0)
                 {
                     FormGridList form = new FormGridList(ruleFailures);
                     form.Show();
@@ -323,6 +333,16 @@ namespace RevitDataValidator
                 new Process
                 {
                     StartInfo = new ProcessStartInfo(ruleFile)
+                    {
+                        UseShellExecute = true
+                    }
+                }.Start();
+            }
+            else if (!string.IsNullOrEmpty(Utils.GitRuleFileUrl))
+            {
+                new Process
+                {
+                    StartInfo = new ProcessStartInfo(Utils.GitRuleFileUrl)
                     {
                         UseShellExecute = true
                     }

@@ -9,6 +9,7 @@
  */
 
 using Autodesk.Revit.DB.ExtensibleStorage;
+using RevitDataValidator;
 using System;
 using System.Reflection;
 using VCExtensibleStorageExtension.Attributes;
@@ -103,6 +104,7 @@ namespace VCExtensibleStorageExtension
             }
             catch (Exception ex)
             {
+                Utils.Log($"Could not create schema: {ex.Message}", Utils.LogLevel.Error);
                 return null;
             }
         }

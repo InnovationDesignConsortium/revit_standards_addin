@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 
@@ -92,7 +93,7 @@ namespace RevitDataValidator
                                 args.Value is StringInt si &&
                                 int.TryParse(si.Int.ToString(), out int i))
                             {
-                                var elementid = new ElementId(i);
+                                var elementid = Utils.CreateElementId(i);
                                 try
                                 {
                                     bool didSet = parameter.Set(elementid);
