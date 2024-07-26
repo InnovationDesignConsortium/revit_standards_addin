@@ -81,7 +81,11 @@
     <ROW Component="NLog.dll_1" ComponentId="{521096D4-D77E-4DE0-8A79-FFBDEADB6F3F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="NLog.dll_1"/>
     <ROW Component="NLog.dll_2" ComponentId="{8ECFD5EA-8480-47A6-9DD6-34917E1EC554}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="NLog.dll_2"/>
     <ROW Component="Nice3point.Revit.Extensions.dll" ComponentId="{F2F573F1-A5CF-47DF-B199-77526F1329DD}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="Nice3point.Revit.Extensions.dll"/>
+    <ROW Component="Nice3point.Revit.Extensions.dll_1" ComponentId="{1CE003A4-A511-45CE-8E15-FEC5956DF493}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="Nice3point.Revit.Extensions.dll_1"/>
+    <ROW Component="Nice3point.Revit.Extensions.dll_2" ComponentId="{90A4BF01-4412-455E-A3E5-41A1D09330B3}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="Nice3point.Revit.Extensions.dll_2"/>
     <ROW Component="Nice3point.Revit.Toolkit.dll" ComponentId="{095658F0-3F5E-400E-80C1-3B2236A6042B}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll"/>
+    <ROW Component="Nice3point.Revit.Toolkit.dll_1" ComponentId="{355145AB-D3F3-446C-8FAC-098D841EE3F1}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll_1"/>
+    <ROW Component="Nice3point.Revit.Toolkit.dll_2" ComponentId="{D01A0A90-8DD0-43F8-8123-1983EAE869FC}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll_2"/>
     <ROW Component="Octokit.dll" ComponentId="{2A07C71A-4AC3-42BF-B3B0-3C18A9B43EB1}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="Octokit.dll"/>
     <ROW Component="Octokit.dll_1" ComponentId="{ACD88102-2781-4466-99D0-19B85CE8808B}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Octokit.dll_1"/>
     <ROW Component="Octokit.dll_2" ComponentId="{5A8D927A-B1C3-43FA-B42D-C1A38AD63B9F}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Octokit.dll_2"/>
@@ -1951,6 +1955,10 @@
     <ROW File="Octokit.dll" Component_="Octokit.dll" FileName="Octokit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\Octokit.dll" SelfReg="false"/>
     <ROW File="Octokit.dll_1" Component_="Octokit.dll_1" FileName="Octokit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Octokit.dll" SelfReg="false"/>
     <ROW File="Octokit.dll_2" Component_="Octokit.dll_2" FileName="Octokit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Octokit.dll" SelfReg="false"/>
+    <ROW File="Nice3point.Revit.Toolkit.dll_1" Component_="Nice3point.Revit.Toolkit.dll_1" FileName="NICE3P~1.DLL|Nice3point.Revit.Toolkit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Nice3point.Revit.Toolkit.dll" SelfReg="false"/>
+    <ROW File="Nice3point.Revit.Extensions.dll_1" Component_="Nice3point.Revit.Extensions.dll_1" FileName="NICE3P~2.DLL|Nice3point.Revit.Extensions.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Nice3point.Revit.Extensions.dll" SelfReg="false"/>
+    <ROW File="Nice3point.Revit.Toolkit.dll_2" Component_="Nice3point.Revit.Toolkit.dll_2" FileName="NICE3P~1.DLL|Nice3point.Revit.Toolkit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Nice3point.Revit.Toolkit.dll" SelfReg="false"/>
+    <ROW File="Nice3point.Revit.Extensions.dll_2" Component_="Nice3point.Revit.Extensions.dll_2" FileName="NICE3P~2.DLL|Nice3point.Revit.Extensions.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Nice3point.Revit.Extensions.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -2077,6 +2085,10 @@
     <ROW Feature_="MainFeature" Component_="Octokit.dll"/>
     <ROW Feature_="MainFeature" Component_="Octokit.dll_1"/>
     <ROW Feature_="MainFeature" Component_="Octokit.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Toolkit.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Extensions.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Toolkit.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Extensions.dll_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
