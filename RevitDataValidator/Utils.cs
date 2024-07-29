@@ -856,15 +856,19 @@ namespace RevitDataValidator
 
         public static string GetFileName(Document doc = null)
         {
-            if (doc != null)
+            if (doc == null)
             {
                 doc = Utils.doc;
             }
-            else if (doc.IsWorkshared)
+
+            if (doc.IsWorkshared)
             {
                 return ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
             }
-            return doc.PathName;
+            else
+            {
+                return doc.PathName;
+            }
         }
 
         public static void Log(string message, LogLevel level)

@@ -193,7 +193,8 @@ namespace RevitDataValidator
 
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
-            if (Utils.GetFileName(e.Document) != Utils.doc?.PathName)
+            var currentFilename = Utils.GetFileName(e.Document);
+            if (currentFilename != Utils.doc.PathName)
             {
                 Utils.allParameterRules.Clear();
                 Utils.allWorksetRules.Clear();
