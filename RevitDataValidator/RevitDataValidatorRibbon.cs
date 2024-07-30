@@ -247,87 +247,54 @@ namespace RevitDataValidator
         public static string GetGitParameterPacks()
         {
             var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
-            if (directory == null)
+            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json";
+            var data = GetGitData("ParameterPacks.json", ContentType.File, path);
+            if (data == null || !data.Any())
             {
-                Utils.Log($"Git directory does not exist {directory}", Utils.LogLevel.Error);
+                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
+                return null;
             }
-            else
-            {
-                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
-                var folder = GetGitData("ParameterPacks", ContentType.Dir, pathRevitStandardsPanel);
-                if (folder == null)
-                {
-                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Error);
-                    return null;
-                }
-                else
-                {
-                    var pathParameterPacks = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json";
-                    var data = GetGitData("ParameterPacks.json", ContentType.File, pathParameterPacks);
-                    Utils.Log($"Found git file {pathParameterPacks}", Utils.LogLevel.Trace);
-                    var packs = data?.FirstOrDefault().Content;
-                    return packs;
-                }
-            }
-            return null;
+            Utils.Log($"Found git file {path}", Utils.LogLevel.Trace);
+            var packs = data?.FirstOrDefault().Content;
+            return packs;
         }
 
         public static string GetGitRuleFileContents(string filename)
         {
             Utils.GitRuleFileUrl = null;
             var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
-            if (directory == null)
+
+            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules/{filename}.md";
+            var data = GetGitData($"{filename}.md", ContentType.File, path);
+            if (data == null || !data.Any())
             {
-                Utils.Log($"Git directory does not exist {directory}", Utils.LogLevel.Error);
+                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
+                return null;
             }
-            else
-            {
-                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
-                var folder = GetGitData("ParameterPacks", ContentType.Dir, pathRevitStandardsPanel);
-                if (folder == null)
-                {
-                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Warn);
-                }
-                else
-                {
-                    var data = GetGitData($"{filename}.md", ContentType.File,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules/{filename}.md");
-                    Utils.GitRuleFileUrl = data?.FirstOrDefault().HtmlUrl;
-                    return data?.FirstOrDefault().Content;
-                }
-            }
-            return null;
+            Utils.GitRuleFileUrl = data.First().HtmlUrl;
+            return data?.First().Content;
         }
 
         private static List<string> GetGitRuleFiles()
         {
             if (Utils.doc == null || Utils.GetFileName().Length == 0)
             {
-                return new List<string>();
+                return null;
             }
 
             var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-            var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
-            if (directory != null)
+
+            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules";
+            var data = GetGitData(null, ContentType.File, path);
+            if (data == null || !data.Any())
             {
-                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
-                var folder = GetGitData("Rules", ContentType.Dir, pathRevitStandardsPanel);
-                if (folder == null)
-                {
-                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Error);
-                }
-                else
-                {
-                    var data = GetGitData(null, ContentType.File,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules");
-                    var ruleFiles = data.Select(q => q.Name).ToList();
-                    Utils.Log($"Found git rule files '{string.Join(",", ruleFiles)}'", Utils.LogLevel.Trace);
-                    return ruleFiles;
-                }
+                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
+                return null;
             }
-            return null;
+
+            var ruleFiles = data.Select(q => q.Name).ToList();
+            Utils.Log($"Found git rule files '{string.Join(",", ruleFiles)}'", Utils.LogLevel.Trace);
+            return ruleFiles;
         }
 
         private static IEnumerable<RepositoryContent> GetGitData(string projectName, ContentType contentType, string path)
@@ -348,7 +315,7 @@ namespace RevitDataValidator
                 }
 
                 var result = content.Result.Where(q => q.Type == contentType);
-                if (result == null )
+                if (result == null)
                 {
                     Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
                     return new List<RepositoryContent>();
