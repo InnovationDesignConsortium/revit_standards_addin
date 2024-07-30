@@ -7,6 +7,7 @@ using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace RevitDataValidator
             Application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             Application.ViewActivated += Application_ViewActivated;
             Application.DialogBoxShowing += Application_DialogBoxShowing;
+            Application.ControlledApplication.DocumentClosed += ControlledApplication_DocumentClosed;
             Application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
@@ -90,6 +92,11 @@ namespace RevitDataValidator
             cboRuleFile = panel.AddItem(new ComboBoxData(cboName)) as ComboBox;
             cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
+        }
+
+        private void ControlledApplication_DocumentClosed(object sender, Autodesk.Revit.DB.Events.DocumentClosedEventArgs e)
+        {
+            Utils.doc = null;
         }
 
         private void ControlledApplication_DocumentChanged(object sender, Autodesk.Revit.DB.Events.DocumentChangedEventArgs e)
@@ -150,6 +157,8 @@ namespace RevitDataValidator
                 if (!wasDefaultRuleFileSet)
                 {
                     cbo.Current = cbo.Items[0];
+                    Properties.Settings.Default.ActiveRuleFile = ruleFiles[0];
+                    Properties.Settings.Default.Save();
                 }
 
                 AddComboBoxItem(NONE, NONE);
@@ -194,7 +203,7 @@ namespace RevitDataValidator
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
             var currentFilename = Utils.GetFileName(e.Document);
-            if (currentFilename != Utils.doc.PathName)
+            if (Utils.doc == null || currentFilename != Utils.doc.PathName)
             {
                 Utils.allParameterRules.Clear();
                 Utils.allWorksetRules.Clear();
@@ -239,15 +248,26 @@ namespace RevitDataValidator
         {
             var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
             var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
-            if (directory != null)
+            if (directory == null)
             {
-                var folder = GetGitData("ParameterPacks", ContentType.Dir,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
-                if (folder != null)
+                Utils.Log($"Git directory does not exist {directory}", Utils.LogLevel.Error);
+            }
+            else
+            {
+                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
+                var folder = GetGitData("ParameterPacks", ContentType.Dir, pathRevitStandardsPanel);
+                if (folder == null)
                 {
-                    var data = GetGitData("ParameterPacks.json", ContentType.File,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json");
-                    return data?.FirstOrDefault().Content;
+                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Error);
+                    return null;
+                }
+                else
+                {
+                    var pathParameterPacks = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json";
+                    var data = GetGitData("ParameterPacks.json", ContentType.File, pathParameterPacks);
+                    Utils.Log($"Found git file {pathParameterPacks}", Utils.LogLevel.Trace);
+                    var packs = data?.FirstOrDefault().Content;
+                    return packs;
                 }
             }
             return null;
@@ -258,11 +278,19 @@ namespace RevitDataValidator
             Utils.GitRuleFileUrl = null;
             var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
             var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
-            if (directory != null)
+            if (directory == null)
             {
-                var folder = GetGitData("ParameterPacks", ContentType.Dir,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
-                if (folder != null)
+                Utils.Log($"Git directory does not exist {directory}", Utils.LogLevel.Error);
+            }
+            else
+            {
+                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
+                var folder = GetGitData("ParameterPacks", ContentType.Dir, pathRevitStandardsPanel);
+                if (folder == null)
+                {
+                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Warn);
+                }
+                else
                 {
                     var data = GetGitData($"{filename}.md", ContentType.File,
                     $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules/{filename}.md");
@@ -284,13 +312,19 @@ namespace RevitDataValidator
             var directory = GetGitData(projectName, ContentType.Dir, "/ProjectRoot");
             if (directory != null)
             {
-                var folder = GetGitData("Rules", ContentType.Dir,
-                    $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel");
-                if (folder != null)
+                var pathRevitStandardsPanel = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel";
+                var folder = GetGitData("Rules", ContentType.Dir, pathRevitStandardsPanel);
+                if (folder == null)
+                {
+                    Utils.Log($"Git folder does not exist '{pathRevitStandardsPanel}'", Utils.LogLevel.Error);
+                }
+                else
                 {
                     var data = GetGitData(null, ContentType.File,
                     $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules");
-                    return data.Select(q => q.Name).ToList();
+                    var ruleFiles = data.Select(q => q.Name).ToList();
+                    Utils.Log($"Found git rule files '{string.Join(",", ruleFiles)}'", Utils.LogLevel.Trace);
+                    return ruleFiles;
                 }
             }
             return null;
@@ -306,18 +340,28 @@ namespace RevitDataValidator
             const string REPO = "revit_standards_settings_demo";
             try
             {
-                var contents = client.Repository.Content.GetAllContents(OWNER, REPO, path)?
-                    .Result.Where(q => q.Type == contentType);
+                var content = client.Repository.Content.GetAllContents(OWNER, REPO, path);
+                if (content == null || content.IsFaulted)
+                {
+                    Utils.Log($"No git data found at {path}", Utils.LogLevel.Warn);
+                    return new List<RepositoryContent>();
+                }
+
+                var result = content.Result.Where(q => q.Type == contentType);
+                if (result == null )
+                {
+                    Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
+                    return new List<RepositoryContent>();
+                }
 
                 if (projectName != null)
                 {
-                    contents = contents.Where(q => q.Name == projectName);
+                    result = result.Where(q => q.Name == projectName);
                 }
-                return contents;
+                return result;
             }
             catch (Exception ex)
             {
-                Utils.Log($"Could not get Git data: {ex.Message}", Utils.LogLevel.Error);
                 return null;
             }
         }
@@ -377,34 +421,37 @@ namespace RevitDataValidator
                 return;
             }
 
-            var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName).ToList();
-            if (validPacks.Count == 0)
+            if (Utils.parameterUIData.PackSets != null)
             {
-                Utils.propertiesPanel.Refresh(null);
-            }
-            else if (Utils.dictFileActivePackSet.TryGetValue(Utils.GetFileName(), out string selectedPackSet) &&
-                validPacks.Find(q => q.Name == selectedPackSet) != null)
-            {
-                Utils.propertiesPanel.cboParameterPack.SelectedItem = selectedPackSet;
-                Utils.propertiesPanel.Refresh(selectedPackSet);
-            }
-            else if (validPacks?.Count > 0)
-            {
-                PackSet packSet = null;
-                if (Utils.dictCategoryPackSet.TryGetValue(catName, out string value))
+                var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName).ToList();
+                if (validPacks.Count == 0)
                 {
-                    packSet = validPacks.Find(q => q.Name == value);
+                    Utils.propertiesPanel.Refresh(null);
                 }
-                if (packSet == null)
+                else if (Utils.dictFileActivePackSet.TryGetValue(Utils.GetFileName(), out string selectedPackSet) &&
+                    validPacks.Find(q => q.Name == selectedPackSet) != null)
                 {
-                    packSet = validPacks[0];
+                    Utils.propertiesPanel.cboParameterPack.SelectedItem = selectedPackSet;
+                    Utils.propertiesPanel.Refresh(selectedPackSet);
                 }
+                else if (validPacks?.Count > 0)
+                {
+                    PackSet packSet = null;
+                    if (Utils.dictCategoryPackSet.TryGetValue(catName, out string value))
+                    {
+                        packSet = validPacks.Find(q => q.Name == value);
+                    }
+                    if (packSet == null)
+                    {
+                        packSet = validPacks[0];
+                    }
 
-                if (packSet != null)
-                {
-                    var packSetName = packSet.Name;
-                    Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
-                    Utils.propertiesPanel.Refresh(packSetName);
+                    if (packSet != null)
+                    {
+                        var packSetName = packSet.Name;
+                        Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
+                        Utils.propertiesPanel.Refresh(packSetName);
+                    }
                 }
             }
         }
@@ -484,7 +531,7 @@ namespace RevitDataValidator
 
         private void RegisterParameterRule(ParameterRule rule)
         {
-            Utils.Log("Registering parameter rule " + rule, Utils.LogLevel.Trace);
+            Utils.Log($"Registering parameter rule '{rule}'", Utils.LogLevel.Trace);
             try
             {
                 if (rule.CustomCode != null)
@@ -584,6 +631,7 @@ namespace RevitDataValidator
             if (File.Exists(file))
             {
                 json = File.ReadAllText(file);
+                Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
             }
             else if (!string.IsNullOrEmpty(Utils.GetFileName()))
             {
@@ -613,21 +661,20 @@ namespace RevitDataValidator
             var fileContents = "";
             if (File.Exists(ruleFile))
             {
-                fileContents = File.ReadAllText(Properties.Settings.Default.ActiveRuleFile);
+                fileContents = File.ReadAllText(ruleFile);
+                Utils.Log($"Read rules from {ruleFile}", Utils.LogLevel.Info);
             }
             else
             {
                 fileContents = GetGitRuleFileContents(Path.GetFileNameWithoutExtension(Properties.Settings.Default.ActiveRuleFile));
-                Path.GetTempFileName();
             }
 
             if (string.IsNullOrEmpty(fileContents))
             {
-                Utils.Log("File not found: " + Properties.Settings.Default.ActiveRuleFile, Utils.LogLevel.Error);
+                Utils.Log($"File not found '{Properties.Settings.Default.ActiveRuleFile}'", Utils.LogLevel.Error);
                 return;
             }
 
-            Utils.Log($"Reading rule file {ruleFile}", Utils.LogLevel.Trace);
             MarkdownDocument document = Markdown.Parse(fileContents);
             var descendents = document.Descendants();
             var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
