@@ -327,24 +327,26 @@ namespace RevitDataValidator
             else if (rule.Format != null)
             {
                 var formattedString = BuildFormattedString(element, rule.Format, true);
-                if (formattedString != null &&
-                    !parameterValueAsString.StartsWith(formattedString))
+                if (formattedString != null)
                 {
                     if (parameter.Definition.Name == "Type Name")
                     {
-                        Type t = element.GetType();
-                        var i = 0;
-                        var suffix = string.Empty;
-
-                        while (new FilteredElementCollector(doc)
-                            .OfClass(t).Any(q => q.Name == formattedString + suffix))
+                        if (parameterValueAsString?.StartsWith(formattedString) == false)
                         {
-                            i++;
-                            suffix = " " + i.ToString();
+                            Type t = element.GetType();
+                            var i = 0;
+                            var suffix = string.Empty;
+
+                            while (new FilteredElementCollector(doc)
+                                .OfClass(t).Any(q => q.Name == formattedString + suffix))
+                            {
+                                i++;
+                                suffix = " " + i.ToString();
+                            }
+                            var formattedWithSuffix = formattedString + suffix;
+                            parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedWithSuffix, parameterValueAsString));
+                            Log($"Renaming type '{element.Name}' to '{formattedString + suffix}' to match format '{rule.Format}'", LogLevel.Info);
                         }
-                        var formattedWithSuffix = formattedString + suffix;
-                        parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedWithSuffix, parameterValueAsString));
-                        Log($"Renaming type '{element.Name}' to '{formattedString + suffix}' to match format '{rule.Format}'", LogLevel.Info);
                     }
                     else
                     {
