@@ -327,22 +327,31 @@ namespace RevitDataValidator
 
         private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
         {
+            string fileToOpen = null;
             var ruleFile = Properties.Settings.Default.ActiveRuleFile;
             if (File.Exists(ruleFile))
             {
-                new Process
-                {
-                    StartInfo = new ProcessStartInfo(ruleFile)
-                    {
-                        UseShellExecute = true
-                    }
-                }.Start();
+                fileToOpen = ruleFile;
             }
-            else if (!string.IsNullOrEmpty(Utils.GitRuleFileUrl))
+            else
+            {
+                var cbo = Utils.GetAdwindowsComboBox();
+                var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
+                var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
+                if (fileFromDisk != null)
+                {
+                    fileToOpen = fileFromDisk;
+                }
+                else if (!string.IsNullOrEmpty(Utils.GitRuleFileUrl))
+                {
+                    fileToOpen = Utils.GitRuleFileUrl;
+                }
+            }
+            if (fileToOpen != null)
             {
                 new Process
                 {
-                    StartInfo = new ProcessStartInfo(Utils.GitRuleFileUrl)
+                    StartInfo = new ProcessStartInfo(fileToOpen)
                     {
                         UseShellExecute = true
                     }

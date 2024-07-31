@@ -2,11 +2,11 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
+using Autodesk.Windows;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using NLog;
 using NLog.Config;
-using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -60,6 +60,9 @@ namespace RevitDataValidator
         private const string FIELD_RULENAME = "RuleName";
         private const string FIELD_PARAMETERNAME = "ParameterName";
         public static string GitRuleFileUrl = "";
+        public const string panelName = "Data Validator";
+        public const string cboName = "cboRuleFile";
+        private const string TAB_NAME = "Add-Ins";
         public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
         public static Dictionary<string, string> activeRuleFiles = new Dictionary<string, string>();
 
@@ -481,7 +484,7 @@ namespace RevitDataValidator
                         if ((value ?? string.Empty) != (parameterValueAsString ?? string.Empty))
                         {
                             parametersToSet.Add(new ParameterString(parameter, value));
-                            TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
+                            Autodesk.Revit.UI.TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
                         }
                         Log($"Using value '{value}' from insert {GetElementInfo(fi)} to set value of {parameter.Definition.Name} for host {GetElementInfo(host)}", LogLevel.Info);
                     }
@@ -507,14 +510,14 @@ namespace RevitDataValidator
             return null;
         }
 
-        public static TaskDialog GetTaskDialogForFormatRenaming(ParameterRule rule, List<ParameterString> thisRuleParametersToSetForFormatRules)
+        public static Autodesk.Revit.UI.TaskDialog GetTaskDialogForFormatRenaming(ParameterRule rule, List<ParameterString> thisRuleParametersToSetForFormatRules)
         {
-            return new TaskDialog("Alert")
+            return new Autodesk.Revit.UI.TaskDialog("Alert")
             {
                 MainInstruction =
         $"{rule.ParameterName} does not match the required format {rule.Format} and will be renamed",
                 MainContent = string.Join(Environment.NewLine, thisRuleParametersToSetForFormatRules.Select(q => $"From '{q.OldValue}' to '{q.NewValue}'")),
-                CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel
+                CommonButtons = Autodesk.Revit.UI.TaskDialogCommonButtons.Ok | Autodesk.Revit.UI.TaskDialogCommonButtons.Cancel
             };
         }
 
@@ -536,7 +539,7 @@ namespace RevitDataValidator
                 if (thisRuleParametersToSetForFormatRules.Count != 0)
                 {
                     var td = GetTaskDialogForFormatRenaming(rule, thisRuleParametersToSetForFormatRules);
-                    if (td.Show() == TaskDialogResult.Ok)
+                    if (td.Show() == Autodesk.Revit.UI.TaskDialogResult.Ok)
                     {
                         parametersToSet.AddRange(thisRuleParametersToSetForFormatRules);
                     }
@@ -930,6 +933,16 @@ namespace RevitDataValidator
                 }
                 return builtInCats;
             }
+        }
+        public static RibbonList GetAdwindowsComboBox()
+        {
+            // https://forums.autodesk.com/t5/revit-api-forum/ribbon-combobox-clear-change-data/m-p/5068342#M6501
+            var tabRibbon = ComponentManager.Ribbon.FindTab(TAB_NAME);
+            if (tabRibbon.FindItem($"CustomCtrl_%CustomCtrl_%{TAB_NAME}%{panelName}%{cboName}") is RibbonList comboList)
+            {
+                return comboList;
+            }
+            return null;
         }
 
         public static ElementId CreateElementId(ElementIdType idValue)

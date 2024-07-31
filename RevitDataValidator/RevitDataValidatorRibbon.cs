@@ -31,9 +31,6 @@ namespace RevitDataValidator
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
         private static ComboBox cboRuleFile;
-        private const string panelName = "Data Validator";
-        private const string cboName = "cboRuleFile";
-        private const string TAB_NAME = "Add-Ins";
 
         public override void OnStartup()
         {
@@ -84,12 +81,12 @@ namespace RevitDataValidator
                 RULE_DEFAULT_MESSAGE);
 
             // change tab name below in ClearComboBoxItems() as needed
-            var panel = Application.GetRibbonPanels().Find(q => q.Name == panelName) ?? Application.CreateRibbonPanel(panelName);
+            var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
-            cboRuleFile = panel.AddItem(new ComboBoxData(cboName)) as ComboBox;
+            cboRuleFile = panel.AddItem(new ComboBoxData(Utils.cboName)) as ComboBox;
             cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
         }
@@ -143,7 +140,7 @@ namespace RevitDataValidator
             if (ruleFiles?.Count > 0)
             {
                 var wasDefaultRuleFileSet = false;
-                var cbo = GetAdwindowsComboBox();
+                var cbo = Utils.GetAdwindowsComboBox();
                 foreach (string ruleFile in ruleFiles)
                 {
                     AddComboBoxItem(ruleFile, Path.GetFileNameWithoutExtension(ruleFile));
@@ -170,26 +167,15 @@ namespace RevitDataValidator
 
         private static void ClearComboBoxItems()
         {
-            var combobox = GetAdwindowsComboBox();
+            var combobox = Utils.GetAdwindowsComboBox();
             if (combobox == null)
                 return;
             combobox.Items.Clear();
         }
 
-        private static RibbonList GetAdwindowsComboBox()
-        {
-            // https://forums.autodesk.com/t5/revit-api-forum/ribbon-combobox-clear-change-data/m-p/5068342#M6501
-            var tabRibbon = ComponentManager.Ribbon.FindTab(TAB_NAME);
-            if (tabRibbon.FindItem($"CustomCtrl_%CustomCtrl_%{TAB_NAME}%{panelName}%{cboName}") is RibbonList comboList)
-            {
-                return comboList;
-            }
-            return null;
-        }
-
         private static void AddComboBoxItem(string id, string text)
         {
-            var combobox = GetAdwindowsComboBox();
+            var combobox = Utils.GetAdwindowsComboBox();
             if (combobox == null)
                 return;
 
@@ -210,7 +196,7 @@ namespace RevitDataValidator
                 Utils.doc = e.Document;
                 Utils.userName = e.Document.Application.Username;
                 GetRulesAndParameterPacks();
-                var cbo = GetAdwindowsComboBox();
+                var cbo = Utils.GetAdwindowsComboBox();
                 var ruleOptions = cbo.Items.Cast<Autodesk.Windows.RibbonItem>();
                 if (ruleOptions.Any())
                 {
@@ -339,7 +325,7 @@ namespace RevitDataValidator
             Utils.allWorksetRules = new List<WorksetRule>();
             Utils.GitRuleFileUrl = null;
 
-            var cbo = GetAdwindowsComboBox();
+            var cbo = Utils.GetAdwindowsComboBox();
 
             if (cbo.Items.Count == 0)
             {
@@ -633,7 +619,7 @@ namespace RevitDataValidator
             }
             else
             {
-                var cbo = GetAdwindowsComboBox();
+                var cbo = Utils.GetAdwindowsComboBox();
                 var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
                 var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
                 if (fileFromDisk != null)
