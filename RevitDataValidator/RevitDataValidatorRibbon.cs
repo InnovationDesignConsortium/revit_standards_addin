@@ -633,7 +633,18 @@ namespace RevitDataValidator
             }
             else
             {
-                fileContents = GetGitRuleFileContents(Path.GetFileNameWithoutExtension(Properties.Settings.Default.ActiveRuleFile));
+                var cbo = GetAdwindowsComboBox();
+                var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
+                var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
+                if (fileFromDisk != null)
+                {
+                    fileContents = File.ReadAllText(fileFromDisk);
+                    Utils.Log($"Read rules from {fileFromDisk}", Utils.LogLevel.Info);
+                }
+                else
+                {
+                    fileContents = GetGitRuleFileContents(Path.GetFileNameWithoutExtension(Properties.Settings.Default.ActiveRuleFile));
+                }
             }
 
             if (string.IsNullOrEmpty(fileContents))
