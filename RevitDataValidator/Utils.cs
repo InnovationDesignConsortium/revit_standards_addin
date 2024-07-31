@@ -269,10 +269,13 @@ namespace RevitDataValidator
                 parameter = parameterStringMatch.Parameter;
                 parameterValueAsString = parameterStringMatch.NewValue;
             }
-            if (parameterValueAsString == null)
-            {
-                return null;
-            }
+            
+            // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
+            // rule should run if target paramater has no value
+            //if (parameterValueAsString == null)
+            //{
+            //    return null;
+            //}
 
             if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
             {
