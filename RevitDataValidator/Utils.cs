@@ -154,12 +154,12 @@ namespace RevitDataValidator
         {
             if (rule.RevitFileNames != null &&
                 rule.RevitFileNames.FirstOrDefault() != ALL &&
-                rule.RevitFileNames.Contains(Utils.GetFileName()))
+                rule.RevitFileNames.Contains(GetFileName()))
             {
                 return;
             }
 
-            var workset = new FilteredWorksetCollector(Utils.doc).FirstOrDefault(q => q.Name == rule.Workset);
+            var workset = new FilteredWorksetCollector(doc).FirstOrDefault(q => q.Name == rule.Workset);
             if (workset == null)
             {
                 Log($"Workset does not exist {rule.Workset} so will not evaluate rule {rule}", LogLevel.Warn);
@@ -477,7 +477,7 @@ namespace RevitDataValidator
                     var host = fi.Host;
                     if (host != null)
                     {
-                        var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
+                        var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
                         if ((value ?? string.Empty) != (parameterValueAsString ?? string.Empty))
                         {
                             parametersToSet.Add(new ParameterString(parameter, value));
@@ -488,7 +488,7 @@ namespace RevitDataValidator
                 }
                 else if (element is HostObject host)
                 {
-                    var value = GetParamAsValueString(Utils.GetParameter(host, rule.FromHostInstance));
+                    var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
                     var inserts = new FilteredElementCollector(doc)
                         .OfClass(typeof(FamilyInstance))
                         .Cast<FamilyInstance>()
@@ -496,7 +496,7 @@ namespace RevitDataValidator
                     Log($"Using value '{value}' from host {GetElementInfo(host)} to set values for {rule.FromHostInstance} for inserts {string.Join(", ", inserts.Select(q => GetElementInfo(q)))}", LogLevel.Info);
                     foreach (var insert in inserts)
                     {
-                        parametersToSet.Add(new ParameterString(Utils.GetParameter(insert, rule.FromHostInstance), value));
+                        parametersToSet.Add(new ParameterString(GetParameter(insert, rule.FromHostInstance), value));
                     }
                 }
             }
@@ -751,26 +751,26 @@ namespace RevitDataValidator
             return s;
         }
 
-        public static Parameter GetParameterFromElementOrHostOrType(Element e, string paramName)
+        private static Parameter GetParameterFromElementOrHostOrType(Element e, string paramName)
         {
-            var p = Utils.GetParameter(e, paramName);
+            var p = GetParameter(e, paramName);
             if (p != null)
                 return p;
             var elementType = e.Document.GetElement(e.GetTypeId());
             if (elementType == null)
                 return null;
-            p = Utils.GetParameter(elementType, paramName);
+            p = GetParameter(elementType, paramName);
             if (p != null)
                 return p;
             if (e is FamilyInstance fi)
             {
-                p = Utils.GetParameter(fi.Host, paramName);
+                p = GetParameter(fi.Host, paramName);
                 if (p != null)
                     return p;
                 if (fi.Host != null)
                 {
                     var hostType = e.Document.GetElement(fi.Host.GetTypeId());
-                    p = Utils.GetParameter(hostType, paramName);
+                    p = GetParameter(hostType, paramName);
                     if (p != null)
                         return p;
                 }
@@ -793,9 +793,9 @@ namespace RevitDataValidator
 
         public static List<ParameterRule> GetApplicableParameterRules()
         {
-            return Utils.allParameterRules.Where(rule => rule.RevitFileNames == null ||
-                       rule.RevitFileNames.FirstOrDefault() == Utils.ALL ||
-                       rule.RevitFileNames.Contains(Utils.GetFileName())).ToList();
+            return allParameterRules.Where(rule => rule.RevitFileNames == null ||
+                       rule.RevitFileNames.FirstOrDefault() == ALL ||
+                       rule.RevitFileNames.Contains(GetFileName())).ToList();
         }
 
         public static Parameter GetParameter(Element e, string name)
@@ -809,7 +809,7 @@ namespace RevitDataValidator
                 if ((parameters.Count() > 1 && !internalDuplicates.Contains(parameters.First().Definition.Name)) ||
                     (parameters.Count() > 2 && internalDuplicates.Contains(parameters.First().Definition.Name)))
                 {
-                    Utils.Log($"{GetElementInfo(e)} has multiple '{name}' parameters", LogLevel.Warn);
+                    Log($"{GetElementInfo(e)} has multiple '{name}' parameters", LogLevel.Warn);
                 }
                 return parameters.First();
             }
@@ -839,7 +839,7 @@ namespace RevitDataValidator
             {
                 ret += fi.Symbol.Family.Name + ":";
             }
-            ret += $"{e.Name}:{Utils.GetElementIdValue(e.Id)}";
+            ret += $"{e.Name}:{GetElementIdValue(e.Id)}";
             return ret;
         }
 
@@ -908,7 +908,7 @@ namespace RevitDataValidator
 
         public static List<BuiltInCategory> GetBuiltInCats(Rule rule)
         {
-            if (rule.Categories.Count == 1 && rule.Categories[0] == Utils.ALL)
+            if (rule.Categories.Count == 1 && rule.Categories[0] == ALL)
             {
                 return catMap.Values.ToList();
             }
