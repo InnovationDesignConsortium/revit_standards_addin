@@ -12,6 +12,8 @@
     <ROW Property="ALLUSERS" Value="1" MultiBuildValue="DefaultBuild:2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="boostyourbim@gmail.com"/>
+    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="LIMITUI" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:7"/>
     <ROW Property="Manufacturer" Value="Boost Your BIM"/>
     <ROW Property="ProductCode" Value="1033:{91B2E8DC-4052-4AE2-95F1-C04AC1EA5C89} " Type="16"/>
@@ -35,8 +37,7 @@
     <ROW Directory="AppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="AppDat~1|AppDataFolder" IsPseudoRoot="1"/>
     <ROW Directory="BoostYourBIMTerrificTools_6_Dir" Directory_Parent="__7_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
     <ROW Directory="BoostYourBIMTerrificTools_7_Dir" Directory_Parent="__8_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
-    <ROW Directory="CommonAppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="Common~1|CommonAppDataFolder" IsPseudoRoot="1"/>
-    <ROW Directory="NewFolder_Dir" Directory_Parent="CommonAppDataFolder" DefaultDir="Autode~1|Autodesk"/>
+    <ROW Directory="NewFolder_Dir" Directory_Parent="APPDIR" DefaultDir="Autodesk"/>
     <ROW Directory="RevitDataValidator_1_Dir" Directory_Parent="__Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
     <ROW Directory="RevitDataValidator_Dir" Directory_Parent="Addins_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
     <ROW Directory="Rules_Dir" Directory_Parent="RevitDataValidator_Dir" DefaultDir="Rules"/>
@@ -47,7 +48,7 @@
     <ROW Directory="enums_1_Dir" Directory_Parent="BoostYourBIMTerrificTools_7_Dir" DefaultDir="enums"/>
     <ROW Directory="enums_2_Dir" Directory_Parent="RevitDataValidator_1_Dir" DefaultDir="enums"/>
     <ROW Directory="enums_Dir" Directory_Parent="BoostYourBIMTerrificTools_6_Dir" DefaultDir="enums"/>
-    <ROW Directory="revit_Dir" Directory_Parent="NewFolder_Dir" DefaultDir="revit"/>
+    <ROW Directory="revit_Dir" Directory_Parent="NewFolder_Dir" DefaultDir="Revit"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{4B15B635-68F0-410D-9663-1436D0807A13}" Directory_="APPDIR" Attributes="0"/>
@@ -2028,10 +2029,9 @@
     <ROW Action="AI_PRESERVE_INSTALL_TYPE" Type="65" Source="aicustact.dll" Target="PreserveInstallType"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
-    <ROW Action="AI_SETMIXINSTLOCATION" Type="1" Source="aicustact.dll" Target="MixedAllUsersInstallLocation"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AppDataFolder]\Autodesk\revit\Addins\2014\"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AppDataFolder]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
   </COMPONENT>
@@ -2092,17 +2092,15 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
-    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="748"/>
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="AI_SETMIXINSTLOCATION" Sequence="748"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
-    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="748"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
-    <ROW Action="AI_SETMIXINSTLOCATION" Sequence="748"/>
     <ROW Action="AI_DpiContentScale" Sequence="52"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
     <ROW Action="AI_PRESERVE_INSTALL_TYPE" Sequence="199"/>
