@@ -12,21 +12,21 @@ jobs:
         uses: NuGet/setup-nuget@v1.0.5
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.1
+      - name: Restore Packages
+        run: nuget restore RevitDataValidator.sln
         env:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
-      - name: Restore Packages
-        run: nuget restore RevitDataValidator.sln
       - name: Build solution
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
+      - name: Restore Packages
+        run: nuget restore RevitDataValidator.sln
         env:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2024
-      - name: Restore Packages
-        run: nuget restore RevitDataValidator.sln
       - name: Build solution
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2024
-        env:
-          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2025
       - name: Restore Packages
         run: nuget restore RevitDataValidator.sln
+        env:
+          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2025
       - name: Build solution
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2025
