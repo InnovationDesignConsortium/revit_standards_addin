@@ -1,6 +1,7 @@
 name: BuildIt
 on: [workflow_dispatch, push]
-
+env:
+  NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
 jobs:
   build:
     runs-on: windows-2019
