@@ -1,0 +1,19 @@
+name: BuildIt
+on: [workflow_dispatch, push]
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Restore Packages
+        run: nuget restore RevitDataValidator.sln
+      - name: Build solution
+        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
