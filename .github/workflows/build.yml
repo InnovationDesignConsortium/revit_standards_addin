@@ -17,4 +17,4 @@ jobs:
       - name: Restore Packages
         run: nuget restore RevitDataValidator.sln
       - name: Build solution
-        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023:PostBuildEvent=
+        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
