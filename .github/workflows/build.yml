@@ -1,8 +1,8 @@
-name: Build 2023 2024
+name: Build 2023 2024 2025
 on: [workflow_dispatch, push]
 jobs:
-  build_2023_2024:
-    runs-on: windows-2019
+  build:
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -12,41 +12,29 @@ jobs:
         uses: NuGet/setup-nuget@v1.0.5
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.1
-      - name: Restore Packages
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '4.8'
+      - name: Restore Packages 2023
         run: nuget restore RevitDataValidator.sln
         env:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
-      - name: Build solution
+      - name: Build 2023
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
-      - name: Restore Packages
+      - name: Restore Packages 2024
         run: nuget restore RevitDataValidator.sln
         env:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2024
-      - name: Build solution
+      - name: Build 2024
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2024
-  build_2025:
-      runs-on: windows-2022
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Setup MSBuild
-          uses: microsoft/setup-msbuild@v1
-        - name: Setup NuGet
-          uses: NuGet/setup-nuget@v1.0.5
-        - name: setup-msbuild
-          uses: microsoft/setup-msbuild@v1.1
-        - name: Restore Packages
-          run: nuget restore RevitDataValidator.sln
-          env:
-            NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2025
-        - name: Build solution
-          run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2025    
-  advinst-aip-build-demo:
-    runs-on: windows-latest
-    name: Build Aip Demo
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
+      - name: Restore Packages
+        run: nuget restore RevitDataValidator.sln
+        env:
+          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2025
+      - name: Build solution
+        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2025    
       - name: Build AIP
         uses: caphyon/advinst-github-action@v1.0
         with:
