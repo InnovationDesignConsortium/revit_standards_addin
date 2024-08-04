@@ -13,10 +13,6 @@ jobs:
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.1
       - uses: actions/checkout@v4
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '4.8.x'
       - name: Restore Packages 2023
         run: nuget restore RevitDataValidator.sln
         env:
