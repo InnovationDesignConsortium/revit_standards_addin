@@ -1,0 +1,12 @@
+on: [workflow_dispatch]
+
+jobs:
+  hello_world_job:
+    runs-on: windows-latest
+    name: Get Version Number
+    steps:
+      - name: Get Version Number
+        id: get_version_number
+        uses: harrymattison/GetAssemblyVersion@v1.0
+      - name: Get the output time
+        run: echo "${{ steps.get_version_number.outputs.time }}"
