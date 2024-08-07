@@ -46,7 +46,7 @@ jobs:
           advinst-enable-automation: 'true'
           aip-path: ${{ github.workspace }}\RevitDataValidator.aip
           aip-build-name: DefaultBuild
-          aip-package-name: setup.msi
+          aip-package-name: RevitDataValidator.msi
           aip-output-dir:  ${{ github.workspace }}\setup
           aip-commands: |
             SetProperty FOO="foo"
@@ -55,16 +55,22 @@ jobs:
         uses: actions/upload-artifact@v4.3.6
         with:
           name: setup
-          path: ${{ github.workspace }}\setup\setup.msi
-      - name: Bump version and push tag
+          path: ${{ github.workspace }}\setup\RevitDataValidator.msi
+      - name: Get version from csproj
+        uses: kzrnm/get-net-sdk-project-versions-action@v2
+        id: get-version
+        with:
+          proj-path: RevitDataValidator/RevitDataValidator.csproj          
+      - name: Push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{steps.get-version.outputs.assembly-version}}
       - name: Create Release
         uses: ncipollo/release-action@v1.14.0
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          artifacts: ${{ github.workspace }}\setup\setup.msi
+          artifacts: ${{ github.workspace }}\setup\RevitDataValidator.msi
