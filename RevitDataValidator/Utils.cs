@@ -10,6 +10,7 @@ using NLog.Config;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -868,6 +869,10 @@ namespace RevitDataValidator
             {
                 doc = Utils.doc;
             }
+            if (doc == null)
+            {
+                return "";
+            }
 
             if (doc.IsWorkshared)
             {
@@ -877,6 +882,19 @@ namespace RevitDataValidator
             {
                 return doc.PathName;
             }
+        }
+
+        public static Process StartShell(string toolPath, bool useShell, string arguments = "")
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = toolPath,
+                Arguments = arguments,
+                CreateNoWindow = true,
+                UseShellExecute = useShell
+            };
+
+            return Process.Start(startInfo);
         }
 
         public static void Log(string message, LogLevel level)

@@ -1,13 +1,13 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
-using Autodesk.Windows;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -89,9 +89,26 @@ namespace RevitDataValidator
             cboRuleFile = panel.AddItem(new ComboBoxData(Utils.cboName)) as ComboBox;
             cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
+            Update.CheckForUpdates();
         }
 
-        private void ControlledApplication_DocumentClosed(object sender, Autodesk.Revit.DB.Events.DocumentClosedEventArgs e)
+        public override void OnShutdown()
+        {
+            if (Update.MsiToRunOnExit != null)
+            {
+                Utils.Log($"Installing new version {Update.MsiToRunOnExit}", Utils.LogLevel.Trace);
+                try
+                {
+                    Utils.StartShell(Update.MsiToRunOnExit, true);
+                }
+                catch (Exception ex)
+                {
+                    Utils.LogException("Could not install new version", ex);
+                }
+            }
+        }
+
+            private void ControlledApplication_DocumentClosed(object sender, Autodesk.Revit.DB.Events.DocumentClosedEventArgs e)
         {
             Utils.doc = null;
         }
@@ -110,7 +127,7 @@ namespace RevitDataValidator
                 {
                     sw.Write(string.Join(Environment.NewLine, Utils.errors));
                 }
-                Process.Start(errorfile);
+                Utils.StartShell(errorfile, true);
                 Utils.errors.Clear();
             }
         }
