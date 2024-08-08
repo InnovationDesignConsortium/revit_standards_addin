@@ -56,16 +56,16 @@ jobs:
         with:
           name: setup
           path: ${{ github.workspace }}\setup\RevitDataValidator.msi
-      - name: Read csproj
-        id: csproj
+      - name: Read AssemblyInfo.cs
+        id: assemblyinfo
         uses: jaywcjlove/github-action-read-file@main
         with:
-          path: RevitDataValidator/RevitDataValidator.csproj
-      - name: Get version from csproj
+          path: RevitDataValidator/Properties/AssemblyInfo.cs
+      - name: Get version
         id: get_version_number
         uses: actions-ecosystem/action-regex-match@v2
         with:
-          text: ${{ steps.csproj.outputs.content }}
+          text: ${{ steps.assemblyinfo.outputs.content }}
           regex: '^/label\s*(.*?)\s*$'
       - name: Push tag
         id: tag_version
