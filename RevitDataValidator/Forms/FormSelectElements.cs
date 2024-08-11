@@ -14,7 +14,7 @@ namespace RevitDataValidator.Forms
             InitializeComponent();
             listBox1.DataSource = stringInts;
             listBox1.DisplayMember = "String";
-            listBox1.ValueMember = "Int";
+            listBox1.ValueMember = "Long";
             if (listBox1.Items.Count > 0)
                 listBox1.SelectedIndex = 0;
         }
@@ -24,7 +24,7 @@ namespace RevitDataValidator.Forms
             List<ElementId> ids = new List<ElementId>();
             foreach (var obj in listBox1.SelectedItems.Cast<StringInt>())
             {
-                ids.Add(new ElementId(obj.Int));
+                ids.Add(ElementIdUtils.New(obj.Long));
             }
             return ids;
         }

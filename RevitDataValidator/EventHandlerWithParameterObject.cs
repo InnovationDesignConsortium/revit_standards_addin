@@ -72,7 +72,7 @@ namespace RevitDataValidator
                                 else
                                 {
                                     if (args.Value is StringInt si &&
-                                        int.TryParse(si.Int.ToString(), out int i))
+                                        int.TryParse(si.Long.ToString(), out int i))
                                     {
                                         parameter.Set(i);
                                     }
@@ -91,9 +91,9 @@ namespace RevitDataValidator
                             }
                             else if (parameter.StorageType == StorageType.ElementId &&
                                 args.Value is StringInt si &&
-                                int.TryParse(si.Int.ToString(), out int i))
+                                int.TryParse(si.Long.ToString(), out int i))
                             {
-                                var elementid = Utils.CreateElementId(i);
+                                var elementid =  ElementIdUtils.New(i);
                                 try
                                 {
                                     bool didSet = parameter.Set(elementid);

@@ -17,14 +17,6 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 
-#if REVIT_2020
-using ElementIdType = System.Int32;
-#else
-
-using ElementIdType = System.Int64;
-
-#endif
-
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
 #endif
@@ -178,7 +170,7 @@ namespace RevitDataValidator
                     element.Category == null ||
                     rule.Categories == null ||
                     (rule.Categories[0] != ALL &&
-                    !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                    !GetBuiltInCats(rule).Select(q => ElementIdExtension.GetValue(BuiltInCategoryExtension.GetElementId(q))).Contains(ElementIdExtension.GetValue(element.Category.Id))))
                 {
                     continue;
                 }
@@ -257,7 +249,7 @@ namespace RevitDataValidator
                 (rule.Categories == null && rule.ElementClasses == null) ||
                 (rule.ElementClasses?.Any(q => q.EndsWith(element.GetType().Name)) == false) ||
                 (rule.Categories != null && rule.Categories.FirstOrDefault() != ALL &&
-                !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                !GetBuiltInCats(rule).Select(q => ElementIdExtension.GetValue(BuiltInCategoryExtension.GetElementId(q))).Contains(ElementIdExtension.GetValue(element.Category.Id))))
             {
                 return null;
             }
@@ -456,7 +448,7 @@ namespace RevitDataValidator
             }
             else if (rule.PreventDuplicates != null)
             {
-                var bic = (BuiltInCategory)GetElementIdValue(element.Category.Id);
+                var bic = (BuiltInCategory)(ElementIdExtension.GetValue(element.Category.Id));
                 var others = new FilteredElementCollector(doc)
                     .OfCategory(bic)
                     .WhereElementIsNotElementType()
@@ -843,7 +835,7 @@ namespace RevitDataValidator
             {
                 ret += fi.Symbol.Family.Name + ":";
             }
-            ret += $"{e.Name}:{GetElementIdValue(e.Id)}";
+            ret += $"{e.Name}:{ElementIdExtension.GetValue(e.Id)}";
             return ret;
         }
 
@@ -963,22 +955,6 @@ namespace RevitDataValidator
             return null;
         }
 
-        public static ElementId CreateElementId(ElementIdType idValue)
-        {
-#if R2022 || R2023
-    return new ElementId((int)idValue);
-#else
-            return new ElementId(idValue);
-#endif
-        }
-
-        public static ElementIdType GetElementIdValue(ElementId elementId)
-        {
-#if R2022 || R2023
-        return elementId.IntegerValue;
-#else
-            return elementId.Value;
-#endif
-        }
+      
     }
 }

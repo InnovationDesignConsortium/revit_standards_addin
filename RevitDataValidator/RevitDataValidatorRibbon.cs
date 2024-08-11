@@ -332,6 +332,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
+                Utils.LogException("GetGitData", ex);
                 return null;
             }
         }

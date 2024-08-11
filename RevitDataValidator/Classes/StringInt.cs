@@ -2,16 +2,16 @@
 
 namespace RevitDataValidator
 {
-    [DebuggerDisplay("{String} {Int}")]
+    [DebuggerDisplay("{String} {Long}")]
     public class StringInt
     {
-        public StringInt(string s, int i)
+        public StringInt(string s, long l)
         {
             String = s;
-            Int = i;
+            Long = l;
         }
 
         public string String { get; set; }
-        public int Int { get; set; }
+        public long Long { get; set; }
     }
 }

@@ -202,7 +202,7 @@ namespace RevitDataValidator
                         .OrderBy(q => q.Category.Name)
                         .ThenBy(q => q.FamilyName)
                         .ThenBy(q => q.Name)
-                        .Select(q => new StringInt(q.Family.FamilyCategory.Name + "-" + q.FamilyName + "-" + q.Name, q.Id.IntegerValue)).ToList();
+                        .Select(q => new StringInt(q.Family.FamilyCategory.Name + "-" + q.FamilyName + "-" + q.Name, ElementIdExtension.GetValue(q.Id))).ToList();
 
                     using (FormSelectElements form = new FormSelectElements(elements))
                     {

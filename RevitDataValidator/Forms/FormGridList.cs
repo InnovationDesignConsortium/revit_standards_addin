@@ -48,7 +48,7 @@ namespace RevitDataValidator.Forms
                     var element = Utils.doc.GetElement(ruleFailure.ElementId);
                     dataRow["Category"] = element.Category.Name;
                     dataRow["Name"] = element.Name;
-                    dataRow["Id"] = Utils.GetElementIdValue(element.Id).ToString();
+                    dataRow["Id"] = ElementIdExtension.GetValue(element.Id).ToString();
                     dataRow["Message"] = ruleFailure.Rule.UserMessage;
                     dataRow["RuleName"] = ruleFailure.Rule.RuleName;
                     dataRow["Parameter"] = ruleFailure.Rule.ParameterName;
@@ -252,7 +252,7 @@ namespace RevitDataValidator.Forms
             foreach (var row in dataGridView1.Rows.Cast<DataGridViewRow>())
             {
                 var idValue = row.Cells["Id"].Value;
-                var id = Utils.CreateElementId(int.Parse(idValue.ToString()));
+                var id = ElementIdUtils.New(int.Parse(idValue.ToString()));
                 var element = Utils.doc.GetElement(id);
                 var cells = row.Cells;
                 var ruleName = cells["RuleName"].Value?.ToString();
@@ -303,7 +303,7 @@ namespace RevitDataValidator.Forms
                     MainInstruction = "Errors need to be resolved",
                     MainContent = string.Join(
                         Environment.NewLine,
-                        failures.Select(q => $"{Utils.GetElementIdValue(q.ElementId)} - {q.Rule.ParameterName} - {q.Rule.UserMessage}"))
+                        failures.Select(q => $"{ElementIdExtension.GetValue(q.ElementId)} - {q.Rule.ParameterName} - {q.Rule.UserMessage}"))
                 };
                 td.Show();
             }
@@ -322,13 +322,13 @@ namespace RevitDataValidator.Forms
 
             var row = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex];
             var cell = row.Cells["Id"];
-            var id = Utils.CreateElementId(int.Parse(cell.Value.ToString()));
+            var id = ElementIdUtils.New(int.Parse(cell.Value.ToString()));
             var idList = new List<ElementId> { id };
 
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 var ids = dataGridView1.SelectedRows.Cast<DataGridViewRow>()
-                    .Select(q => Utils.CreateElementId(int.Parse(q.Cells["Id"].Value.ToString())))
+                    .Select(q => ElementIdUtils.New(int.Parse(q.Cells["Id"].Value.ToString())))
                     .ToList();
                 idList = ids;
             }
