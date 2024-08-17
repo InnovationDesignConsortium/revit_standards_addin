@@ -87,6 +87,7 @@ namespace RevitDataValidator
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
             cboRuleFile = panel.AddItem(new ComboBoxData(Utils.cboName)) as ComboBox;
+            cboRuleFile.Visible = false;
             cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
             Update.CheckForUpdates();
