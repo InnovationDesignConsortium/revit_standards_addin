@@ -146,11 +146,11 @@ namespace RevitDataValidator
         private void GetRulesAndParameterPacks()
         {
             GetParameterPacks();
-            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
-                .OrderBy(q => q).ToList();
+            var ruleFiles = GetGitRuleFiles();
             if (ruleFiles.Count == 0)
             {
-                ruleFiles = GetGitRuleFiles();
+                ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
+                .OrderBy(q => q).ToList();
             }
 
             ClearComboBoxItems();
