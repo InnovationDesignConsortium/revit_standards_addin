@@ -179,46 +179,33 @@ namespace RevitDataValidator
                     {
                         ruleData = GetGitData(null, ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Update.githubToken);
                         ruleFileInfo.Url = ruleData.HtmlUrl;
+                        ruleFileContents = ruleData.Content;
                     }
 
                     if (ruleData == null)
                     {
-                        var folder = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME);
-                        if (Directory.Exists(folder))
+                        var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
+                        if (ruleFile != null)
                         {
-                            var ruleFilesOnDisk = Directory.GetFiles(folder);
-                            if (ruleFilesOnDisk != null)
+                            using (var reader = new StreamReader(ruleFile))
                             {
-                                var ruleFile = ruleFilesOnDisk.FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
-                                if (ruleFile != null)
-                                {
-                                    using (var reader = new StreamReader(ruleFile))
-                                    {
-                                        ruleFileInfo.Filename = ruleFile;
-                                        ruleFileContents = reader.ReadToEnd();
-                                    }
-                                }
+                                ruleFileContents = reader.ReadToEnd();
                             }
+                            ruleFileInfo.Filename = ruleFile;
                         }
                     }
 
-                    if (ruleData == null)
+                    if (ruleFileContents == null)
                     {
                         Utils.ruleDatas.Add(newFilename, new RuleFileInfo());
                         Utils.propertiesPanel.Refresh();
+                        return;
                     }
                     else
                     {
-                        ruleFileContents = ruleData.Content;
                         ruleFileInfo.Contents = ruleFileContents;
                         Utils.ruleDatas.Add(newFilename, ruleFileInfo);
                     }
-                }
-
-                if (ruleFileContents == null)
-                {
-                    Utils.propertiesPanel.Refresh();
-                    return;
                 }
 
                 var parameterRules = new List<ParameterRule>();
@@ -269,27 +256,89 @@ namespace RevitDataValidator
 
                 if (parameterRules != null)
                 {
-                    foreach (var parameterRule in parameterRules.Where(q =>
-                        q.RevitFileNames == null ||
-                        (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())))))
+                    foreach (var parameterRule in parameterRules)
                     {
-                        RegisterParameterRule(parameterRule);
-                        Utils.allParameterRules.Add(parameterRule);
+                        ParameterRule conflictingRule = null;
+
+                        foreach (var existingRule in Utils.allParameterRules)
+                        {
+                            if (DoParameterRulesConflict(parameterRule, existingRule))
+                            {
+                                conflictingRule = existingRule;
+                                break;
+                            }
+                        }
+                        if (conflictingRule == null)
+                        {
+                            RegisterParameterRule(parameterRule);
+                            Utils.allParameterRules.Add(parameterRule);
+                        }
+                        else
+                        {
+                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                        }
                     }
                 }
                 if (worksetRules != null)
                 {
-                    foreach (var worksetRule in worksetRules.Where(q =>
-                        q.RevitFileNames == null ||
-                        (Utils.doc != null && q.RevitFileNames?.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())) == true)))
+                    foreach (var worksetRule in worksetRules)
                     {
-                        RegisterWorksetRule(worksetRule);
-                        Utils.allWorksetRules.Add(worksetRule);
+                        WorksetRule conflictingRule = null;
+
+                        foreach (var existingRule in Utils.allWorksetRules)
+                        {
+                            if (DoWorksetRulesConflict(worksetRule, existingRule))
+                            {
+                                conflictingRule = existingRule;
+                                break;
+                            }
+                        }
+
+                        if (conflictingRule == null)
+                        {
+                            RegisterWorksetRule(worksetRule);
+                            Utils.allWorksetRules.Add(worksetRule);
+                        }
+                        else
+                        {
+                            Utils.Log($"Ignoring workset rule '{worksetRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                        }
                     }
                 }
                 Utils.propertiesPanel.Refresh();
                 SetupPane();
             }
+        }
+
+        private static bool DoParameterRulesConflict(ParameterRule r1, ParameterRule r2)
+        {
+            if (r1.ParameterName != r2.ParameterName)
+            {
+                return false;
+            }
+            if ((r1.Categories != null && r1.Categories.Intersect(r2.Categories).Any()) ||
+                (r1.ElementClasses != null && r1.ElementClasses.Intersect(r2.ElementClasses).Any()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool DoWorksetRulesConflict(WorksetRule r1, WorksetRule other)
+        {
+            if (r1.Workset == other.Workset)
+            {
+                return false;
+            }
+            if (!r1.Categories.Intersect(other.Categories).Any())
+            {
+                return false;
+            }
+            if (r1.Parameters.Intersect(other.Parameters).Count() == r1.Parameters.Count)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static string GetGitParameterPacks()

@@ -17,7 +17,6 @@ namespace RevitDataValidator
 
     public interface Rule
     {
-        List<string> RevitFileNames { get; set; }
         List<string> Categories { get; set; }
         Guid Guid { get; set; }
     }
@@ -25,8 +24,6 @@ namespace RevitDataValidator
     [DebuggerDisplay("{Categories} {ParameterName}")]
     public partial class ParameterRule : Rule
     {
-        [JsonProperty("Revit File Names")]
-        public List<string> RevitFileNames { get; set; }
 
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }
@@ -96,7 +93,7 @@ namespace RevitDataValidator
         }
     }
 
-    public class ParameterData
+    public class ParameterData : IEquatable<ParameterData>
     {
         public string Name { get; set; }
         public string Value { get; set; }
@@ -105,12 +102,42 @@ namespace RevitDataValidator
         {
             return Name + " = " + Value;
         }
+
+        public override bool Equals(object obj) => this.Equals(obj as ParameterData);
+
+        public bool Equals(ParameterData other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (Name == other.Name && Value == other.Value)
+            {
+                return true;
+            }
+            else
+            { 
+                return false; 
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            hash = hash * 23 + Name.GetHashCode();
+            hash = hash * 23 + Value.GetHashCode();
+            return hash;
+        }
     }
 
     public class WorksetRule : Rule
     {
-        [JsonProperty("Revit File Names")]
-        public List<string> RevitFileNames { get; set; }
 
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }

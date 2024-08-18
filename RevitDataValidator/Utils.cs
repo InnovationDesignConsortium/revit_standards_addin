@@ -192,13 +192,6 @@ namespace RevitDataValidator
 
         public static void RunWorksetRule(WorksetRule rule, List<ElementId> ids)
         {
-            if (rule.RevitFileNames != null &&
-                rule.RevitFileNames.FirstOrDefault() != ALL &&
-                rule.RevitFileNames.Contains(GetFileName()))
-            {
-                return;
-            }
-
             var workset = new FilteredWorksetCollector(doc).FirstOrDefault(q => q.Name == rule.Workset);
             if (workset == null)
             {
@@ -562,7 +555,7 @@ namespace RevitDataValidator
         {
             var ret = new List<RuleFailure>();
             parametersToSet = new List<ParameterString>();
-            foreach (var rule in GetApplicableParameterRules())
+            foreach (var rule in allParameterRules)
             {
                 var ruleFailure = RunParameterRule(
                     rule,
@@ -831,13 +824,6 @@ namespace RevitDataValidator
             return string.Concat(s.Split(illegal));
         }
 
-        public static List<ParameterRule> GetApplicableParameterRules()
-        {
-            return allParameterRules.Where(rule => rule.RevitFileNames == null ||
-                       rule.RevitFileNames.FirstOrDefault() == ALL ||
-                       rule.RevitFileNames.Contains(GetFileName())).ToList();
-        }
-
         public static Parameter GetParameter(Element e, string name)
         {
             if (e == null) return null;
@@ -916,7 +902,14 @@ namespace RevitDataValidator
             }
             else
             {
-                return doc.PathName;
+                if (doc.PathName == string.Empty)
+                {
+                    return Guid.NewGuid().ToString();
+                }
+                else
+                {
+                    return doc.PathName;
+                }
             }
         }
 
@@ -943,6 +936,7 @@ namespace RevitDataValidator
             }
             else if (level == LogLevel.Error)
             {
+                Autodesk.Revit.UI.TaskDialog.Show("Error", message);
                 Logger.Error(message);
             }
             else if (level == LogLevel.Warn)
