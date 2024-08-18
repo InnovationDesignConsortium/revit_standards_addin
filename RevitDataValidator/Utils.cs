@@ -13,9 +13,15 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using RevitDataValidator.Classes;
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -52,12 +58,10 @@ namespace RevitDataValidator
         private const string FIELD_EXCEPTION = "Exception";
         private const string FIELD_RULENAME = "RuleName";
         private const string FIELD_PARAMETERNAME = "ParameterName";
-        public static string GitRuleFileUrl = "";
         public const string panelName = "Data Validator";
-        public const string cboName = "cboRuleFile";
         private const string TAB_NAME = "Add-Ins";
         public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
-        public static Dictionary<string, string> activeRuleFiles = new Dictionary<string, string>();
+        public static Dictionary<string, RuleFileInfo> ruleDatas = new Dictionary<string, RuleFileInfo>();
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -67,6 +71,46 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
+
+        public static Stream GetPrivateRepoStream(string url, string githubToken)
+        {
+            Stream stream = null;
+#if PRE_NET_8
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.UserAgent = "Revit Standards Addin";
+            request.Accept = "application/vnd.github.v3.raw";
+            request.Headers.Add("Authorization", $"token {githubToken}");
+            var response = request.GetResponse();
+            stream = response.GetResponseStream();
+#else
+                var request = CreateRequest(url, githubToken);
+                stream = request.Content.ReadAsStream();
+#endif
+            return stream;
+        }
+
+
+        private static HttpResponseMessage CreateRequest(string url, string token)
+        {
+            try
+            {
+                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    requestMessage.Headers.UserAgent.ParseAdd("Revit Standards Addin");
+                    requestMessage.Headers.Accept.ParseAdd("application/vnd.github.v3.raw");
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", token);
+                    var httpClient = new HttpClient();
+                    var send = httpClient.Send(requestMessage);
+                    return send;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Could not create request", ex);
+                return null;
+            }
+        }
 
         public static Result SetReasonAllowed(Element e, string ruleName, string parameterName, string exceptionMessage)
         {
@@ -944,17 +988,6 @@ namespace RevitDataValidator
                 return builtInCats;
             }
         }
-        public static RibbonList GetAdwindowsComboBox()
-        {
-            // https://forums.autodesk.com/t5/revit-api-forum/ribbon-combobox-clear-change-data/m-p/5068342#M6501
-            var tabRibbon = ComponentManager.Ribbon.FindTab(TAB_NAME);
-            if (tabRibbon.FindItem($"CustomCtrl_%CustomCtrl_%{TAB_NAME}%{panelName}%{cboName}") is RibbonList comboList)
-            {
-                return comboList;
-            }
-            return null;
-        }
-
       
     }
 }

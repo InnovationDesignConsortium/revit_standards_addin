@@ -3,7 +3,6 @@ using Autodesk.Revit.UI;
 using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -313,28 +312,22 @@ namespace RevitDataValidator
 
         private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
         {
+            var filename = Utils.GetFileName();
+            var ruleFileInfo = Utils.ruleDatas;
             string fileToOpen = null;
-            var ruleFile = Properties.Settings.Default.ActiveRuleFile;
-            if (string.IsNullOrEmpty(ruleFile))
+            if (ruleFileInfo.TryGetValue(filename, out var ruleFile))
             {
-                return;
-            }
-            if (File.Exists(ruleFile))
-            {
-                fileToOpen = ruleFile;
-            }
-            else
-            {
-                var cbo = Utils.GetAdwindowsComboBox();
-                var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
-                var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
-                if (fileFromDisk != null)
+                if (ruleFile == null)
                 {
-                    fileToOpen = fileFromDisk;
+                    return;
                 }
-                else if (!string.IsNullOrEmpty(Utils.GitRuleFileUrl))
+                if (!string.IsNullOrEmpty(ruleFile.Url))
                 {
-                    fileToOpen = Utils.GitRuleFileUrl;
+                    fileToOpen = ruleFile.Url;
+                }
+                else if (!string.IsNullOrEmpty(ruleFile.Filename))
+                {
+                    fileToOpen = ruleFile.Filename;
                 }
             }
             if (fileToOpen != null)

@@ -15,7 +15,7 @@ namespace RevitDataValidator
     public static class Update
     {
         public static string MsiToRunOnExit = null;
-        private static readonly string githubToken = "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";
+        public static readonly string githubToken = "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";
         public const string OWNER = "InnovationDesignConsortium";
         private const string REPO = "revit_standards_addin";
 
@@ -24,19 +24,7 @@ namespace RevitDataValidator
             var url = $"https://api.github.com/repos/{OWNER}/{REPO}/releases";
             try
             {
-                Stream stream = null;
-#if PRE_NET_8
-                var request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "GET";
-                request.UserAgent = "Revit Standards Addin";
-                request.Accept = "application/vnd.github.v3.raw";
-                request.Headers.Add("Authorization", $"token {githubToken}");
-                var response = request.GetResponse();
-                stream = response.GetResponseStream();
-#else
-                var request = CreateRequest(url).Result;
-                stream = request.Content.ReadAsStream();
-#endif
+                var stream = Utils.GetPrivateRepoStream(url, githubToken);
                 using (var reader = new StreamReader(stream))
                 {
                     var releasesJson = reader.ReadToEnd();
@@ -82,27 +70,6 @@ namespace RevitDataValidator
                 Utils.LogException("Exception checking for updates:", ex);
             }
             return;
-        }
-
-        private static async Task<HttpResponseMessage> CreateRequest(string url)
-        {
-            try
-            {
-                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
-                {
-                    requestMessage.Headers.UserAgent.ParseAdd("Revit Standards Addin");
-                    requestMessage.Headers.Accept.ParseAdd("application/vnd.github.v3.raw");
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", githubToken);
-                    var httpClient = new HttpClient();
-                    var send = await httpClient.SendAsync(requestMessage);
-                    return send;
-                }
-            }
-            catch (Exception ex)
-            {
-                Utils.LogException("Could not create request", ex);
-                return null;
-            }
         }
 
         private static void DownloadAsset(string tag, Asset asset)
