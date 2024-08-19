@@ -46,8 +46,8 @@ namespace RevitDataValidator
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
-            GIT_OWNER = "InnovationDesignConsortium";
-            GIT_REPO = "PrivateRepoTest";
+            GIT_OWNER = Environment.GetEnvironmentVariable("RevitStandardsAddinGitOwner");
+            GIT_REPO = Environment.GetEnvironmentVariable("RevitStandardsAddinGitRepo");
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
