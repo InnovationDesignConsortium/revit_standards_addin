@@ -180,7 +180,7 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        var data = GetGitData(null, ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Update.githubToken);
+                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Update.githubToken);
                         if (data == null)
                         {
                             Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
@@ -218,7 +218,7 @@ namespace RevitDataValidator
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
                     {
-                        ruleData = GetGitData(null, ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Update.githubToken);
+                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Update.githubToken);
                         ruleFileInfo.Url = ruleData.HtmlUrl;
                         ruleFileContents = ruleData.Content;
                     }
@@ -387,7 +387,7 @@ namespace RevitDataValidator
             var projectName = Utils.GetFileName();
 
             var path = "Standards/RevitStandardsPanel/Config.json";
-            var data = GetGitData(null, ContentType.File, path, Update.githubToken);
+            var data = GetGitData(ContentType.File, path, Update.githubToken);
 
             if (data == null)
             {
@@ -424,7 +424,7 @@ namespace RevitDataValidator
             return null;
         }
 
-        private static RepositoryContent GetGitData(string projectName, ContentType contentType, string path, string privateToken = null)
+        private static RepositoryContent GetGitData(ContentType contentType, string path, string privateToken = null)
         {
             GitHubClient client;
             if (privateToken == null)
@@ -461,11 +461,6 @@ namespace RevitDataValidator
                 {
                     Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
                     return null;
-                }
-
-                if (projectName != null)
-                {
-                    result = result.Where(q => q.Name == projectName);
                 }
                 return result.FirstOrDefault();
             }

@@ -72,40 +72,34 @@ namespace RevitDataValidator
         public static Stream GetPrivateRepoStream(string url, string githubToken)
         {
             Stream stream = null;
-#if PRE_NET_8
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "GET";
-            request.UserAgent = "Revit Standards Addin";
-            request.Accept = "application/vnd.github.v3.raw";
-            request.Headers.Add("Authorization", $"token {githubToken}");
-            var response = request.GetResponse();
-            stream = response.GetResponseStream();
-#else
-            var request = CreateRequest(url, githubToken);
-            stream = request.Content.ReadAsStream();
-#endif
-            return stream;
-        }
-
-        private static HttpResponseMessage CreateRequest(string url, string token)
-        {
             try
             {
+#if PRE_NET_8
+                var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.Method = "GET";
+                request.UserAgent = "Revit Standards Addin";
+                request.Accept = "application/vnd.github.v3.raw";
+                request.Headers.Add("Authorization", $"token {githubToken}");
+                var response = request.GetResponse();
+                stream = response.GetResponseStream();
+#else
+                HttpResponseMessage request;
                 using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
                 {
                     requestMessage.Headers.UserAgent.ParseAdd("Revit Standards Addin");
                     requestMessage.Headers.Accept.ParseAdd("application/vnd.github.v3.raw");
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", token);
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", githubToken);
                     var httpClient = new HttpClient();
-                    var send = httpClient.Send(requestMessage);
-                    return send;
+                    request = httpClient.Send(requestMessage);
                 }
+                stream = request.Content.ReadAsStream();
+#endif
             }
             catch (Exception ex)
             {
-                Utils.LogException("Could not create request", ex);
-                return null;
+                LogException("GetPrivateRepoStream", ex);
             }
+            return stream;
         }
 
         public static Result SetReasonAllowed(Element e, string ruleName, string parameterName, string exceptionMessage)
