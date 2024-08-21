@@ -1,7 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
-using Autodesk.Windows;
 using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
@@ -9,28 +8,27 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using ComboBox = Autodesk.Revit.UI.ComboBox;
+using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
 {
     internal class Ribbon : Nice3point.Revit.Toolkit.External.ExternalApplication
     {
+        private const string RULE_FILE_NAME = "rules.md";
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
-        private readonly string RULE_FILE_EXT = ".md";
-        private readonly string RULES = "Rules";
-        private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
-        private const string NONE = "<none>";
+        private readonly string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
-        private static ComboBox cboRuleFile;
+        private static string GIT_OWNER = "";
+        private static string GIT_REPO = "";
 
         public override void OnStartup()
         {
@@ -47,6 +45,9 @@ namespace RevitDataValidator
             Application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
+
+            GIT_OWNER = Environment.GetEnvironmentVariable("RevitStandardsAddinGitOwner", EnvironmentVariableTarget.Machine);
+            GIT_REPO = Environment.GetEnvironmentVariable("RevitStandardsAddinGitRepo", EnvironmentVariableTarget.Machine);
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -86,9 +87,24 @@ namespace RevitDataValidator
             Utils.dllPath = Path.GetDirectoryName(dll);
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
-            cboRuleFile = panel.AddItem(new ComboBoxData(Utils.cboName)) as ComboBox;
-            cboRuleFile.CurrentChanged += cboRuleFile_CurrentChanged;
             ShowErrors();
+            Update.CheckForUpdates();
+        }
+
+        public override void OnShutdown()
+        {
+            if (Update.MsiToRunOnExit != null)
+            {
+                Utils.Log($"Installing new version {Update.MsiToRunOnExit}", Utils.LogLevel.Trace);
+                try
+                {
+                    Utils.StartShell(Update.MsiToRunOnExit, true);
+                }
+                catch (Exception ex)
+                {
+                    Utils.LogException("Could not install new version", ex);
+                }
+            }
         }
 
         private void ControlledApplication_DocumentClosed(object sender, Autodesk.Revit.DB.Events.DocumentClosedEventArgs e)
@@ -110,7 +126,7 @@ namespace RevitDataValidator
                 {
                     sw.Write(string.Join(Environment.NewLine, Utils.errors));
                 }
-                Process.Start(errorfile);
+                Utils.StartShell(errorfile, true);
                 Utils.errors.Clear();
             }
         }
@@ -125,220 +141,339 @@ namespace RevitDataValidator
             Utils.dialogIdShowing = e.DialogId;
         }
 
-        private void GetRulesAndParameterPacks()
-        {
-            GetParameterPacks();
-            var ruleFiles = Directory.GetFiles(Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, RULES), "*" + RULE_FILE_EXT)
-                .OrderBy(q => q).ToList();
-            if (ruleFiles.Count == 0)
-            {
-                ruleFiles = GetGitRuleFiles();
-            }
-
-            ClearComboBoxItems();
-
-            if (ruleFiles?.Count > 0)
-            {
-                var wasDefaultRuleFileSet = false;
-                var cbo = Utils.GetAdwindowsComboBox();
-                foreach (string ruleFile in ruleFiles)
-                {
-                    AddComboBoxItem(ruleFile, Path.GetFileNameWithoutExtension(ruleFile));
-                    if (ruleFile == Properties.Settings.Default.ActiveRuleFile)
-                    {
-                        cbo.Current = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().FirstOrDefault(q => q.Text == ruleFile);
-                        wasDefaultRuleFileSet = true;
-                    }
-                }
-
-                if (!wasDefaultRuleFileSet)
-                {
-                    cbo.Current = cbo.Items[0];
-                    Properties.Settings.Default.ActiveRuleFile = ruleFiles[0];
-                    Properties.Settings.Default.Save();
-                }
-
-                AddComboBoxItem(NONE, NONE);
-
-                RegisterRules();
-            }
-            Utils.propertiesPanel.Refresh();
-        }
-
-        private static void ClearComboBoxItems()
-        {
-            var combobox = Utils.GetAdwindowsComboBox();
-            if (combobox == null)
-                return;
-            combobox.Items.Clear();
-        }
-
-        private static void AddComboBoxItem(string id, string text)
-        {
-            var combobox = Utils.GetAdwindowsComboBox();
-            if (combobox == null)
-                return;
-
-            combobox.Items.Add(new Autodesk.Windows.RibbonItem
-            {
-                Id = id,
-                Text = text
-            });
-        }
-
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
             var currentFilename = Utils.GetFileName(e.Document);
             if (Utils.doc == null || currentFilename != Utils.doc.PathName)
             {
+                Utils.doc = e.Document;
+                var newFilename = Utils.GetFileName(e.Document);
+                Utils.userName = e.Document.Application.Username;
                 Utils.allParameterRules.Clear();
                 Utils.allWorksetRules.Clear();
-                Utils.doc = e.Document;
-                Utils.userName = e.Document.Application.Username;
-                GetRulesAndParameterPacks();
-                var cbo = Utils.GetAdwindowsComboBox();
-                var ruleOptions = cbo.Items.Cast<Autodesk.Windows.RibbonItem>();
-                if (ruleOptions.Any())
+
+                if (Utils.doc != null)
                 {
-                    if (Properties.Settings.Default.ActiveRuleFile != null)
+                    try
                     {
-                        var defaultRuleFileOption = ruleOptions.FirstOrDefault(q => q.Text == Properties.Settings.Default.ActiveRuleFile);
-                        if (defaultRuleFileOption != null)
-                        {
-                            cbo.Current = defaultRuleFileOption;
-                        }
+                        UpdaterRegistry.RemoveDocumentTriggers(DataValidationUpdaterId, Utils.doc);
                     }
-                    else if (Utils.activeRuleFiles.TryGetValue(Utils.GetFileName(), out string value))
+                    catch
                     {
-                        Properties.Settings.Default.ActiveRuleFile = value;
-                        Properties.Settings.Default.Save();
-                        if (value != null)
-                        {
-                            if (ruleOptions.Any())
-                            {
-                                cbo.Current = ruleOptions.FirstOrDefault(q =>
-                                    q.Text == value);
-                            }
-                        }
+                    }
+                }
+
+                string parameterPackFileContents = null;
+                if (Utils.parameterPackDatas.TryGetValue(newFilename, out RuleFileInfo cachedParameterFileInfo))
+                {
+                    parameterPackFileContents = cachedParameterFileInfo.Contents;
+                }
+                else
+                {
+                    var parameterPackFilePath = GetGitFileNamesFromConfig();
+                    var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
+                    string json = "";
+                    if (File.Exists(file))
+                    {
+                        json = File.ReadAllText(file);
+                        Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
                     }
                     else
                     {
-                        Utils.activeRuleFiles.Add(Utils.GetFileName(), null);
+                        var data = GetGitData(null, ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Update.githubToken);
+                        if (data == null)
+                        {
+                            Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
+                        }
+                        else
+                        {
+                            Utils.Log($"Found parameter pack file {parameterPackFilePath}", Utils.LogLevel.Trace);
+                            parameterPackFileContents = data.Content;
+                        }
                     }
                 }
+                if (parameterPackFileContents == null)
+                {
+                    Utils.parameterUIData = new ParameterUIData();
+                }
+                else
+                {
+                    Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(parameterPackFileContents, new JsonSerializerSettings
+                    {
+                        Error = HandleDeserializationError,
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    });
+                    ShowErrors();
+                }
+
+                string ruleFileContents = null;
+                if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
+                {
+                    ruleFileContents = cachedRuleFileInfo.Contents;
+                }
+                else
+                {
+                    var gitRuleFilePath = GetGitFileNamesFromConfig();
+                    RepositoryContent ruleData = null;
+                    var ruleFileInfo = new RuleFileInfo();
+                    if (gitRuleFilePath != null)
+                    {
+                        ruleData = GetGitData(null, ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Update.githubToken);
+                        ruleFileInfo.Url = ruleData.HtmlUrl;
+                        ruleFileContents = ruleData.Content;
+                    }
+
+                    if (ruleData == null)
+                    {
+                        var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
+                        if (ruleFile != null)
+                        {
+                            using (var reader = new StreamReader(ruleFile))
+                            {
+                                ruleFileContents = reader.ReadToEnd();
+                            }
+                            ruleFileInfo.Filename = ruleFile;
+                        }
+                    }
+
+                    if (ruleFileContents == null)
+                    {
+                        Utils.ruleDatas.Add(newFilename, new RuleFileInfo());
+                        Utils.propertiesPanel.Refresh();
+                        return;
+                    }
+                    else
+                    {
+                        ruleFileInfo.Contents = ruleFileContents;
+                        Utils.ruleDatas.Add(newFilename, ruleFileInfo);
+                    }
+                }
+
+                var parameterRules = new List<ParameterRule>();
+                var worksetRules = new List<WorksetRule>();
+
+                MarkdownDocument document = Markdown.Parse(ruleFileContents);
+                var descendents = document.Descendants();
+                var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+                foreach (var block in codeblocks)
+                {
+                    var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
+                    var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
+                    RuleData rules = null;
+                    try
+                    {
+                        rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
+                        {
+                            Error = HandleDeserializationError,
+                            MissingMemberHandling = MissingMemberHandling.Error
+                        });
+                        ShowErrors();
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.LogException("JsonConvert.DeserializeObject", ex);
+                    }
+                    if (rules != null)
+                    {
+                        parameterRules = rules.ParameterRules;
+                        worksetRules = rules.WorksetRules;
+
+                        if (parameterRules != null)
+                        {
+                            foreach (var rule in parameterRules)
+                            {
+                                rule.Guid = Guid.NewGuid();
+                            }
+                        }
+                        if (worksetRules != null)
+                        {
+                            foreach (var rule in worksetRules)
+                            {
+                                rule.Guid = Guid.NewGuid();
+                            }
+                        }
+                    }
+                }
+
+                if (parameterRules != null)
+                {
+                    foreach (var parameterRule in parameterRules)
+                    {
+                        ParameterRule conflictingRule = null;
+
+                        foreach (var existingRule in Utils.allParameterRules)
+                        {
+                            if (DoParameterRulesConflict(parameterRule, existingRule))
+                            {
+                                conflictingRule = existingRule;
+                                break;
+                            }
+                        }
+                        if (conflictingRule == null)
+                        {
+                            RegisterParameterRule(parameterRule);
+                            Utils.allParameterRules.Add(parameterRule);
+                        }
+                        else
+                        {
+                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                        }
+                    }
+                }
+                if (worksetRules != null)
+                {
+                    foreach (var worksetRule in worksetRules)
+                    {
+                        WorksetRule conflictingRule = null;
+
+                        foreach (var existingRule in Utils.allWorksetRules)
+                        {
+                            if (DoWorksetRulesConflict(worksetRule, existingRule))
+                            {
+                                conflictingRule = existingRule;
+                                break;
+                            }
+                        }
+
+                        if (conflictingRule == null)
+                        {
+                            RegisterWorksetRule(worksetRule);
+                            Utils.allWorksetRules.Add(worksetRule);
+                        }
+                        else
+                        {
+                            Utils.Log($"Ignoring workset rule '{worksetRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                        }
+                    }
+                }
+                Utils.propertiesPanel.Refresh();
                 SetupPane();
             }
         }
 
-        public static string GetGitParameterPacks()
+        private static bool DoParameterRulesConflict(ParameterRule r1, ParameterRule r2)
         {
-            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json";
-            var data = GetGitData("ParameterPacks.json", ContentType.File, path);
-            if (data == null || !data.Any())
+            if (r1.ParameterName != r2.ParameterName)
             {
-                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
-                return null;
+                return false;
             }
-            Utils.Log($"Found git file {path}", Utils.LogLevel.Trace);
-            var packs = data?.FirstOrDefault().Content;
-            return packs;
+            if ((r1.Categories != null && r1.Categories.Intersect(r2.Categories).Any()) ||
+                (r1.ElementClasses != null && r1.ElementClasses.Intersect(r2.ElementClasses).Any()))
+            {
+                return true;
+            }
+            return false;
         }
 
-        public static string GetGitRuleFileContents(string filename)
+        private static bool DoWorksetRulesConflict(WorksetRule r1, WorksetRule other)
         {
-            Utils.GitRuleFileUrl = null;
-            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-
-            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules/{filename}.md";
-            var data = GetGitData($"{filename}.md", ContentType.File, path);
-            if (data == null || !data.Any())
+            if (r1.Workset == other.Workset)
             {
-                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
-                return null;
+                return false;
             }
-            Utils.GitRuleFileUrl = data.First().HtmlUrl;
-            return data?.First().Content;
+            if (!r1.Categories.Intersect(other.Categories).Any())
+            {
+                return false;
+            }
+            if (r1.Parameters.Intersect(other.Parameters).Count() == r1.Parameters.Count)
+            {
+                return true;
+            }
+            return false;
         }
 
-        private static List<string> GetGitRuleFiles()
+        private static string GetGitFileNamesFromConfig()
         {
-            if (Utils.doc == null || Utils.GetFileName().Length == 0)
-            {
-                return null;
-            }
+            var projectName = Utils.GetFileName();
 
-            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
+            var path = "Standards/RevitStandardsPanel/Config.json";
+            var data = GetGitData(null, ContentType.File, path, Update.githubToken);
 
-            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/Rules";
-            var data = GetGitData(null, ContentType.File, path);
-            if (data == null || !data.Any())
+            if (data == null)
             {
                 Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
                 return null;
             }
 
-            var ruleFiles = data.Select(q => q.Name).ToList();
-            Utils.Log($"Found git rule files '{string.Join(",", ruleFiles)}'", Utils.LogLevel.Trace);
-            return ruleFiles;
+            var json = data.Content;
+            var configs = JsonConvert.DeserializeObject<GitRuleConfigRoot>(json, new JsonSerializerSettings
+            {
+                Error = HandleDeserializationError,
+                MissingMemberHandling = MissingMemberHandling.Error
+            });
+            ShowErrors();
+
+            foreach (var config in configs.StandardsConfig)
+            {
+                foreach (var regex in config.RvtFullPathRegex)
+                {
+                    try
+                    {
+                        var matches = Regex.Matches(projectName, regex);
+                        if (matches?.Count > 0)
+                        {
+                            return config.PathToStandardsFiles;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.LogException("Regex failed", ex);
+                    }
+                }
+            }
+            return null;
         }
 
-        private static IEnumerable<RepositoryContent> GetGitData(string projectName, ContentType contentType, string path)
+        private static RepositoryContent GetGitData(string projectName, ContentType contentType, string path, string privateToken = null)
         {
-            var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+            GitHubClient client;
+            if (privateToken == null)
             {
-                Credentials = new Credentials("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")
-            };
-            const string OWNER = "InnovationDesignConsortium";
-            const string REPO = "revit_standards_settings_demo";
+                client = new GitHubClient(new ProductHeaderValue("revit-datavalidator"))
+                {
+                    Credentials = new Credentials("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")
+                };
+            }
+            else
+            {
+                client = new GitHubClient(new ProductHeaderValue("revit-datavalidator"))
+                {
+                    Credentials = new Credentials(privateToken)
+                };
+            }
             try
             {
-                var content = client.Repository.Content.GetAllContents(OWNER, REPO, path);
+                var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
                 if (content == null || content.IsFaulted)
                 {
                     Utils.Log($"No git data found at {path}", Utils.LogLevel.Warn);
-                    return new List<RepositoryContent>();
+                    return null;
+                }
+
+                if (content.Result == null)
+                {
+                    Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
+                    return null;
                 }
 
                 var result = content.Result.Where(q => q.Type == contentType);
                 if (result == null)
                 {
                     Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
-                    return new List<RepositoryContent>();
+                    return null;
                 }
 
                 if (projectName != null)
                 {
                     result = result.Where(q => q.Name == projectName);
                 }
-                return result;
+                return result.FirstOrDefault();
             }
             catch (Exception ex)
             {
+                Utils.LogException("GetGitData", ex);
                 return null;
             }
-        }
-
-        private void cboRuleFile_CurrentChanged(object sender, ComboBoxCurrentChangedEventArgs e)
-        {
-            Utils.allParameterRules = new List<ParameterRule>();
-            Utils.allWorksetRules = new List<WorksetRule>();
-            Utils.GitRuleFileUrl = null;
-
-            var cbo = Utils.GetAdwindowsComboBox();
-
-            if (cbo.Items.Count == 0)
-            {
-                return;
-            }
-
-            var current = cbo.Current;
-            var ri = current as Autodesk.Windows.RibbonItem;
-            Utils.activeRuleFiles[Utils.GetFileName()] = ri.Text;
-            Properties.Settings.Default.ActiveRuleFile = ri.Text;
-            Properties.Settings.Default.Save();
-            RegisterRules();
-            Utils.propertiesPanel.Refresh();
         }
 
         private static void SetupPane()
@@ -418,45 +553,6 @@ namespace RevitDataValidator
         private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
             Utils.doc = e.Document;
-        }
-
-        public void RegisterRules()
-        {
-            Utils.allParameterRules.Clear();
-            Utils.allWorksetRules.Clear();
-
-            if (Utils.doc != null)
-            {
-                try
-                {
-                    UpdaterRegistry.RemoveDocumentTriggers(DataValidationUpdaterId, Utils.doc);
-                }
-                catch
-                {
-                }
-            }
-            GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules);
-
-            if (parameterRules != null)
-            {
-                foreach (var parameterRule in parameterRules.Where(q =>
-                    q.RevitFileNames == null ||
-                    (Utils.doc != null && q.RevitFileNames != null && q.RevitFileNames.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())))))
-                {
-                    RegisterParameterRule(parameterRule);
-                    Utils.allParameterRules.Add(parameterRule);
-                }
-            }
-            if (worksetRules != null)
-            {
-                foreach (var worksetRule in worksetRules.Where(q =>
-                    q.RevitFileNames == null ||
-                    (Utils.doc != null && q.RevitFileNames?.Contains(Path.GetFileNameWithoutExtension(Utils.GetFileName())) == true)))
-                {
-                    RegisterWorksetRule(worksetRule);
-                    Utils.allWorksetRules.Add(worksetRule);
-                }
-            }
         }
 
         private static void RegisterWorksetRule(WorksetRule worksetRule)
@@ -577,116 +673,10 @@ namespace RevitDataValidator
             }
         }
 
-        private void GetParameterPacks()
-        {
-            var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
-            string json = "";
-            if (File.Exists(file))
-            {
-                json = File.ReadAllText(file);
-                Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
-            }
-            else if (!string.IsNullOrEmpty(Utils.GetFileName()))
-            {
-                json = GetGitParameterPacks();
-            }
-            if (string.IsNullOrEmpty(json))
-            {
-                Utils.parameterUIData = new ParameterUIData();
-                return;
-            }
-            Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json, new JsonSerializerSettings
-            {
-                Error = HandleDeserializationError,
-                MissingMemberHandling = MissingMemberHandling.Error
-            });
-        }
-
-        private void GetRules(out List<ParameterRule> parameterRules, out List<WorksetRule> worksetRules)
-        {
-            parameterRules = new List<ParameterRule>();
-            worksetRules = new List<WorksetRule>();
-            var ruleFile = Properties.Settings.Default.ActiveRuleFile;
-            if (ruleFile == NONE || ruleFile?.Length == 0)
-            {
-                return;
-            }
-            var fileContents = "";
-            if (File.Exists(ruleFile))
-            {
-                fileContents = File.ReadAllText(ruleFile);
-                Utils.Log($"Read rules from {ruleFile}", Utils.LogLevel.Info);
-            }
-            else
-            {
-                var cbo = Utils.GetAdwindowsComboBox();
-                var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
-                var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
-                if (fileFromDisk != null)
-                {
-                    fileContents = File.ReadAllText(fileFromDisk);
-                    Utils.Log($"Read rules from {fileFromDisk}", Utils.LogLevel.Info);
-                }
-                else
-                {
-                    fileContents = GetGitRuleFileContents(Path.GetFileNameWithoutExtension(Properties.Settings.Default.ActiveRuleFile));
-                }
-            }
-
-            if (string.IsNullOrEmpty(fileContents))
-            {
-                Utils.Log($"File not found '{Properties.Settings.Default.ActiveRuleFile}'", Utils.LogLevel.Error);
-                return;
-            }
-
-            MarkdownDocument document = Markdown.Parse(fileContents);
-            var descendents = document.Descendants();
-            var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
-            foreach (var block in codeblocks)
-            {
-                var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
-                var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
-                RuleData rules = null;
-                try
-                {
-                    rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
-                    {
-                        Error = HandleDeserializationError,
-                        MissingMemberHandling = MissingMemberHandling.Error
-                    });
-                    ShowErrors();
-                }
-                catch (Exception ex)
-                {
-                    Utils.LogException("JsonConvert.DeserializeObject", ex);
-                }
-                if (rules != null)
-                {
-                    parameterRules = rules.ParameterRules;
-                    worksetRules = rules.WorksetRules;
-
-                    if (parameterRules != null)
-                    {
-                        foreach (var rule in parameterRules)
-                        {
-                            rule.Guid = Guid.NewGuid();
-                        }
-                    }
-                    if (worksetRules != null)
-                    {
-                        foreach (var rule in worksetRules)
-                        {
-                            rule.Guid = Guid.NewGuid();
-                        }
-                    }
-                }
-            }
-        }
-
-        private void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
         {
             var currentError = e.ErrorContext.Error.Message;
-            Utils.Log($"Error deserializing JSON in '{Path.GetFileName(Properties.Settings.Default.ActiveRuleFile)}': {currentError}", Utils.LogLevel.Error);
+            Utils.Log($"Error deserializing JSON: {currentError}", Utils.LogLevel.Error);
             e.ErrorContext.Handled = true;
         }
     }

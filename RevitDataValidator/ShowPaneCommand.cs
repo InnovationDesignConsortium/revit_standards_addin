@@ -14,6 +14,7 @@ namespace RevitDataValidator
                 return;
 
             pane.Show();
+            Update.CheckForUpdates();
         }
     }
 }

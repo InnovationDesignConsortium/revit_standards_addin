@@ -90,7 +90,7 @@ namespace RevitDataValidator
                 .Where(q =>
                     !allParameterNames.Contains(q.Definition.Name) &&
                     (packSet.ShowAllOtherParametersExcluding?.Contains(q.Definition.Name) != true) &&
-#if R2022 || R2023 || R2024
+#if R2022 || R2023
                     q.Definition.ParameterGroup != BuiltInParameterGroup.INVALID &&
 #else
                     q.Definition.GetGroupTypeId() != new ForgeTypeId(string.Empty) &&
@@ -208,7 +208,7 @@ namespace RevitDataValidator
 
                                 if (choices.Count != 0)
                                 {
-                                    var selected = choices.Find(q => q.Int == parameter.AsInteger());
+                                    var selected = choices.Find(q => q.Long == parameter.AsInteger());
                                     packParameters.Add(new ChoiceStateParameter
                                     {
                                         Parameters = parameters,
@@ -250,7 +250,7 @@ namespace RevitDataValidator
                                             {
                                                 var scheduleElements = new FilteredElementCollector(Utils.doc, keySchedule.Id)
                                                     .ToElements()
-                                                    .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                                                    .Select(q => new StringInt(q.Name, ElementIdExtension.GetValue(q.Id)))
                                                     .OrderBy(q => q.String)
                                                     .ToList();
                                                 choices = scheduleElements;
@@ -346,7 +346,7 @@ namespace RevitDataValidator
                                                 .OfClass(typeof(View))
                                                 .Cast<View>()
                                                 .Where(q => q.IsTemplate && q.ViewType == view.ViewType)
-                                                .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                                                .Select(q => new StringInt(q.Name, ElementIdExtension.GetValue(q.Id)))
                                                 .OrderBy(q => q.String).ToList();
                                             choices.Add(new StringInt("<None>", -1));
                                         }
@@ -369,7 +369,7 @@ namespace RevitDataValidator
                                             if (parameter.StorageType == StorageType.ElementId &&
                                                 value != string.Empty)
                                             {
-                                                selected = choices.Find(q => q.Int == parameter.AsElementId().IntegerValue);
+                                                selected = choices.Find(q => q.Long == ElementIdExtension.GetValue(parameter.AsElementId()));
                                             }
                                             else
                                             {
@@ -469,7 +469,7 @@ namespace RevitDataValidator
         {
             return new FilteredElementCollector(Utils.doc)
                         .OfClass(t)
-                        .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                        .Select(q => new StringInt(q.Name, ElementIdExtension.GetValue(q.Id)))
                         .OrderBy(q => q.String).ToList();
         }
 
@@ -477,7 +477,7 @@ namespace RevitDataValidator
         {
             return new FilteredElementCollector(Utils.doc)
                         .OfCategory(bic)
-                        .Select(q => new StringInt(q.Name, q.Id.IntegerValue))
+                        .Select(q => new StringInt(q.Name, ElementIdExtension.GetValue(q.Id)))
                         .OrderBy(q => q.String).ToList();
         }
 

@@ -3,7 +3,6 @@ using Autodesk.Revit.UI;
 using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -165,26 +164,12 @@ namespace RevitDataValidator
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            // for .NET Core you need to add UseShellExecute = true
-            // see https://learn.microsoft.com/dotnet/api/system.diagnostics.processstartinfo.useshellexecute#property-value
-            new Process
-            {
-                StartInfo = new ProcessStartInfo(e.Uri.AbsoluteUri)
-                {
-                    UseShellExecute = true
-                }
-            }.Start();
+            Utils.StartShell(e.Uri.AbsoluteUri, false);
         }
 
         private void Hyperlink_RequestNavigate_Pdf(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            new Process
-            {
-                StartInfo = new ProcessStartInfo(e.Uri.AbsoluteUri)
-                {
-                    UseShellExecute = true
-                }
-            }.Start();
+            Utils.StartShell(e.Uri.AbsoluteUri, false);
         }
 
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
@@ -216,7 +201,7 @@ namespace RevitDataValidator
                         .OrderBy(q => q.Category.Name)
                         .ThenBy(q => q.FamilyName)
                         .ThenBy(q => q.Name)
-                        .Select(q => new StringInt(q.Family.FamilyCategory.Name + "-" + q.FamilyName + "-" + q.Name, q.Id.IntegerValue)).ToList();
+                        .Select(q => new StringInt(q.Family.FamilyCategory.Name + "-" + q.FamilyName + "-" + q.Name, ElementIdExtension.GetValue(q.Id))).ToList();
 
                     using (FormSelectElements form = new FormSelectElements(elements))
                     {
@@ -327,35 +312,27 @@ namespace RevitDataValidator
 
         private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
         {
+            var filename = Utils.GetFileName();
+            var ruleFileInfo = Utils.ruleDatas;
             string fileToOpen = null;
-            var ruleFile = Properties.Settings.Default.ActiveRuleFile;
-            if (File.Exists(ruleFile))
+            if (ruleFileInfo.TryGetValue(filename, out var ruleFile))
             {
-                fileToOpen = ruleFile;
-            }
-            else
-            {
-                var cbo = Utils.GetAdwindowsComboBox();
-                var cboItems = cbo.Items.Cast<Autodesk.Windows.RibbonItem>().ToList();
-                var fileFromDisk = cboItems.Find(q => q.Text == ruleFile).Id;
-                if (fileFromDisk != null)
+                if (ruleFile == null)
                 {
-                    fileToOpen = fileFromDisk;
+                    return;
                 }
-                else if (!string.IsNullOrEmpty(Utils.GitRuleFileUrl))
+                if (!string.IsNullOrEmpty(ruleFile.Url))
                 {
-                    fileToOpen = Utils.GitRuleFileUrl;
+                    fileToOpen = ruleFile.Url;
+                }
+                else if (!string.IsNullOrEmpty(ruleFile.Filename))
+                {
+                    fileToOpen = ruleFile.Filename;
                 }
             }
             if (fileToOpen != null)
             {
-                new Process
-                {
-                    StartInfo = new ProcessStartInfo(fileToOpen)
-                    {
-                        UseShellExecute = true
-                    }
-                }.Start();
+                Utils.StartShell(fileToOpen, true);
             }
         }
     }

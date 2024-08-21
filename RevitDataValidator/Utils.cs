@@ -2,27 +2,22 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
-using Autodesk.Windows;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using NLog;
 using NLog.Config;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
-
-#if REVIT_2020
-using ElementIdType = System.Int32;
-#else
-
-using ElementIdType = System.Int64;
-
-#endif
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -59,12 +54,11 @@ namespace RevitDataValidator
         private const string FIELD_EXCEPTION = "Exception";
         private const string FIELD_RULENAME = "RuleName";
         private const string FIELD_PARAMETERNAME = "ParameterName";
-        public static string GitRuleFileUrl = "";
         public const string panelName = "Data Validator";
-        public const string cboName = "cboRuleFile";
         private const string TAB_NAME = "Add-Ins";
         public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
-        public static Dictionary<string, string> activeRuleFiles = new Dictionary<string, string>();
+        public static Dictionary<string, RuleFileInfo> ruleDatas = new Dictionary<string, RuleFileInfo>();
+        public static Dictionary<string, RuleFileInfo> parameterPackDatas = new Dictionary<string, RuleFileInfo>();
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -74,6 +68,45 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
+
+        public static Stream GetPrivateRepoStream(string url, string githubToken)
+        {
+            Stream stream = null;
+#if PRE_NET_8
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.UserAgent = "Revit Standards Addin";
+            request.Accept = "application/vnd.github.v3.raw";
+            request.Headers.Add("Authorization", $"token {githubToken}");
+            var response = request.GetResponse();
+            stream = response.GetResponseStream();
+#else
+            var request = CreateRequest(url, githubToken);
+            stream = request.Content.ReadAsStream();
+#endif
+            return stream;
+        }
+
+        private static HttpResponseMessage CreateRequest(string url, string token)
+        {
+            try
+            {
+                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    requestMessage.Headers.UserAgent.ParseAdd("Revit Standards Addin");
+                    requestMessage.Headers.Accept.ParseAdd("application/vnd.github.v3.raw");
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", token);
+                    var httpClient = new HttpClient();
+                    var send = httpClient.Send(requestMessage);
+                    return send;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Could not create request", ex);
+                return null;
+            }
+        }
 
         public static Result SetReasonAllowed(Element e, string ruleName, string parameterName, string exceptionMessage)
         {
@@ -155,13 +188,6 @@ namespace RevitDataValidator
 
         public static void RunWorksetRule(WorksetRule rule, List<ElementId> ids)
         {
-            if (rule.RevitFileNames != null &&
-                rule.RevitFileNames.FirstOrDefault() != ALL &&
-                rule.RevitFileNames.Contains(GetFileName()))
-            {
-                return;
-            }
-
             var workset = new FilteredWorksetCollector(doc).FirstOrDefault(q => q.Name == rule.Workset);
             if (workset == null)
             {
@@ -177,7 +203,7 @@ namespace RevitDataValidator
                     element.Category == null ||
                     rule.Categories == null ||
                     (rule.Categories[0] != ALL &&
-                    !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                    !GetBuiltInCats(rule).Select(q => ElementIdExtension.GetValue(BuiltInCategoryExtension.GetElementId(q))).Contains(ElementIdExtension.GetValue(element.Category.Id))))
                 {
                     continue;
                 }
@@ -256,7 +282,7 @@ namespace RevitDataValidator
                 (rule.Categories == null && rule.ElementClasses == null) ||
                 (rule.ElementClasses?.Any(q => q.EndsWith(element.GetType().Name)) == false) ||
                 (rule.Categories != null && rule.Categories.FirstOrDefault() != ALL &&
-                !GetBuiltInCats(rule).Select(q => (int)q).Contains(element.Category.Id.IntegerValue)))
+                !GetBuiltInCats(rule).Select(q => ElementIdExtension.GetValue(BuiltInCategoryExtension.GetElementId(q))).Contains(ElementIdExtension.GetValue(element.Category.Id))))
             {
                 return null;
             }
@@ -272,7 +298,7 @@ namespace RevitDataValidator
                 parameter = parameterStringMatch.Parameter;
                 parameterValueAsString = parameterStringMatch.NewValue;
             }
-            
+
             // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
             // rule should run if target paramater has no value
             //if (parameterValueAsString == null)
@@ -455,7 +481,7 @@ namespace RevitDataValidator
             }
             else if (rule.PreventDuplicates != null)
             {
-                var bic = (BuiltInCategory)GetElementIdValue(element.Category.Id);
+                var bic = (BuiltInCategory)(ElementIdExtension.GetValue(element.Category.Id));
                 var others = new FilteredElementCollector(doc)
                     .OfCategory(bic)
                     .WhereElementIsNotElementType()
@@ -525,7 +551,7 @@ namespace RevitDataValidator
         {
             var ret = new List<RuleFailure>();
             parametersToSet = new List<ParameterString>();
-            foreach (var rule in GetApplicableParameterRules())
+            foreach (var rule in allParameterRules)
             {
                 var ruleFailure = RunParameterRule(
                     rule,
@@ -794,13 +820,6 @@ namespace RevitDataValidator
             return string.Concat(s.Split(illegal));
         }
 
-        public static List<ParameterRule> GetApplicableParameterRules()
-        {
-            return allParameterRules.Where(rule => rule.RevitFileNames == null ||
-                       rule.RevitFileNames.FirstOrDefault() == ALL ||
-                       rule.RevitFileNames.Contains(GetFileName())).ToList();
-        }
-
         public static Parameter GetParameter(Element e, string name)
         {
             if (e == null) return null;
@@ -842,7 +861,7 @@ namespace RevitDataValidator
             {
                 ret += fi.Symbol.Family.Name + ":";
             }
-            ret += $"{e.Name}:{GetElementIdValue(e.Id)}";
+            ret += $"{e.Name}:{ElementIdExtension.GetValue(e.Id)}";
             return ret;
         }
 
@@ -868,6 +887,10 @@ namespace RevitDataValidator
             {
                 doc = Utils.doc;
             }
+            if (doc == null)
+            {
+                return "";
+            }
 
             if (doc.IsWorkshared)
             {
@@ -875,8 +898,28 @@ namespace RevitDataValidator
             }
             else
             {
-                return doc.PathName;
+                if (doc.PathName == string.Empty)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return doc.PathName;
+                }
             }
+        }
+
+        public static Process StartShell(string toolPath, bool useShell, string arguments = "")
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = toolPath,
+                Arguments = arguments,
+                CreateNoWindow = true,
+                UseShellExecute = useShell
+            };
+
+            return Process.Start(startInfo);
         }
 
         public static void Log(string message, LogLevel level)
@@ -889,6 +932,7 @@ namespace RevitDataValidator
             }
             else if (level == LogLevel.Error)
             {
+                Autodesk.Revit.UI.TaskDialog.Show("Error", message);
                 Logger.Error(message);
             }
             else if (level == LogLevel.Warn)
@@ -933,34 +977,6 @@ namespace RevitDataValidator
                 }
                 return builtInCats;
             }
-        }
-        public static RibbonList GetAdwindowsComboBox()
-        {
-            // https://forums.autodesk.com/t5/revit-api-forum/ribbon-combobox-clear-change-data/m-p/5068342#M6501
-            var tabRibbon = ComponentManager.Ribbon.FindTab(TAB_NAME);
-            if (tabRibbon.FindItem($"CustomCtrl_%CustomCtrl_%{TAB_NAME}%{panelName}%{cboName}") is RibbonList comboList)
-            {
-                return comboList;
-            }
-            return null;
-        }
-
-        public static ElementId CreateElementId(ElementIdType idValue)
-        {
-#if R2022 || R2023
-    return new ElementId((int)idValue);
-#else
-            return new ElementId(idValue);
-#endif
-        }
-
-        public static ElementIdType GetElementIdValue(ElementId elementId)
-        {
-#if R2022 || R2023
-        return elementId.IntegerValue;
-#else
-            return elementId.Value;
-#endif
         }
     }
 }
