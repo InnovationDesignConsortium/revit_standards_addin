@@ -23,7 +23,7 @@ namespace RevitDataValidator
     {
         private const string RULE_FILE_NAME = "rules.md";
         private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
-        private readonly string PARAMETER_PACK_FILE_NAME = "ParameterPacks.json";
+        private readonly string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
@@ -46,8 +46,8 @@ namespace RevitDataValidator
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
-            GIT_OWNER = Environment.GetEnvironmentVariable("RevitStandardsAddinGitOwner");
-            GIT_REPO = Environment.GetEnvironmentVariable("RevitStandardsAddinGitRepo");
+            GIT_OWNER = Environment.GetEnvironmentVariable("RevitStandardsAddinGitOwner", EnvironmentVariableTarget.Machine);
+            GIT_REPO = Environment.GetEnvironmentVariable("RevitStandardsAddinGitRepo", EnvironmentVariableTarget.Machine);
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -163,7 +163,48 @@ namespace RevitDataValidator
                     }
                 }
 
-                GetParameterPacks();
+                string parameterPackFileContents = null;
+                if (Utils.parameterPackDatas.TryGetValue(newFilename, out RuleFileInfo cachedParameterFileInfo))
+                {
+                    parameterPackFileContents = cachedParameterFileInfo.Contents;
+                }
+                else
+                {
+                    var parameterPackFilePath = GetGitFileNamesFromConfig();
+                    var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
+                    string json = "";
+                    if (File.Exists(file))
+                    {
+                        json = File.ReadAllText(file);
+                        Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
+                    }
+                    else
+                    {
+                        var data = GetGitData(null, ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Update.githubToken);
+                        if (data == null)
+                        {
+                            Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
+                        }
+                        else
+                        {
+                            Utils.Log($"Found parameter pack file {parameterPackFilePath}", Utils.LogLevel.Trace);
+                            parameterPackFileContents = data.Content;
+                        }
+                    }
+                }
+                if (parameterPackFileContents == null)
+                {
+                    Utils.parameterUIData = new ParameterUIData();
+                }
+                else
+                {
+                    Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(parameterPackFileContents, new JsonSerializerSettings
+                    {
+                        Error = HandleDeserializationError,
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    });
+                    ShowErrors();
+                }
 
                 string ruleFileContents = null;
                 if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
@@ -172,7 +213,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    var gitRuleFilePath = GetGitRuleFileName();
+                    var gitRuleFilePath = GetGitFileNamesFromConfig();
                     RepositoryContent ruleData = null;
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
@@ -341,31 +382,11 @@ namespace RevitDataValidator
             return false;
         }
 
-        public static string GetGitParameterPacks()
+        private static string GetGitFileNamesFromConfig()
         {
-            var projectName = Path.GetFileNameWithoutExtension(Utils.GetFileName());
-            var path = $"/ProjectRoot/{projectName}/Revit/RevitStandardsPanel/ParameterPacks/ParameterPacks.json";
-            var data = GetGitData("ParameterPacks.json", ContentType.File, path);
-            if (data == null)
-            {
-                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
-                return null;
-            }
-            Utils.Log($"Found git file {path}", Utils.LogLevel.Trace);
-            var packs = data.Content;
-            return packs;
-        }
-
-        private static string GetGitRuleFileName()
-        {
-            if (Utils.doc == null || Utils.GetFileName().Length == 0)
-            {
-                return null;
-            }
-
             var projectName = Utils.GetFileName();
 
-            var path = "Standards/RevitStandardsPanel/Rules/Config.json";
+            var path = "Standards/RevitStandardsPanel/Config.json";
             var data = GetGitData(null, ContentType.File, path, Update.githubToken);
 
             if (data == null)
@@ -375,8 +396,14 @@ namespace RevitDataValidator
             }
 
             var json = data.Content;
-            var configs = JsonConvert.DeserializeObject<GitRuleConfigRoot>(json);
-            foreach (var config in configs.GitRuleConfig)
+            var configs = JsonConvert.DeserializeObject<GitRuleConfigRoot>(json, new JsonSerializerSettings
+            {
+                Error = HandleDeserializationError,
+                MissingMemberHandling = MissingMemberHandling.Error
+            });
+            ShowErrors();
+
+            foreach (var config in configs.StandardsConfig)
             {
                 foreach (var regex in config.RvtFullPathRegex)
                 {
@@ -385,7 +412,7 @@ namespace RevitDataValidator
                         var matches = Regex.Matches(projectName, regex);
                         if (matches?.Count > 0)
                         {
-                            return config.PathToRuleFile;
+                            return config.PathToStandardsFiles;
                         }
                     }
                     catch (Exception ex)
@@ -646,32 +673,7 @@ namespace RevitDataValidator
             }
         }
 
-        private void GetParameterPacks()
-        {
-            var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
-            string json = "";
-            if (File.Exists(file))
-            {
-                json = File.ReadAllText(file);
-                Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
-            }
-            else if (!string.IsNullOrEmpty(Utils.GetFileName()))
-            {
-                json = GetGitParameterPacks();
-            }
-            if (string.IsNullOrEmpty(json))
-            {
-                Utils.parameterUIData = new ParameterUIData();
-                return;
-            }
-            Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(json, new JsonSerializerSettings
-            {
-                Error = HandleDeserializationError,
-                MissingMemberHandling = MissingMemberHandling.Error
-            });
-        }
-
-        private void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
         {
             var currentError = e.ErrorContext.Error.Message;
             Utils.Log($"Error deserializing JSON: {currentError}", Utils.LogLevel.Error);

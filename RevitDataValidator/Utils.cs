@@ -2,26 +2,22 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
-using Autodesk.Windows;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using NLog;
 using NLog.Config;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Versioning;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using RevitDataValidator.Classes;
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -62,6 +58,7 @@ namespace RevitDataValidator
         private const string TAB_NAME = "Add-Ins";
         public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
         public static Dictionary<string, RuleFileInfo> ruleDatas = new Dictionary<string, RuleFileInfo>();
+        public static Dictionary<string, RuleFileInfo> parameterPackDatas = new Dictionary<string, RuleFileInfo>();
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -84,12 +81,11 @@ namespace RevitDataValidator
             var response = request.GetResponse();
             stream = response.GetResponseStream();
 #else
-                var request = CreateRequest(url, githubToken);
-                stream = request.Content.ReadAsStream();
+            var request = CreateRequest(url, githubToken);
+            stream = request.Content.ReadAsStream();
 #endif
             return stream;
         }
-
 
         private static HttpResponseMessage CreateRequest(string url, string token)
         {
@@ -302,7 +298,7 @@ namespace RevitDataValidator
                 parameter = parameterStringMatch.Parameter;
                 parameterValueAsString = parameterStringMatch.NewValue;
             }
-            
+
             // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
             // rule should run if target paramater has no value
             //if (parameterValueAsString == null)
@@ -904,7 +900,7 @@ namespace RevitDataValidator
             {
                 if (doc.PathName == string.Empty)
                 {
-                    return Guid.NewGuid().ToString();
+                    return string.Empty;
                 }
                 else
                 {
@@ -982,6 +978,5 @@ namespace RevitDataValidator
                 return builtInCats;
             }
         }
-      
     }
 }
