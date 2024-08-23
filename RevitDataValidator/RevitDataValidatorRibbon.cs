@@ -22,13 +22,15 @@ namespace RevitDataValidator
     internal class Ribbon : Nice3point.Revit.Toolkit.External.ExternalApplication
     {
         private const string RULE_FILE_NAME = "rules.md";
-        private readonly string ADDINS_FOLDER = @"C:\ProgramData\Autodesk\Revit\Addins";
         private readonly string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
         private static string GIT_OWNER = "";
         private static string GIT_REPO = "";
+        private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
+        private const string REPO_ENV = "RevitStandardsAddinGitRepo";
+
 
         public override void OnStartup()
         {
@@ -46,8 +48,18 @@ namespace RevitDataValidator
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
-            GIT_OWNER = Environment.GetEnvironmentVariable("RevitStandardsAddinGitOwner", EnvironmentVariableTarget.Machine);
-            GIT_REPO = Environment.GetEnvironmentVariable("RevitStandardsAddinGitRepo", EnvironmentVariableTarget.Machine);
+            GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
+            if (GIT_OWNER == null)
+            {
+                Environment.SetEnvironmentVariable(OWNER_ENV, "", EnvironmentVariableTarget.Machine);
+                Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
+            }
+            GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
+            if (GIT_REPO == null)
+            {
+                Environment.SetEnvironmentVariable(REPO_ENV, "", EnvironmentVariableTarget.Machine);
+                Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
+            }
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -171,7 +183,7 @@ namespace RevitDataValidator
                 else
                 {
                     var parameterPackFilePath = GetGitFileNamesFromConfig();
-                    var file = Path.Combine(ADDINS_FOLDER, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
+                    var file = Path.Combine(Utils.dllPath, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
                     string json = "";
                     if (File.Exists(file))
                     {
