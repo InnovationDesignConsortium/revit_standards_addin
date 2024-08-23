@@ -4,6 +4,7 @@ using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using RevitDataValidator.Classes;
@@ -17,6 +18,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 
 #if !PRE_NET_8
@@ -29,7 +31,7 @@ namespace RevitDataValidator
     {
         public static string dialogIdShowing = "";
         public static ControlledApplication app;
-        public static string PRODUCT_NAME = "RevitDataValidator";
+        public static string PRODUCT_NAME = "Revit Standards Addin";
         public static readonly string ALL = "<all>";
         public static readonly char LIST_SEP = ',';
         public static List<ParameterRule> allParameterRules;
@@ -59,6 +61,7 @@ namespace RevitDataValidator
         public static Dictionary<string, string> dictFileActivePackSet = new Dictionary<string, string>();
         public static Dictionary<string, RuleFileInfo> ruleDatas = new Dictionary<string, RuleFileInfo>();
         public static Dictionary<string, RuleFileInfo> parameterPackDatas = new Dictionary<string, RuleFileInfo>();
+        public static string MsiToRunOnExit = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -68,6 +71,71 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
+        public static readonly string githubToken = "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";
+        public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
+        public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
+
+        public static void DownloadAsset(string tag, Asset asset)
+        {
+            try
+            {
+                var fileName = Path.Combine(dllPath, asset.name);
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+
+                // https://github.com/gruntwork-io/fetch
+                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {githubToken} {dllPath}";
+
+                StartShell(
+                    $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
+
+                MsiToRunOnExit = fileName;
+            }
+            catch (Exception ex)
+            {
+                LogException("Exception downloading update:", ex);
+            }
+        }
+
+        public static bool IsWebVersionNewer(Version webVersion)
+        {
+            return webVersion.CompareTo(GetInstalledVersion()) > 0;
+        }
+
+        public static GithubResponse GetLatestWebRelase()
+        {
+            var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
+            var stream = GetPrivateRepoStream(url, githubToken);
+            using (var reader = new StreamReader(stream))
+            {
+                var releasesJson = reader.ReadToEnd();
+                var releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
+                if (releases == null)
+                {
+                    return null;
+                }
+                var latestRelease = releases
+                    .Where(q => !q.draft)
+                    .Where(q => !q.prerelease)
+                        .OrderByDescending(release => release.published_at)
+                        .FirstOrDefault();
+                if (latestRelease == null || latestRelease.assets.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return latestRelease;
+                }
+            }
+        }
+
+        public static Version GetInstalledVersion()
+        {
+            return Assembly.GetExecutingAssembly().GetName().Version;
+        }
 
         public static Stream GetPrivateRepoStream(string url, string githubToken)
         {

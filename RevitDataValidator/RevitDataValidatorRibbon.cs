@@ -99,18 +99,19 @@ namespace RevitDataValidator
             Utils.dllPath = Path.GetDirectoryName(dll);
 
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
+            panel.AddItem(new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand"));
             ShowErrors();
             Update.CheckForUpdates();
         }
 
         public override void OnShutdown()
         {
-            if (Update.MsiToRunOnExit != null)
+            if (Utils.MsiToRunOnExit != null)
             {
-                Utils.Log($"Installing new version {Update.MsiToRunOnExit}", Utils.LogLevel.Trace);
+                Utils.Log($"Installing new version {Utils.MsiToRunOnExit}", Utils.LogLevel.Trace);
                 try
                 {
-                    Utils.StartShell(Update.MsiToRunOnExit, true);
+                    Utils.StartShell(Utils.MsiToRunOnExit, true);
                 }
                 catch (Exception ex)
                 {
@@ -183,7 +184,7 @@ namespace RevitDataValidator
                 else
                 {
                     var parameterPackFilePath = GetGitFileNamesFromConfig();
-                    var file = Path.Combine(Utils.dllPath, Utils.PRODUCT_NAME, PARAMETER_PACK_FILE_NAME);
+                    var file = Path.Combine(Utils.dllPath, PARAMETER_PACK_FILE_NAME);
                     string json = "";
                     if (File.Exists(file))
                     {
@@ -192,7 +193,7 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Update.githubToken);
+                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Utils.githubToken);
                         if (data == null)
                         {
                             Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
@@ -230,7 +231,7 @@ namespace RevitDataValidator
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
                     {
-                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Update.githubToken);
+                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Utils.githubToken);
                         ruleFileInfo.Url = ruleData.HtmlUrl;
                         ruleFileContents = ruleData.Content;
                     }
@@ -399,7 +400,7 @@ namespace RevitDataValidator
             var projectName = Utils.GetFileName();
 
             var path = "Standards/RevitStandardsPanel/Config.json";
-            var data = GetGitData(ContentType.File, path, Update.githubToken);
+            var data = GetGitData(ContentType.File, path, Utils.githubToken);
 
             if (data == null)
             {
