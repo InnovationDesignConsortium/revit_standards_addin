@@ -5,6 +5,7 @@ using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
@@ -12,9 +13,12 @@ using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
@@ -30,7 +34,8 @@ namespace RevitDataValidator
         private static string GIT_REPO = "";
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
-
+        private const string GitHubAppClientId = "Iv23li4ATvi53MDtKsdI";
+        private const string GitHubAppUrl = "https://github.com/apps/revitstandardsgithubapp";
 
         public override void OnStartup()
         {
@@ -193,7 +198,7 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}", Utils.githubToken);
+                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}");
                         if (data == null)
                         {
                             Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
@@ -231,7 +236,7 @@ namespace RevitDataValidator
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
                     {
-                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}", Utils.githubToken);
+                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
                         ruleFileInfo.Url = ruleData.HtmlUrl;
                         ruleFileContents = ruleData.Content;
                     }
@@ -400,7 +405,7 @@ namespace RevitDataValidator
             var projectName = Utils.GetFileName();
 
             var path = "Standards/RevitStandardsPanel/Config.json";
-            var data = GetGitData(ContentType.File, path, Utils.githubToken);
+            var data = GetGitData(ContentType.File, path);
 
             if (data == null)
             {
@@ -437,26 +442,45 @@ namespace RevitDataValidator
             return null;
         }
 
-        private static RepositoryContent GetGitData(ContentType contentType, string path, string privateToken = null)
+        private static RepositoryContent GetGitData(ContentType contentType, string path)
         {
-            GitHubClient client;
-            if (privateToken == null)
-            {
-                client = new GitHubClient(new ProductHeaderValue("revit-datavalidator"))
-                {
-                    Credentials = new Credentials("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")
-                };
-            }
-            else
-            {
-                client = new GitHubClient(new ProductHeaderValue("revit-datavalidator"))
-                {
-                    Credentials = new Credentials(privateToken)
-                };
-            }
             try
             {
+                // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+
+                // 1 - Generate a JSON web token (JWT) for your app
+
+                var tokenForApp = GenerateJwtToken();
+                if (string.IsNullOrEmpty(tokenForApp))
+                {
+                    Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
+                    return null;
+                }
+
+                // 2 - Get the ID of the installation that you want to authenticate as
+                var installationResponse = Utils.GetPrivateRepoString("https://api.github.com/app/installations", HttpMethod.Get, tokenForApp, "application/vnd.github+json", "Bearer");
+                var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
+                var installation = installations?.FirstOrDefault(q => q.account.login == GIT_OWNER);
+                if (installation == null)
+                {
+                    TaskDialog.Show("Error", $"Github app must beot installed for {GIT_OWNER}");
+                    Utils.Log($"Installation does not exist for {GIT_OWNER}", Utils.LogLevel.Error);
+                    return null;
+                }
+                var instalationId = installation?.id;
+
+                // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
+                var myJsonResponse3 = Utils.GetPrivateRepoString($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, tokenForApp, "application/vnd.github+json", "Bearer");
+                var amazing = JsonConvert.DeserializeObject<RootB>(myJsonResponse3);
+                var tokenNoWay = amazing?.token;
+
+                var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+                {
+                    Credentials = new Credentials(tokenNoWay)
+                };
+
                 var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
+                               
                 if (content == null || content.IsFaulted)
                 {
                     Utils.Log($"No git data found at {path}", Utils.LogLevel.Warn);
@@ -480,6 +504,43 @@ namespace RevitDataValidator
             catch (Exception ex)
             {
                 Utils.LogException("GetGitData", ex);
+                return null;
+            }
+        }
+
+        private static string GenerateJwtToken()
+        {
+            try
+            {
+                string private_key = File.ReadAllText(Path.Combine(Utils.dllPath, "key.txt"));
+                const string client_id = "Iv23li4ATvi53MDtKsdI";
+                RSA rsa;
+#if PRE_NET_8
+                return "";
+                rsa = ImportFromPem(private_key, true);
+#else
+                rsa = RSA.Create();
+                rsa.ImportFromPem(private_key);
+#endif
+                var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
+
+                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler { SetDefaultTimesOnTokenCreation = false };
+
+                var now = DateTime.UtcNow.AddSeconds(-60);
+
+                var jwt = jwtSecurityTokenHandler.CreateToken(new SecurityTokenDescriptor
+                {
+                    Issuer = client_id,
+                    Expires = now.AddMinutes(10),
+                    IssuedAt = now,
+                    SigningCredentials = signingCredentials
+                });
+
+                return new JwtSecurityTokenHandler().WriteToken(jwt);
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Failed to generate JwtToken", ex);
                 return null;
             }
         }

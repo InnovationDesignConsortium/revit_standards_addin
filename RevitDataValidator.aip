@@ -1965,6 +1965,9 @@
     <ROW File="fetch_windows_amd64.exe" Component_="fetch_windows_amd64.exe" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
     <ROW File="fetch_windows_amd64.exe_1" Component_="fetch_windows_amd64.exe_1" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
     <ROW File="fetch_windows_amd64.exe_2" Component_="fetch_windows_amd64.exe_2" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="key.txt" Component_="InPlaceFamilyCheck.cs_2" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
+    <ROW File="key.txt_1" Component_="InPlaceFamilyCheck.cs_1" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
+    <ROW File="key.txt_2" Component_="InPlaceFamilyCheck.cs" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>

@@ -18,7 +18,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Versioning;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 
 #if !PRE_NET_8
@@ -107,28 +106,25 @@ namespace RevitDataValidator
         public static GithubResponse GetLatestWebRelase()
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
-            var stream = GetPrivateRepoStream(url, githubToken);
-            using (var reader = new StreamReader(stream))
+            var releasesJson = GetPrivateRepoString(url, HttpMethod.Get, githubToken, "application/vnd.github.v3.raw", githubToken);
+
+            var releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
+            if (releases == null)
             {
-                var releasesJson = reader.ReadToEnd();
-                var releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
-                if (releases == null)
-                {
-                    return null;
-                }
-                var latestRelease = releases
-                    .Where(q => !q.draft)
-                    .Where(q => !q.prerelease)
-                        .OrderByDescending(release => release.published_at)
-                        .FirstOrDefault();
-                if (latestRelease == null || latestRelease.assets.Count == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return latestRelease;
-                }
+                return null;
+            }
+            var latestRelease = releases
+                .Where(q => !q.draft)
+                .Where(q => !q.prerelease)
+                    .OrderByDescending(release => release.published_at)
+                    .FirstOrDefault();
+            if (latestRelease == null || latestRelease.assets.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return latestRelease;
             }
         }
 
@@ -137,26 +133,35 @@ namespace RevitDataValidator
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
-        public static Stream GetPrivateRepoStream(string url, string githubToken)
+        public static string GetPrivateRepoString(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
         {
             Stream stream = null;
             try
             {
 #if PRE_NET_8
                 var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
-                request.Method = "GET";
+                string methodString;
+                if (method == HttpMethod.Get)
+                {
+                    methodString = "GET";
+                }
+                else
+                {
+                    methodString = "POST";
+                }
+                request.Method = methodString;
                 request.UserAgent = "Revit Standards Addin";
-                request.Accept = "application/vnd.github.v3.raw";
-                request.Headers.Add("Authorization", $"token {githubToken}");
+                request.Accept = accept;
+                request.Headers.Add("Authorization", $"{authenticationHeader} {githubToken}");
                 var response = request.GetResponse();
                 stream = response.GetResponseStream();
 #else
                 HttpResponseMessage request;
-                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
+                using (var requestMessage = new HttpRequestMessage(method, url))
                 {
                     requestMessage.Headers.UserAgent.ParseAdd("Revit Standards Addin");
-                    requestMessage.Headers.Accept.ParseAdd("application/vnd.github.v3.raw");
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", githubToken);
+                    requestMessage.Headers.Accept.ParseAdd(accept);
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authenticationHeader, githubToken);
                     var httpClient = new HttpClient();
                     request = httpClient.Send(requestMessage);
                 }
@@ -167,7 +172,7 @@ namespace RevitDataValidator
             {
                 LogException("GetPrivateRepoStream", ex);
             }
-            return stream;
+            return new StreamReader(stream).ReadToEnd();
         }
 
         public static Result SetReasonAllowed(Element e, string ruleName, string parameterName, string exceptionMessage)
