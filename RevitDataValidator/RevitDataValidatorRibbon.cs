@@ -5,7 +5,6 @@ using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
@@ -13,12 +12,11 @@ using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace RevitDataValidator
@@ -510,31 +508,25 @@ namespace RevitDataValidator
         {
             try
             {
-                string private_key = File.ReadAllText(Path.Combine(Utils.dllPath, "key.txt"));
-                const string client_id = "Iv23li4ATvi53MDtKsdI";
-                RSA rsa;
-#if PRE_NET_8
-                return "";
-                //rsa = ImportFromPem(private_key, true);
-#else
-                rsa = RSA.Create();
-                rsa.ImportFromPem(private_key);
-#endif
-                var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
-
-                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler { SetDefaultTimesOnTokenCreation = false };
-
-                var now = DateTime.UtcNow.AddSeconds(-60);
-
-                var jwt = jwtSecurityTokenHandler.CreateToken(new SecurityTokenDescriptor
+                var pathtoexe = Path.Combine(Utils.dllPath, "CreateJsonWebToken", "CreateJsonWebToken.exe");
+                if (File.Exists(pathtoexe))
                 {
-                    Issuer = client_id,
-                    Expires = now.AddMinutes(10),
-                    IssuedAt = now,
-                    SigningCredentials = signingCredentials
-                });
-
-                return new JwtSecurityTokenHandler().WriteToken(jwt);
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = pathtoexe,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,                        
+                    };
+                    var pp =  Process.Start(startInfo);
+                    var output = pp.StandardOutput.ReadToEnd();
+                    pp.WaitForExit();
+                    return output;
+                }
+                else
+                {
+                    return "";
+                }
             }
             catch (Exception ex)
             {

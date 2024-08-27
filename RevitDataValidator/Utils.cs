@@ -951,7 +951,6 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
-            TaskDialog.Show("Exception", ex.Message);
             Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
         }
          

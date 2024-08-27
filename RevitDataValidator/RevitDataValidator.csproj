@@ -63,7 +63,6 @@
 	<PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
 	<PackageReference Include="Nice3point.Revit.Api.UIFramework" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
 	<PackageReference Include="Nice3point.Revit.Api.UIFrameworkServices" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
-	<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
 	
     <Reference Include="RevitAPI">
       <HintPath>c:\Program Files\Autodesk\Revit $(Configuration)\RevitAPI.dll</HintPath>

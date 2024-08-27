@@ -36,10 +36,11 @@
     <ROW Directory="AppDataFolder" Directory_Parent="TARGETDIR" DefaultDir="AppDat~1|AppDataFolder" IsPseudoRoot="1"/>
     <ROW Directory="BoostYourBIMTerrificTools_6_Dir" Directory_Parent="__7_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
     <ROW Directory="BoostYourBIMTerrificTools_7_Dir" Directory_Parent="__8_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
+    <ROW Directory="CreateJsonWebToken_1_Dir" Directory_Parent="__8_Dir" DefaultDir="CREATE~1|CreateJsonWebToken"/>
+    <ROW Directory="CreateJsonWebToken_2_Dir" Directory_Parent="__Dir" DefaultDir="CREATE~1|CreateJsonWebToken"/>
+    <ROW Directory="CreateJsonWebToken_Dir" Directory_Parent="BoostYourBIMTerrificTools_6_Dir" DefaultDir="CREATE~1|CreateJsonWebToken"/>
     <ROW Directory="NewFolder_Dir" Directory_Parent="APPDIR" DefaultDir="Autodesk"/>
     <ROW Directory="RevitDataValidator_1_Dir" Directory_Parent="__Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
-    <ROW Directory="RevitDataValidator_Dir" Directory_Parent="Addins_Dir" DefaultDir="REVITD~1|RevitDataValidator"/>
-    <ROW Directory="Rules_Dir" Directory_Parent="RevitDataValidator_Dir" DefaultDir="Rules"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="__7_Dir" Directory_Parent="Addins_Dir" DefaultDir="2023"/>
     <ROW Directory="__8_Dir" Directory_Parent="Addins_Dir" DefaultDir="2024"/>
@@ -53,6 +54,15 @@
     <ROW Component="APPDIR" ComponentId="{4B15B635-68F0-410D-9663-1436D0807A13}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="BoostYourBIMTerrificTools.addin_7" ComponentId="{59B6893D-D1A3-4433-8BF6-8705D71D0C6B}" Directory_="__7_Dir" Attributes="0" KeyPath="RevitDataValidator.addin_1" Type="0"/>
     <ROW Component="BoostYourBIMTerrificTools.addin_8" ComponentId="{B0FC7AB0-DC71-4312-B8C4-F750A208D08A}" Directory_="__8_Dir" Attributes="0" KeyPath="RevitDataValidator.addin_2" Type="0"/>
+    <ROW Component="CreateJsonWebToken.deps.json" ComponentId="{C345BED4-579E-4A1B-9011-A89A93C021BA}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="CreateJsonWebToken.deps.json" Type="0"/>
+    <ROW Component="CreateJsonWebToken.deps.json_1" ComponentId="{2EA73EE8-1367-4DD7-9940-A9CAF6AD5CAC}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="CreateJsonWebToken.deps.json_1" Type="0"/>
+    <ROW Component="CreateJsonWebToken.dll" ComponentId="{09E34E95-0802-4D22-AB1C-AFB10577D488}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="CreateJsonWebToken.dll"/>
+    <ROW Component="CreateJsonWebToken.dll_1" ComponentId="{D60EB42E-F45E-416B-BCE8-A25C9AF84023}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="CreateJsonWebToken.dll_1"/>
+    <ROW Component="CreateJsonWebToken.dll_2" ComponentId="{B5A01C51-9EDD-4A4C-9B0C-A63F58C16F13}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="CreateJsonWebToken.dll_2"/>
+    <ROW Component="CreateJsonWebToken.exe" ComponentId="{368C8192-1579-484E-9366-292FCCC6266C}" Directory_="CreateJsonWebToken_2_Dir" Attributes="256" KeyPath="CreateJsonWebToken.exe"/>
+    <ROW Component="CreateJsonWebToken.exe_1" ComponentId="{67863DA8-4F2F-41F1-9E1B-390BD23EF622}" Directory_="CreateJsonWebToken_1_Dir" Attributes="256" KeyPath="CreateJsonWebToken.exe_1"/>
+    <ROW Component="CreateJsonWebToken.exe_2" ComponentId="{3222B644-8012-4CE0-B741-872D242191BF}" Directory_="CreateJsonWebToken_Dir" Attributes="256" KeyPath="CreateJsonWebToken.exe_2"/>
+    <ROW Component="CreateJsonWebToken.runtimeconfig.json" ComponentId="{9474BD30-6876-45EF-94D4-EC765670AABC}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="CreateJsonWebToken.runtimeconfig.json_2" Type="0"/>
     <ROW Component="Flee.dll" ComponentId="{223676A3-B457-419D-ACC7-4A9E18807E4D}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Flee.dll"/>
     <ROW Component="Flee.dll_1" ComponentId="{9AF925FD-3CE4-4597-A0F6-17DA4A84CA20}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Flee.dll_1"/>
     <ROW Component="Flee.dll_2" ComponentId="{73254BB9-618D-40AF-837D-42715A29F82E}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="Flee.dll_2"/>
@@ -77,6 +87,18 @@
     <ROW Component="Microsoft.CodeAnalysis.dll" ComponentId="{C9B67E08-C944-49F7-A978-5B609812F6B6}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll"/>
     <ROW Component="Microsoft.CodeAnalysis.dll_1" ComponentId="{4B49674A-B0EF-41F5-BD9A-96885DF0E77C}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll_1"/>
     <ROW Component="Microsoft.CodeAnalysis.dll_2" ComponentId="{4135CA79-57B3-4E8A-9175-4DFC6058C8D7}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="Microsoft.CodeAnalysis.dll_2"/>
+    <ROW Component="Microsoft.IdentityModel.Abstractio_1_ns.dll" ComponentId="{42C4253F-C90C-4E59-A5C3-8E748DE29EC2}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Abstractio_1_ns.dll"/>
+    <ROW Component="Microsoft.IdentityModel.Abstractio_2_ns.dll" ComponentId="{D98E6B8C-3DAC-49D8-B930-DB36650EBCAC}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Abstractio_2_ns.dll"/>
+    <ROW Component="Microsoft.IdentityModel.Abstractions.dll" ComponentId="{4DC81936-F159-48B3-9411-C310A1DA22D7}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Abstractions.dll"/>
+    <ROW Component="Microsoft.IdentityModel.JsonWebTok_1_ens.dll" ComponentId="{74289B64-5081-45BD-A7A6-28A03B3E0A98}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.JsonWebTok_1_ens.dll"/>
+    <ROW Component="Microsoft.IdentityModel.JsonWebTok_2_ens.dll" ComponentId="{975E4B1B-6C43-4BC1-B034-B95B86EBD129}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.JsonWebTok_2_ens.dll"/>
+    <ROW Component="Microsoft.IdentityModel.JsonWebTokens.dll" ComponentId="{45C9704B-82CB-4730-8717-0A7A53D6E230}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.JsonWebTokens.dll"/>
+    <ROW Component="Microsoft.IdentityModel.Logging.dll" ComponentId="{FC987E60-F923-4D36-9913-348B19E26C02}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Logging.dll"/>
+    <ROW Component="Microsoft.IdentityModel.Logging.dll_1" ComponentId="{3EB9C43E-9885-413D-B8FC-DC88D888ED15}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Logging.dll_1"/>
+    <ROW Component="Microsoft.IdentityModel.Logging.dll_2" ComponentId="{8542F37A-18A3-405E-84B6-D660DC7C71B8}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Logging.dll_2"/>
+    <ROW Component="Microsoft.IdentityModel.Tokens.dll" ComponentId="{CC039F10-0716-4C81-8F93-429648C173EA}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Tokens.dll"/>
+    <ROW Component="Microsoft.IdentityModel.Tokens.dll_1" ComponentId="{AB686480-9273-4720-B9C2-261C4AFDDCE7}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Tokens.dll_1"/>
+    <ROW Component="Microsoft.IdentityModel.Tokens.dll_2" ComponentId="{4E2BC58A-4EBF-48AA-8C61-6312B6991293}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="Microsoft.IdentityModel.Tokens.dll_2"/>
     <ROW Component="NLog.dll" ComponentId="{AEFB88B6-556F-40A9-9F83-58CA214149BE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="NLog.dll"/>
     <ROW Component="NLog.dll_1" ComponentId="{521096D4-D77E-4DE0-8A79-FFBDEADB6F3F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="NLog.dll_1"/>
     <ROW Component="NLog.dll_2" ComponentId="{8ECFD5EA-8480-47A6-9DD6-34917E1EC554}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="NLog.dll_2"/>
@@ -89,15 +111,16 @@
     <ROW Component="Octokit.dll" ComponentId="{2A07C71A-4AC3-42BF-B3B0-3C18A9B43EB1}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="Octokit.dll"/>
     <ROW Component="Octokit.dll_1" ComponentId="{ACD88102-2781-4466-99D0-19B85CE8808B}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Octokit.dll_1"/>
     <ROW Component="Octokit.dll_2" ComponentId="{5A8D927A-B1C3-43FA-B42D-C1A38AD63B9F}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Octokit.dll_2"/>
-    <ROW Component="ParameterPacks.json" ComponentId="{AF7F01FC-18D2-4BF8-8246-6BA09AEE3D18}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="ParameterPacks.json_1" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{33AF353B-E245-44C8-934C-10AD69395E2A}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="ProjectRules.md_1" ComponentId="{206B7734-9D08-425E-BBF0-420EE7ECDAC5}" Directory_="Rules_Dir" Attributes="0" KeyPath="ProjectRules.md_1" Type="0"/>
     <ROW Component="RevitDataValidator.addin" ComponentId="{BDB2DA5B-E568-4FB5-92EB-A6EA361C9C68}" Directory_="__Dir" Attributes="0" KeyPath="RevitDataValidator.addin" Type="0"/>
     <ROW Component="RevitDataValidator.dll" ComponentId="{AD93D057-42CD-4788-B947-7F1E33FDF84A}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitDataValidator.dll"/>
     <ROW Component="RevitDataValidator.dll_1" ComponentId="{076FEE16-221D-46CA-B310-1703D70A68E8}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_1"/>
     <ROW Component="RevitDataValidator.dll_2" ComponentId="{392711B2-10F2-4251-A0F6-BC154463C2A6}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_2"/>
     <ROW Component="System.Collections.Immutable.dll" ComponentId="{5870434D-871E-49A2-BCC4-6BAA6FE946AE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll"/>
     <ROW Component="System.Collections.Immutable.dll_1" ComponentId="{10B45995-977C-4CB9-859E-B1C8A6BD5CE8}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll_1"/>
+    <ROW Component="System.IdentityModel.Tokens.Jwt.dll" ComponentId="{73469280-EE7F-453D-8A46-D2224EB45EF6}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll"/>
+    <ROW Component="System.IdentityModel.Tokens.Jwt.dll_1" ComponentId="{8D87DEEE-7DD6-4CCE-8DA2-C5BE988C0D73}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll_1"/>
+    <ROW Component="System.IdentityModel.Tokens.Jwt.dll_2" ComponentId="{F326D0F9-1060-4457-B391-B31DBE6FC22E}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll_2"/>
     <ROW Component="System.Reflection.Metadata.dll" ComponentId="{B9C2ABB6-7887-42DC-B1B4-55A2C9A02596}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Reflection.Metadata.dll"/>
     <ROW Component="System.Reflection.Metadata.dll_1" ComponentId="{E228ED76-D75A-43F6-8674-7A736195580F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Reflection.Metadata.dll_1"/>
     <ROW Component="alternateUnits1.0.0.json" ComponentId="{AE814464-8382-4177-9CD4-11667E3E7DD8}" Directory_="enums_Dir" Attributes="0" KeyPath="alternateUnits1.0.0.json" Type="0"/>
@@ -124,10 +147,6 @@
     <ROW File="RevitDataValidator.pdb" Component_="RevitDataValidator.dll" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2023\RevitDataValidator.pdb" SelfReg="false"/>
     <ROW File="Flee.dll_1" Component_="Flee.dll_1" FileName="Flee.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Flee.dll" SelfReg="false"/>
     <ROW File="RevitDataValidator.pdb_1" Component_="RevitDataValidator.dll_2" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2024\RevitDataValidator.pdb" SelfReg="false"/>
-    <ROW File="ParameterPacks.json_1" Component_="ParameterPacks.json" FileName="PARAME~1.JSO|ParameterPacks.json" Attributes="0" SourcePath="install\ParameterPacks.json" SelfReg="false"/>
-    <ROW File="ProjectRules.md_1" Component_="ProjectRules.md_1" FileName="PROJEC~1.MD|ProjectRules.md" Attributes="0" SourcePath="install\ProjectRules.md" SelfReg="false"/>
-    <ROW File="WallCommentsabcde.md" Component_="ProjectRules.md_1" FileName="WALLCO~1.MD|Wall Comments a b c d e.md" Attributes="0" SourcePath="install\Wall Comments a b c d e.md" SelfReg="false"/>
-    <ROW File="WallCommentsxyz.md" Component_="ProjectRules.md_1" FileName="WALLCO~2.MD|Wall Comments x y z.md" Attributes="0" SourcePath="install\Wall Comments x y z.md" SelfReg="false"/>
     <ROW File="System.Collections.Immutable.dll" Component_="System.Collections.Immutable.dll" FileName="SYSTEM~1.DLL|System.Collections.Immutable.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\System.Collections.Immutable.dll" SelfReg="false"/>
     <ROW File="Microsoft.CodeAnalysis.CSharp.dll" Component_="Microsoft.CodeAnalysis.CSharp.dll" FileName="MICROS~1.DLL|Microsoft.CodeAnalysis.CSharp.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Microsoft.CodeAnalysis.CSharp.dll" SelfReg="false"/>
     <ROW File="Microsoft.CodeAnalysis.CSharp.Scripting.dll" Component_="Microsoft.CodeAnalysis.CSharp.Scripting.dll" FileName="MICROS~2.DLL|Microsoft.CodeAnalysis.CSharp.Scripting.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Microsoft.CodeAnalysis.CSharp.Scripting.dll" SelfReg="false"/>
@@ -1968,6 +1987,36 @@
     <ROW File="key.txt" Component_="InPlaceFamilyCheck.cs_2" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
     <ROW File="key.txt_1" Component_="InPlaceFamilyCheck.cs_1" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
     <ROW File="key.txt_2" Component_="InPlaceFamilyCheck.cs" FileName="key.txt" Attributes="0" SourcePath="install\key.txt" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.deps.json" Component_="CreateJsonWebToken.deps.json" FileName="CREATE~1.JSO|CreateJsonWebToken.deps.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.deps.json" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.dll" Component_="CreateJsonWebToken.dll" FileName="CREATE~1.DLL|CreateJsonWebToken.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.exe" Component_="CreateJsonWebToken.exe" FileName="CREATE~1.EXE|CreateJsonWebToken.exe" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="CreateJsonWebToken.pdb" Component_="CreateJsonWebToken.exe" FileName="CREATE~1.PDB|CreateJsonWebToken.pdb" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.pdb" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.runtimeconfig.json" Component_="CreateJsonWebToken.deps.json" FileName="CREATE~2.JSO|CreateJsonWebToken.runtimeconfig.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Abstractions.dll" Component_="Microsoft.IdentityModel.Abstractions.dll" FileName="MICROS~1.DLL|Microsoft.IdentityModel.Abstractions.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.JsonWebTokens.dll" Component_="Microsoft.IdentityModel.JsonWebTokens.dll" FileName="MICROS~2.DLL|Microsoft.IdentityModel.JsonWebTokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Logging.dll" Component_="Microsoft.IdentityModel.Logging.dll" FileName="MICROS~3.DLL|Microsoft.IdentityModel.Logging.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Tokens.dll" Component_="Microsoft.IdentityModel.Tokens.dll" FileName="MICROS~4.DLL|Microsoft.IdentityModel.Tokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll" SelfReg="false"/>
+    <ROW File="System.IdentityModel.Tokens.Jwt.dll" Component_="System.IdentityModel.Tokens.Jwt.dll" FileName="SYSTEM~1.DLL|System.IdentityModel.Tokens.Jwt.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.deps.json_1" Component_="CreateJsonWebToken.deps.json_1" FileName="CREATE~1.JSO|CreateJsonWebToken.deps.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.deps.json" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.dll_1" Component_="CreateJsonWebToken.dll_1" FileName="CREATE~1.DLL|CreateJsonWebToken.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.exe_1" Component_="CreateJsonWebToken.exe_1" FileName="CREATE~1.EXE|CreateJsonWebToken.exe" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="CreateJsonWebToken.pdb_1" Component_="CreateJsonWebToken.exe_1" FileName="CREATE~1.PDB|CreateJsonWebToken.pdb" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.pdb" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.runtimeconfig.json_1" Component_="CreateJsonWebToken.deps.json_1" FileName="CREATE~2.JSO|CreateJsonWebToken.runtimeconfig.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Abstractio_1_ns.dll" Component_="Microsoft.IdentityModel.Abstractio_1_ns.dll" FileName="MICROS~1.DLL|Microsoft.IdentityModel.Abstractions.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.JsonWebTok_1_ens.dll" Component_="Microsoft.IdentityModel.JsonWebTok_1_ens.dll" FileName="MICROS~2.DLL|Microsoft.IdentityModel.JsonWebTokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Logging.dll_1" Component_="Microsoft.IdentityModel.Logging.dll_1" FileName="MICROS~3.DLL|Microsoft.IdentityModel.Logging.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Tokens.dll_1" Component_="Microsoft.IdentityModel.Tokens.dll_1" FileName="MICROS~4.DLL|Microsoft.IdentityModel.Tokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll" SelfReg="false"/>
+    <ROW File="System.IdentityModel.Tokens.Jwt.dll_1" Component_="System.IdentityModel.Tokens.Jwt.dll_1" FileName="SYSTEM~1.DLL|System.IdentityModel.Tokens.Jwt.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.dll_2" Component_="CreateJsonWebToken.dll_2" FileName="CREATE~1.DLL|CreateJsonWebToken.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.exe_2" Component_="CreateJsonWebToken.exe_2" FileName="CREATE~1.EXE|CreateJsonWebToken.exe" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="CreateJsonWebToken.pdb_2" Component_="CreateJsonWebToken.exe_2" FileName="CREATE~1.PDB|CreateJsonWebToken.pdb" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.pdb" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.runtimeconfig.json_2" Component_="CreateJsonWebToken.runtimeconfig.json" FileName="CREATE~1.JSO|CreateJsonWebToken.runtimeconfig.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Abstractio_2_ns.dll" Component_="Microsoft.IdentityModel.Abstractio_2_ns.dll" FileName="MICROS~1.DLL|Microsoft.IdentityModel.Abstractions.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.JsonWebTok_2_ens.dll" Component_="Microsoft.IdentityModel.JsonWebTok_2_ens.dll" FileName="MICROS~2.DLL|Microsoft.IdentityModel.JsonWebTokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Logging.dll_2" Component_="Microsoft.IdentityModel.Logging.dll_2" FileName="MICROS~3.DLL|Microsoft.IdentityModel.Logging.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll" SelfReg="false"/>
+    <ROW File="Microsoft.IdentityModel.Tokens.dll_2" Component_="Microsoft.IdentityModel.Tokens.dll_2" FileName="MICROS~4.DLL|Microsoft.IdentityModel.Tokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll" SelfReg="false"/>
+    <ROW File="System.IdentityModel.Tokens.Jwt.dll_2" Component_="System.IdentityModel.Tokens.Jwt.dll_2" FileName="SYSTEM~1.DLL|System.IdentityModel.Tokens.Jwt.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll" SelfReg="false"/>
+    <ROW File="CreateJsonWebToken.deps.json_2" Component_="CreateJsonWebToken.runtimeconfig.json" FileName="CREATE~2.JSO|CreateJsonWebToken.deps.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.deps.json" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -2075,8 +2124,6 @@
     <ROW Feature_="MainFeature" Component_="Flee.dll_1"/>
     <ROW Feature_="MainFeature" Component_="Flee.dll"/>
     <ROW Feature_="MainFeature" Component_="Markdig.dll_2"/>
-    <ROW Feature_="MainFeature" Component_="ParameterPacks.json"/>
-    <ROW Feature_="MainFeature" Component_="ProjectRules.md_1"/>
     <ROW Feature_="MainFeature" Component_="System.Collections.Immutable.dll"/>
     <ROW Feature_="MainFeature" Component_="Microsoft.CodeAnalysis.CSharp.dll"/>
     <ROW Feature_="MainFeature" Component_="Microsoft.CodeAnalysis.CSharp.Scripting.dll"/>
@@ -2119,6 +2166,30 @@
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe_1"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe_2"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.deps.json"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.dll"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.exe"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Abstractions.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.JsonWebTokens.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Logging.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Tokens.dll"/>
+    <ROW Feature_="MainFeature" Component_="System.IdentityModel.Tokens.Jwt.dll"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.deps.json_1"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Abstractio_1_ns.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.JsonWebTok_1_ens.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Logging.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Tokens.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="System.IdentityModel.Tokens.Jwt.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.exe_2"/>
+    <ROW Feature_="MainFeature" Component_="CreateJsonWebToken.runtimeconfig.json"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Abstractio_2_ns.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.JsonWebTok_2_ens.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Logging.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Tokens.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="System.IdentityModel.Tokens.Jwt.dll_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
