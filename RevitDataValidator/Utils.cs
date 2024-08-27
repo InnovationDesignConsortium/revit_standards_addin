@@ -106,8 +106,12 @@ namespace RevitDataValidator
         public static GithubResponse GetLatestWebRelase()
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
-            var releasesJson = GetPrivateRepoString(url, HttpMethod.Get, githubToken, "application/vnd.github.v3.raw", githubToken);
+            var releasesJson = GetPrivateRepoString(url, HttpMethod.Get, githubToken, "application/vnd.github.v3.raw", "token");
 
+            if (releasesJson == null)
+            {
+                return null;
+            }
             var releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
             if (releases == null)
             {
@@ -171,6 +175,10 @@ namespace RevitDataValidator
             catch (Exception ex)
             {
                 LogException("GetPrivateRepoStream", ex);
+            }
+            if (stream == null)
+            {
+                return null;
             }
             return new StreamReader(stream).ReadToEnd();
         }
@@ -943,9 +951,10 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
+            TaskDialog.Show("Exception", ex.Message);
             Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
         }
-
+         
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static string GetFileName(Document doc = null)

@@ -34,8 +34,6 @@ namespace RevitDataValidator
         private static string GIT_REPO = "";
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
-        private const string GitHubAppClientId = "Iv23li4ATvi53MDtKsdI";
-        private const string GitHubAppUrl = "https://github.com/apps/revitstandardsgithubapp";
 
         public override void OnStartup()
         {
@@ -480,7 +478,7 @@ namespace RevitDataValidator
                 };
 
                 var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
-                               
+
                 if (content == null || content.IsFaulted)
                 {
                     Utils.Log($"No git data found at {path}", Utils.LogLevel.Warn);
@@ -517,7 +515,7 @@ namespace RevitDataValidator
                 RSA rsa;
 #if PRE_NET_8
                 return "";
-                rsa = ImportFromPem(private_key, true);
+                //rsa = ImportFromPem(private_key, true);
 #else
                 rsa = RSA.Create();
                 rsa.ImportFromPem(private_key);

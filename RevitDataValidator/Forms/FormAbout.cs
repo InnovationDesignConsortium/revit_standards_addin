@@ -12,14 +12,15 @@ namespace RevitDataValidator.Forms
 {
     public partial class frmAbout : Form
     {
-        GithubResponse latestRelease = null;
+        private GithubResponse latestRelease = null;
+
         public frmAbout()
         {
             InitializeComponent();
             lblInstalled.Text = Utils.GetInstalledVersion().ToString();
 
             latestRelease = Utils.GetLatestWebRelase();
-            
+
             if (latestRelease == null)
             {
                 lblNewest.Text = "<none>";
@@ -39,9 +40,6 @@ namespace RevitDataValidator.Forms
                     btnDownload.Enabled = false;
                 }
             }
-
-            
-
         }
 
         private void btnClose_Click(object sender, EventArgs e)
