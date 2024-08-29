@@ -68,6 +68,10 @@ namespace RevitDataValidator
                 return;
             }
             Element element = SetPackSets();
+            if (element == null)
+            {
+                return;
+            }
 
             var packSet = Utils.parameterUIData.PackSets.Find(q => q.Name == name);
             if (packSet == null)
