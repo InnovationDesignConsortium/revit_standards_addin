@@ -26,6 +26,7 @@ namespace RevitDataValidator
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
+        public static string gitRuleFilePath;
 
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
@@ -224,7 +225,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    var gitRuleFilePath = GetGitFileNamesFromConfig();
+                    gitRuleFilePath = GetGitFileNamesFromConfig();
                     RepositoryContent ruleData = null;
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
@@ -544,28 +545,25 @@ namespace RevitDataValidator
             {
                 if (rule.CustomCode != null)
                 {
-                    var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    var filename = Path.Combine(assemblyFolder, rule.CustomCode + ".cs");
-                    if (File.Exists(filename))
+                    var customCodeFile = $"{gitRuleFilePath}\\{rule.CustomCode}.cs";
+                    var customCodeContent = Utils.GetGitData(ContentType.File, customCodeFile);
+                    if (customCodeContent != null)
                     {
-                        using (var sr = new StreamReader(filename))
+                        var code = customCodeContent.Content;
+                        var service = new ValidationService();
+                        var result = service.Execute(code, out MemoryStream ms);
+                        if (result == null)
                         {
-                            var code = sr.ReadToEnd();
-                            var service = new ValidationService();
-                            var result = service.Execute(code, out MemoryStream ms);
-                            if (result == null)
+                            ms.Seek(0, SeekOrigin.Begin);
+                            Assembly assembly = Assembly.Load(ms.ToArray());
+                            var type = assembly.GetType(rule.CustomCode);
+                            Utils.dictCustomCode[rule.CustomCode] = type;
+                        }
+                        else
+                        {
+                            foreach (var error in result)
                             {
-                                ms.Seek(0, SeekOrigin.Begin);
-                                Assembly assembly = Assembly.Load(ms.ToArray());
-                                var type = assembly.GetType(rule.CustomCode);
-                                Utils.dictCustomCode[rule.CustomCode] = type;
-                            }
-                            else
-                            {
-                                foreach (var error in result)
-                                {
-                                    Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
-                                }
+                                Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
                             }
                         }
                     }

@@ -17,7 +17,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 
 #if !PRE_NET_8
@@ -439,9 +441,9 @@ namespace RevitDataValidator
 
         public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule)
         {
-            Type type = dictCustomCode[rule.CustomCode];
-            object obj = Activator.CreateInstance(type);
-            object x = type.InvokeMember("Run",
+            var type = dictCustomCode[rule.CustomCode];
+            var obj = Activator.CreateInstance(type);
+            var x = type.InvokeMember("Run",
                                 BindingFlags.Default | BindingFlags.InvokeMethod,
                                 null,
                                 obj,
