@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using NLog;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;

@@ -24,6 +24,8 @@ namespace RevitDataValidator.Forms
             if (latestRelease == null)
             {
                 lblNewest.Text = "<none>";
+                lblReleaseDate.Text = "<none>";
+                btnDownload.Enabled = false;
             }
             else
             {

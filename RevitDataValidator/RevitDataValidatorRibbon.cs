@@ -7,13 +7,17 @@ using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 using Octokit;
+using Revit.Async;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -33,6 +37,12 @@ namespace RevitDataValidator
 
         public override void OnStartup()
         {
+            RevitTask.Initialize(Application);
+            RevitTask.RegisterGlobal(new CustomRuleExternalEventHandler());
+
+            var dll = typeof(Ribbon).Assembly.Location;
+            Utils.dllPath = Path.GetDirectoryName(dll);
+
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = Application.ControlledApplication;
@@ -59,6 +69,7 @@ namespace RevitDataValidator
                 Environment.SetEnvironmentVariable(REPO_ENV, "", EnvironmentVariableTarget.Machine);
                 Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
             }
+            Utils.tokenFromGithubApp = GetGithubTokenFromApp();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -92,11 +103,7 @@ namespace RevitDataValidator
                 FailureSeverity.Error,
                 RULE_DEFAULT_MESSAGE);
 
-            // change tab name below in ClearComboBoxItems() as needed
             var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
-            var dll = typeof(Ribbon).Assembly.Location;
-            Utils.dllPath = Path.GetDirectoryName(dll);
-
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
             panel.AddItem(new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand"));
             ShowErrors();
@@ -116,6 +123,75 @@ namespace RevitDataValidator
                 {
                     Utils.LogException("Could not install new version", ex);
                 }
+            }
+        }
+
+        private static string GetGithubTokenFromApp()
+        {
+            // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+
+            // 1 - Generate a JSON web token (JWT) for your app
+
+            var tokenForApp = GenerateJwtToken();            
+            if (string.IsNullOrEmpty(tokenForApp))
+            {
+                Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
+                return null;
+            }
+
+            // 2 - Get the ID of the installation that you want to authenticate as
+            var installationResponse = Utils.GetPrivateRepoString("https://api.github.com/app/installations", HttpMethod.Get, tokenForApp, "application/vnd.github+json", "Bearer");
+            var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
+            var installation = installations?.FirstOrDefault(q => q.account.login == Utils.GIT_OWNER);
+            if (installation == null)
+            {
+                var td = new TaskDialog("Error")
+                {
+                    MainInstruction = $"Github app must be installed for {Utils.GIT_OWNER}",
+                    MainContent = "\"<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>\""
+                };
+                td.Show();
+
+                Utils.Log($"Installation does not exist for {Utils.GIT_OWNER}", Utils.LogLevel.Error);
+                return null;
+            }
+            var instalationId = installation?.id;
+
+            // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
+            var myJsonResponse3 = Utils.GetPrivateRepoString($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, tokenForApp, "application/vnd.github+json", "Bearer");
+            var amazing = JsonConvert.DeserializeObject<RootB>(myJsonResponse3);
+            var tokenNoWay = amazing?.token;
+            return tokenNoWay;
+        }
+
+        private static string GenerateJwtToken()
+        {
+            try
+            {
+                var pathtoexe = Path.Combine(Utils.dllPath, "CreateJsonWebToken", "CreateJsonWebToken.exe");
+                if (File.Exists(pathtoexe))
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = pathtoexe,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                    };
+                    var pp = Process.Start(startInfo);
+                    var output = pp.StandardOutput.ReadToEnd();
+                    pp.WaitForExit();
+                    return output;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Failed to generate JwtToken", ex);
+                return null;
             }
         }
 
@@ -146,6 +222,7 @@ namespace RevitDataValidator
         private void Application_Idling(object sender, IdlingEventArgs e)
         {
             Utils.dialogIdShowing = "";
+            Utils.CustomCodeRunning = new List<string>();
         }
 
         private void Application_DialogBoxShowing(object sender, DialogBoxShowingEventArgs e)
@@ -369,6 +446,10 @@ namespace RevitDataValidator
             {
                 return false;
             }
+            if (r1.CustomCode != null || r2.CustomCode != null)
+            {
+                return false;
+            }
             if ((r1.Categories != null && r1.Categories.Intersect(r2.Categories).Any()) ||
                 (r1.ElementClasses != null && r1.ElementClasses.Intersect(r2.ElementClasses).Any()))
             {
@@ -459,7 +540,7 @@ namespace RevitDataValidator
                 element = doc.GetElement(Utils.selectedIds[0]);
             }
 
-            if (element.Category == null)
+            if (element?.Category == null)
                 return;
 
             var catName = element.Category.Name;
@@ -545,11 +626,29 @@ namespace RevitDataValidator
             {
                 if (rule.CustomCode != null)
                 {
-                    var customCodeFile = $"{gitRuleFilePath}\\{rule.CustomCode}.cs";
-                    var customCodeContent = Utils.GetGitData(ContentType.File, customCodeFile);
-                    if (customCodeContent != null)
+                    string code = null;
+                    var localPath = Path.Combine(
+                        "C:\\Users\\harry\\OneDrive\\Public\\Documents\\GitHub\\revit_standards_addin\\RevitDataValidator", $"{rule.CustomCode}.cs");
+                    if (File.Exists(localPath))
                     {
-                        var code = customCodeContent.Content;
+                        code = File.ReadAllText(localPath);
+                    }
+                    if (code == null)
+                    {
+                        var customCodeFile = $"{gitRuleFilePath}\\{rule.CustomCode}.cs";
+                        var repositoryContent = Utils.GetGitData(ContentType.File, customCodeFile);
+                        if (repositoryContent == null)
+                        {
+                            Utils.Log($"Could not get content from file {customCodeFile}", Utils.LogLevel.Error);
+                            return;
+                        }
+                        else
+                        {
+                            code = repositoryContent.Content;
+                        }
+                    }
+                    if (code != null)
+                    {
                         var service = new ValidationService();
                         var result = service.Execute(code, out MemoryStream ms);
                         if (result == null)

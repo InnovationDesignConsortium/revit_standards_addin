@@ -38,9 +38,14 @@ namespace RevitDataValidator
                     }
                 }
 
-                foreach (var rule in Utils.allParameterRules.Where(q => q.CustomCode != null && Utils.dictCustomCode.ContainsKey(q.CustomCode)))
+                foreach (var rule in
+                    Utils.allParameterRules
+                    .Where(q =>
+                        q.CustomCode != null &&
+                        !Utils.CustomCodeRunning.Contains(q.CustomCode) &&
+                        Utils.dictCustomCode.ContainsKey(q.CustomCode)))
                 {
-                    var ids = Utils.RunCustomRule(rule);
+                    var ids = Utils.RunCustomRule(rule, addedAndModifiedIds);
                     if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
                     {
                         Utils.Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", Utils.LogLevel.Warn);

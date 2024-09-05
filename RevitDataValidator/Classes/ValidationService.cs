@@ -30,7 +30,11 @@ namespace RevitDataValidator
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Core.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Linq.dll")),
+                    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Collections.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(revitFolder, "RevitAPI.dll")),
+                    MetadataReference.CreateFromFile(Path.Combine(revitFolder, "RevitAPIUI.dll")),
+                    MetadataReference.CreateFromFile(Path.Combine(Utils.dllPath, "NLog.dll")),
+                    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "netstandard.dll")),
                 };
                 var compilation = CSharpCompilation.Create(
                     assemblyName,

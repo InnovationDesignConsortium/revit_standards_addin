@@ -10,6 +10,10 @@ namespace RevitDataValidator
             try
             {
                 var latestRelease = Utils.GetLatestWebRelase();
+                if (latestRelease == null)
+                {
+                    return;
+                }
                 var webVersion = new Version(latestRelease.tag_name.Substring(1));
                 if (Utils.IsWebVersionNewer(webVersion))
                 {
