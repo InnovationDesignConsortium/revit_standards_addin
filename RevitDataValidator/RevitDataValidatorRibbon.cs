@@ -34,6 +34,7 @@ namespace RevitDataValidator
 
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
+        private const string PAT_ENV = "RevitStandardsAddinGitPat";
 
         public override void OnStartup()
         {
@@ -42,6 +43,10 @@ namespace RevitDataValidator
 
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
+
+            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", Utils.LogLevel.Trace);
+
+            GetEnvironmentVariableData();
 
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
@@ -56,20 +61,6 @@ namespace RevitDataValidator
             Application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
-
-            Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
-            if (Utils.GIT_OWNER == null)
-            {
-                Environment.SetEnvironmentVariable(OWNER_ENV, "", EnvironmentVariableTarget.Machine);
-                Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
-            }
-            Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
-            if (Utils.GIT_REPO == null)
-            {
-                Environment.SetEnvironmentVariable(REPO_ENV, "", EnvironmentVariableTarget.Machine);
-                Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
-            }
-            Utils.tokenFromGithubApp = GetGithubTokenFromApp();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -126,6 +117,30 @@ namespace RevitDataValidator
             }
         }
 
+        private static void GetEnvironmentVariableData()
+        {
+            Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
+            if (Utils.GIT_OWNER == null)
+            {
+                Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
+            }
+            Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
+            if (Utils.GIT_REPO == null)
+            {
+                Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
+            }
+            var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
+            if (git_pat == null)
+            {
+                Utils.tokenFromGithubApp = GetGithubTokenFromApp();
+            }
+            else
+            {
+                Utils.tokenFromGithubApp = new TokenInfo { token = git_pat };
+                Utils.Log($"Github: Using personal access token {git_pat}", Utils.LogLevel.Trace);
+            }
+        }
+
         private static TokenInfo GetGithubTokenFromApp()
         {
             // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
@@ -138,6 +153,8 @@ namespace RevitDataValidator
                 Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
                 return null;
             }
+
+            Utils.Log($"Github: JSON Web Token {jsonWebToken}", Utils.LogLevel.Trace);
 
             // 2 - Get the ID of the installation that you want to authenticate as
             var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
@@ -156,10 +173,13 @@ namespace RevitDataValidator
                 return null;
             }
             var instalationId = installation?.id;
+            Utils.Log($"Github: Got installation id {instalationId}", Utils.LogLevel.Trace);
 
             // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
             var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
             var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
+            Utils.Log($"Github: Got access token {tokenInfo.token}", Utils.LogLevel.Trace);
+            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", Utils.LogLevel.Trace);
             return tokenInfo;
         }
 

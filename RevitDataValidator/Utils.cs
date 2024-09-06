@@ -157,15 +157,27 @@ namespace RevitDataValidator
                     Credentials = new Credentials(tokenFromGithubApp.token)
                 };
 
+                Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Trace);
+
                 var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
 
-                if (content == null || content.IsFaulted)
+                if (content == null)
                 {
-                    Log($"No git data found at {path}", LogLevel.Error);
+                    Log($"Github: content = null", LogLevel.Error);
+                    return null;
+                }
+
+                Log($"Github: content status before checking Result = {content.Status} ", LogLevel.Trace);
+
+                if (content.Status == TaskStatus.Faulted)
+                {
                     return null;
                 }
 
                 var result = content.Result.Where(q => q.Type == contentType);
+
+                Log($"Github: content status after checking Result = {content.Status} ", LogLevel.Trace);
+
                 if (result == null)
                 {
                     Log($"No git data found at {path} for {contentType}", LogLevel.Warn);
