@@ -2014,9 +2014,9 @@
     <ROW File="Microsoft.IdentityModel.Tokens.dll_2" Component_="Microsoft.IdentityModel.Tokens.dll_2" FileName="MICROS~4.DLL|Microsoft.IdentityModel.Tokens.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll" SelfReg="false"/>
     <ROW File="System.IdentityModel.Tokens.Jwt.dll_2" Component_="System.IdentityModel.Tokens.Jwt.dll_2" FileName="SYSTEM~1.DLL|System.IdentityModel.Tokens.Jwt.dll" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll" SelfReg="false"/>
     <ROW File="CreateJsonWebToken.deps.json_2" Component_="CreateJsonWebToken.runtimeconfig.json" FileName="CREATE~2.JSO|CreateJsonWebToken.deps.json" Attributes="0" SourcePath="CreateJsonWebToken\CreateJsonWebToken\bin\Debug\net8.0\CreateJsonWebToken.deps.json" SelfReg="false"/>
-    <ROW File="Revit.Async.dll" Component_="Revit.Async.dll" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\Revit.Async.dll" SelfReg="false"/>
-    <ROW File="Revit.Async.dll_1" Component_="Revit.Async.dll_1" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Revit.Async.dll" SelfReg="false"/>
-    <ROW File="Revit.Async.dll_2" Component_="Revit.Async.dll_2" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Revit.Async.dll" SelfReg="false"/>
+    <ROW File="Revit.Async.dll" Component_="Revit.Async.dll" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2025\Revit.Async.dll" SelfReg="false"/>
+    <ROW File="Revit.Async.dll_1" Component_="Revit.Async.dll_1" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2024\Revit.Async.dll" SelfReg="false"/>
+    <ROW File="Revit.Async.dll_2" Component_="Revit.Async.dll_2" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2023\Revit.Async.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
