@@ -38,6 +38,9 @@
 	<DefineConstants>R2025</DefineConstants>
 	<TargetFramework>net8.0-windows</TargetFramework>
 </PropertyGroup>
+<ItemGroup>
+  <Compile Remove="SetQuadrantByScopeBox.cs" />
+</ItemGroup>
   <ItemGroup>
 	  
 	<PackageReference Include="Nice3point.Revit.Toolkit" Condition="$(Configuration) == '2023'" Version="2023.2.1" />
@@ -63,6 +66,7 @@
 	<PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
 	<PackageReference Include="Nice3point.Revit.Api.UIFramework" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
 	<PackageReference Include="Nice3point.Revit.Api.UIFrameworkServices" Condition="$(Configuration) == '2025'" Version="2025.2.0" />
+	<PackageReference Include="Revit.Async" Version="2.1.1" />
 	
     <Reference Include="RevitAPI">
       <HintPath>c:\Program Files\Autodesk\Revit $(Configuration)\RevitAPI.dll</HintPath>
@@ -111,6 +115,6 @@
     </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == true">
-	  <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx&quot; /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)&#xD;&#xA;&#xD;&#xA;mkdir &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;copy /Y $(ProjectDir)$(TargetName).addin &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\&quot;&#xD;&#xA;copy /Y $(TargetPath) &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetDir)$(TargetName).pdb &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;REM copy /Y $(SolutionDir)install\*.cs &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;REM copy /Y $(SolutionDir)install\*.md &quot;C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)\Rules&quot;&#xD;&#xA;REM copy /Y $(SolutionDir)install\ParameterPacks.json &quot;C:\ProgramData\Autodesk\Revit\Addins\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe&quot; &quot;C:\Users\harry\Documents\rvt\$(Configuration).rvt&quot;" />
+	  <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx&quot; /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;copy /Y $(ProjectDir)$(TargetName).addin &quot;C:\ProgramData\Autodesk\Revit\Addins\$(Configuration)\&quot;&#xD;&#xA;copy /Y $(TargetPath) &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetDir)$(TargetName).pdb &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe&quot; &quot;C:\Users\harry\Documents\rvt\$(Configuration).rvt&quot;" />
   </Target>
 </Project>

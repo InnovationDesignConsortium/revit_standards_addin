@@ -1,9 +1,9 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Revit.Async;
 using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -238,7 +238,7 @@ namespace RevitDataValidator
             Utils.RunWorksetRule(rule, ids);
         }
 
-        private void Button_Parameter_Click(object sender, RoutedEventArgs e)
+        private async void Button_Parameter_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var tag = button.Tag;
@@ -251,8 +251,9 @@ namespace RevitDataValidator
 
             if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
             {
-                var ids = Utils.RunCustomRule(rule);
-                if (ids.Any())
+                var ids = await RevitTask.RaiseGlobal<CustomRuleExternalEventHandler, ParameterRule, IEnumerable<ElementId>>(rule);
+                
+                if (ids != null && ids.Any())
                 {
                     var td = new TaskDialog("Error")
                     {

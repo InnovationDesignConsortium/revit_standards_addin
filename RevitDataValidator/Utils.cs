@@ -5,8 +5,10 @@ using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
+using Octokit;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -19,6 +21,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -61,6 +64,10 @@ namespace RevitDataValidator
         public static Dictionary<string, RuleFileInfo> ruleDatas = new Dictionary<string, RuleFileInfo>();
         public static Dictionary<string, RuleFileInfo> parameterPackDatas = new Dictionary<string, RuleFileInfo>();
         public static string MsiToRunOnExit = null;
+        public static string GIT_OWNER = "";
+        public static string GIT_REPO = "";
+        public static List<string> CustomCodeRunning;
+        public static TokenInfo tokenFromGithubApp = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -70,7 +77,6 @@ namespace RevitDataValidator
     };
 
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
-        public static readonly string githubToken = "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";
         public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
         public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
 
@@ -85,7 +91,7 @@ namespace RevitDataValidator
                 }
 
                 // https://github.com/gruntwork-io/fetch
-                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {githubToken} {dllPath}";
+                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {tokenFromGithubApp} {dllPath}";
 
                 StartShell(
                     $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
@@ -106,13 +112,23 @@ namespace RevitDataValidator
         public static GithubResponse GetLatestWebRelase()
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
-            var releasesJson = GetPrivateRepoString(url, HttpMethod.Get, githubToken, "application/vnd.github.v3.raw", "token");
+
+            var releasesJson = GetRepoData(url, HttpMethod.Get, tokenFromGithubApp.token, "application/vnd.github.v3.raw", "token");
 
             if (releasesJson == null)
             {
                 return null;
             }
-            var releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
+            List<GithubResponse> releases = null;
+            try
+            {
+                releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
             if (releases == null)
             {
                 return null;
@@ -132,12 +148,44 @@ namespace RevitDataValidator
             }
         }
 
+        public static RepositoryContent GetGitData(ContentType contentType, string path)
+        {
+            try
+            {
+                var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+                {
+                    Credentials = new Credentials(tokenFromGithubApp.token)
+                };
+
+                var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
+
+                if (content == null || content.IsFaulted)
+                {
+                    Log($"No git data found at {path}", LogLevel.Error);
+                    return null;
+                }
+
+                var result = content.Result.Where(q => q.Type == contentType);
+                if (result == null)
+                {
+                    Log($"No git data found at {path} for {contentType}", LogLevel.Warn);
+                    return null;
+                }
+                return result.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                LogException("GetGitData", ex);
+                return null;
+            }
+        }
+      
         public static Version GetInstalledVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
-        public static string GetPrivateRepoString(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
+        public static string GetRepoData(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
         {
             Stream stream = null;
             try
@@ -188,14 +236,14 @@ namespace RevitDataValidator
             if (e == null)
                 return Result.Failed;
 
-            Document doc = e.Document;
+            var doc = e.Document;
 
-            Schema mySchema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
+            var mySchema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
 
             if (mySchema == null)
             {
                 var guid = Guid.Parse(SCHEMA_GUID_STRING);
-                SchemaBuilder sb = new SchemaBuilder(guid);
+                var sb = new SchemaBuilder(guid);
                 sb.SetSchemaName(SCHEMA_NAME);
                 sb.AddSimpleField(FIELD_EXCEPTION, typeof(string));
                 sb.AddSimpleField(FIELD_RULENAME, typeof(string));
@@ -203,12 +251,12 @@ namespace RevitDataValidator
                 mySchema = sb.Finish();
             }
 
-            Entity myEntity = new Entity(mySchema);
+            var myEntity = new Entity(mySchema);
             myEntity.Set<string>(mySchema.GetField(FIELD_EXCEPTION), exceptionMessage);
             myEntity.Set<string>(mySchema.GetField(FIELD_RULENAME), ruleName);
             myEntity.Set<string>(mySchema.GetField(FIELD_PARAMETERNAME), parameterName);
 
-            using (Transaction t = new Transaction(doc, "Store Data"))
+            using (var t = new Transaction(doc, "Store Data"))
             {
                 bool started = false;
                 try
@@ -234,14 +282,14 @@ namespace RevitDataValidator
 
         public static bool ElementHasReasonAllowedForRule(Element e, string ruleName, string parameterName, out string exception)
         {
-            Schema schema = schema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
+            var schema = Schema.ListSchemas().FirstOrDefault(q => q.SchemaName == SCHEMA_NAME);
             exception = "";
             if (schema == null)
             {
                 return false;
             }
 
-            Entity fiEntity = e.GetEntity(schema);
+            var fiEntity = e.GetEntity(schema);
             try
             {
                 var ruleFromElement = fiEntity.Get<string>(schema.GetField(FIELD_RULENAME));
@@ -324,15 +372,16 @@ namespace RevitDataValidator
             }
         }
 
-        public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule)
+        public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule, List<ElementId> addedAndModifiedIds)
         {
-            Type type = dictCustomCode[rule.CustomCode];
-            object obj = Activator.CreateInstance(type);
-            object x = type.InvokeMember("Run",
+            CustomCodeRunning.Add(rule.CustomCode);
+            var type = dictCustomCode[rule.CustomCode];
+            var obj = Activator.CreateInstance(type);
+            var x = type.InvokeMember("Run",
                                 BindingFlags.Default | BindingFlags.InvokeMethod,
                                 null,
                                 obj,
-                                new object[] { doc });
+                                new object[] { doc, addedAndModifiedIds });
             if (x is IEnumerable<ElementId> ids)
             {
                 return ids;
@@ -951,9 +1000,23 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
+            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+            {
+                var messageReplaced = "";
+                if (ex.Message.Contains('/'))
+                {
+                    messageReplaced = ex.Message.Replace("/", Environment.NewLine) + Environment.NewLine + Environment.NewLine;
+                }
+                var td = new TaskDialog("Error")
+                {
+                    MainInstruction = ex.Message,
+                    MainContent = messageReplaced + ex.StackTrace
+                };
+                td.Show();
+            }
             Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
         }
-         
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static string GetFileName(Document doc = null)
@@ -1007,7 +1070,7 @@ namespace RevitDataValidator
             }
             else if (level == LogLevel.Error)
             {
-                Autodesk.Revit.UI.TaskDialog.Show("Error", message);
+                TaskDialog.Show("Error", message);
                 Logger.Error(message);
             }
             else if (level == LogLevel.Warn)

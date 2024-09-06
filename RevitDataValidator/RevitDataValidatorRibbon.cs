@@ -7,7 +7,9 @@ using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 using Octokit;
+using Revit.Async;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -28,13 +30,19 @@ namespace RevitDataValidator
         private readonly string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
         private FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
-        private static string GIT_OWNER = "";
-        private static string GIT_REPO = "";
+        public static string gitRuleFilePath;
+
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
 
         public override void OnStartup()
         {
+            RevitTask.Initialize(Application);
+            RevitTask.RegisterGlobal(new CustomRuleExternalEventHandler());
+
+            var dll = typeof(Ribbon).Assembly.Location;
+            Utils.dllPath = Path.GetDirectoryName(dll);
+
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = Application.ControlledApplication;
@@ -49,18 +57,19 @@ namespace RevitDataValidator
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
             Utils.eventHandlerCreateInstancesInRoom = new EventHandlerCreateInstancesInRoom();
 
-            GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
-            if (GIT_OWNER == null)
+            Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
+            if (Utils.GIT_OWNER == null)
             {
                 Environment.SetEnvironmentVariable(OWNER_ENV, "", EnvironmentVariableTarget.Machine);
                 Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
             }
-            GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
-            if (GIT_REPO == null)
+            Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
+            if (Utils.GIT_REPO == null)
             {
                 Environment.SetEnvironmentVariable(REPO_ENV, "", EnvironmentVariableTarget.Machine);
                 Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
             }
+            Utils.tokenFromGithubApp = GetGithubTokenFromApp();
 
             Utils.paneId = new DockablePaneId(Guid.NewGuid());
             Utils.propertiesPanel = new PropertiesPanel();
@@ -94,11 +103,7 @@ namespace RevitDataValidator
                 FailureSeverity.Error,
                 RULE_DEFAULT_MESSAGE);
 
-            // change tab name below in ClearComboBoxItems() as needed
             var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
-            var dll = typeof(Ribbon).Assembly.Location;
-            Utils.dllPath = Path.GetDirectoryName(dll);
-
             panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
             panel.AddItem(new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand"));
             ShowErrors();
@@ -118,6 +123,74 @@ namespace RevitDataValidator
                 {
                     Utils.LogException("Could not install new version", ex);
                 }
+            }
+        }
+
+        private static TokenInfo GetGithubTokenFromApp()
+        {
+            // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+
+            // 1 - Generate a JSON web token (JWT) for your app
+
+            var jsonWebToken = GenerateJwtToken();            
+            if (string.IsNullOrEmpty(jsonWebToken))
+            {
+                Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
+                return null;
+            }
+
+            // 2 - Get the ID of the installation that you want to authenticate as
+            var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
+            var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
+            var installation = installations?.FirstOrDefault(q => q.account.login == Utils.GIT_OWNER);
+            if (installation == null)
+            {
+                var td = new TaskDialog("Error")
+                {
+                    MainInstruction = $"Github app must be installed for {Utils.GIT_OWNER}",
+                    MainContent = "<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>"
+                };
+                td.Show();
+
+                Utils.Log($"Installation does not exist for {Utils.GIT_OWNER}", Utils.LogLevel.Error);
+                return null;
+            }
+            var instalationId = installation?.id;
+
+            // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
+            var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
+            var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
+            return tokenInfo;
+        }
+
+        private static string GenerateJwtToken()
+        {
+            try
+            {
+                var pathtoexe = Path.Combine(Utils.dllPath, "CreateJsonWebToken", "CreateJsonWebToken.exe");
+                if (File.Exists(pathtoexe))
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = pathtoexe,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                    };
+                    var pp = Process.Start(startInfo);
+                    var output = pp.StandardOutput.ReadToEnd();
+                    pp.WaitForExit();
+                    return output;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Failed to generate JwtToken", ex);
+                return null;
             }
         }
 
@@ -148,6 +221,7 @@ namespace RevitDataValidator
         private void Application_Idling(object sender, IdlingEventArgs e)
         {
             Utils.dialogIdShowing = "";
+            Utils.CustomCodeRunning = new List<string>();
         }
 
         private void Application_DialogBoxShowing(object sender, DialogBoxShowingEventArgs e)
@@ -185,6 +259,11 @@ namespace RevitDataValidator
                 else
                 {
                     var parameterPackFilePath = GetGitFileNamesFromConfig();
+                    if (parameterPackFilePath == null)
+                    {
+                        return;
+                    }
+
                     var file = Path.Combine(Utils.dllPath, PARAMETER_PACK_FILE_NAME);
                     string json = "";
                     if (File.Exists(file))
@@ -194,7 +273,7 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        var data = GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}");
+                        var data = Utils.GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}");
                         if (data == null)
                         {
                             Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
@@ -227,12 +306,16 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    var gitRuleFilePath = GetGitFileNamesFromConfig();
+                    gitRuleFilePath = GetGitFileNamesFromConfig();
+                    if (gitRuleFilePath == null)
+                    {
+                        return;
+                    }
                     RepositoryContent ruleData = null;
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
                     {
-                        ruleData = GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
+                        ruleData = Utils.GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
                         ruleFileInfo.Url = ruleData.HtmlUrl;
                         ruleFileContents = ruleData.Content;
                     }
@@ -371,6 +454,10 @@ namespace RevitDataValidator
             {
                 return false;
             }
+            if (r1.CustomCode != null || r2.CustomCode != null)
+            {
+                return false;
+            }
             if ((r1.Categories != null && r1.Categories.Intersect(r2.Categories).Any()) ||
                 (r1.ElementClasses != null && r1.ElementClasses.Intersect(r2.ElementClasses).Any()))
             {
@@ -401,7 +488,7 @@ namespace RevitDataValidator
             var projectName = Utils.GetFileName();
 
             var path = "Standards/RevitStandardsPanel/Config.json";
-            var data = GetGitData(ContentType.File, path);
+            var data = Utils.GetGitData(ContentType.File, path);
 
             if (data == null)
             {
@@ -438,103 +525,6 @@ namespace RevitDataValidator
             return null;
         }
 
-        private static RepositoryContent GetGitData(ContentType contentType, string path)
-        {
-            try
-            {
-                // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
-
-                // 1 - Generate a JSON web token (JWT) for your app
-
-                var tokenForApp = GenerateJwtToken();
-                if (string.IsNullOrEmpty(tokenForApp))
-                {
-                    Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
-                    return null;
-                }
-
-                // 2 - Get the ID of the installation that you want to authenticate as
-                var installationResponse = Utils.GetPrivateRepoString("https://api.github.com/app/installations", HttpMethod.Get, tokenForApp, "application/vnd.github+json", "Bearer");
-                var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
-                var installation = installations?.FirstOrDefault(q => q.account.login == GIT_OWNER);
-                if (installation == null)
-                {
-                    TaskDialog.Show("Error", $"Github app must beot installed for {GIT_OWNER}");
-                    Utils.Log($"Installation does not exist for {GIT_OWNER}", Utils.LogLevel.Error);
-                    return null;
-                }
-                var instalationId = installation?.id;
-
-                // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
-                var myJsonResponse3 = Utils.GetPrivateRepoString($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, tokenForApp, "application/vnd.github+json", "Bearer");
-                var amazing = JsonConvert.DeserializeObject<RootB>(myJsonResponse3);
-                var tokenNoWay = amazing?.token;
-
-                var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
-                {
-                    Credentials = new Credentials(tokenNoWay)
-                };
-
-                var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
-
-                if (content == null || content.IsFaulted)
-                {
-                    Utils.Log($"No git data found at {path}", Utils.LogLevel.Warn);
-                    return null;
-                }
-
-                if (content.Result == null)
-                {
-                    Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
-                    return null;
-                }
-
-                var result = content.Result.Where(q => q.Type == contentType);
-                if (result == null)
-                {
-                    Utils.Log($"No git data found at {path} for {contentType}", Utils.LogLevel.Warn);
-                    return null;
-                }
-                return result.FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                Utils.LogException("GetGitData", ex);
-                return null;
-            }
-        }
-
-        private static string GenerateJwtToken()
-        {
-            try
-            {
-                var pathtoexe = Path.Combine(Utils.dllPath, "CreateJsonWebToken", "CreateJsonWebToken.exe");
-                if (File.Exists(pathtoexe))
-                {
-                    var startInfo = new ProcessStartInfo
-                    {
-                        FileName = pathtoexe,
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,                        
-                    };
-                    var pp =  Process.Start(startInfo);
-                    var output = pp.StandardOutput.ReadToEnd();
-                    pp.WaitForExit();
-                    return output;
-                }
-                else
-                {
-                    return "";
-                }
-            }
-            catch (Exception ex)
-            {
-                Utils.LogException("Failed to generate JwtToken", ex);
-                return null;
-            }
-        }
-
         private static void SetupPane()
         {
             var doc = Utils.doc;
@@ -558,7 +548,7 @@ namespace RevitDataValidator
                 element = doc.GetElement(Utils.selectedIds[0]);
             }
 
-            if (element.Category == null)
+            if (element?.Category == null)
                 return;
 
             var catName = element.Category.Name;
@@ -644,28 +634,43 @@ namespace RevitDataValidator
             {
                 if (rule.CustomCode != null)
                 {
-                    var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    var filename = Path.Combine(assemblyFolder, rule.CustomCode + ".cs");
-                    if (File.Exists(filename))
+                    string code = null;
+                    var localPath = Path.Combine(
+                        "C:\\Users\\harry\\OneDrive\\Public\\Documents\\GitHub\\revit_standards_addin\\RevitDataValidator", $"{rule.CustomCode}.cs");
+                    if (File.Exists(localPath))
                     {
-                        using (var sr = new StreamReader(filename))
+                        code = File.ReadAllText(localPath);
+                    }
+                    if (code == null)
+                    {
+                        var customCodeFile = $"{gitRuleFilePath}\\{rule.CustomCode}.cs";
+                        var repositoryContent = Utils.GetGitData(ContentType.File, customCodeFile);
+                        if (repositoryContent == null)
                         {
-                            var code = sr.ReadToEnd();
-                            var service = new ValidationService();
-                            var result = service.Execute(code, out MemoryStream ms);
-                            if (result == null)
+                            Utils.Log($"Could not get content from file {customCodeFile}", Utils.LogLevel.Error);
+                            return;
+                        }
+                        else
+                        {
+                            code = repositoryContent.Content;
+                        }
+                    }
+                    if (code != null)
+                    {
+                        var service = new ValidationService();
+                        var result = service.Execute(code, out MemoryStream ms);
+                        if (result == null)
+                        {
+                            ms.Seek(0, SeekOrigin.Begin);
+                            Assembly assembly = Assembly.Load(ms.ToArray());
+                            var type = assembly.GetType(rule.CustomCode);
+                            Utils.dictCustomCode[rule.CustomCode] = type;
+                        }
+                        else
+                        {
+                            foreach (var error in result)
                             {
-                                ms.Seek(0, SeekOrigin.Begin);
-                                Assembly assembly = Assembly.Load(ms.ToArray());
-                                var type = assembly.GetType(rule.CustomCode);
-                                Utils.dictCustomCode[rule.CustomCode] = type;
-                            }
-                            else
-                            {
-                                foreach (var error in result)
-                                {
-                                    Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
-                                }
+                                Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
                             }
                         }
                     }

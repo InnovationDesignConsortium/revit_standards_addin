@@ -4,7 +4,7 @@ using Autodesk.Revit.DB;
 
 public class InPlaceFamilyCheck
 {
-	public IEnumerable<ElementId> Run(Document doc)
+	public IEnumerable<ElementId> Run(Document doc, List<ElementId> ids)
 	{
 		var inplaceFamilies = new FilteredElementCollector(doc)
 			.OfClass(typeof(FamilyInstance))

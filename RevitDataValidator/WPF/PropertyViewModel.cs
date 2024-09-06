@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using NLog;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -68,6 +67,10 @@ namespace RevitDataValidator
                 return;
             }
             Element element = SetPackSets();
+            if (element == null)
+            {
+                return;
+            }
 
             var packSet = Utils.parameterUIData.PackSets.Find(q => q.Name == name);
             if (packSet == null)
