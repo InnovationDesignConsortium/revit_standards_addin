@@ -67,7 +67,7 @@ namespace RevitDataValidator
         public static string GIT_OWNER = "";
         public static string GIT_REPO = "";
         public static List<string> CustomCodeRunning;
-        public static string tokenFromGithubApp = null;
+        public static TokenInfo tokenFromGithubApp = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -113,7 +113,7 @@ namespace RevitDataValidator
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
 
-            var releasesJson = GetPrivateRepoString(url, HttpMethod.Get, tokenFromGithubApp, "application/vnd.github.v3.raw", "token");
+            var releasesJson = GetRepoData(url, HttpMethod.Get, tokenFromGithubApp.token, "application/vnd.github.v3.raw", "token");
 
             if (releasesJson == null)
             {
@@ -148,25 +148,18 @@ namespace RevitDataValidator
             }
         }
 
-
-        public static async Task<IReadOnlyList<RepositoryContent>> GetContents(GitHubClient client, string path)
-        {
-            var content = await client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
-            return content;
-        }
-
         public static RepositoryContent GetGitData(ContentType contentType, string path)
         {
             try
             {
                 var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
                 {
-                    Credentials = new Credentials(tokenFromGithubApp)
+                    Credentials = new Credentials(tokenFromGithubApp.token)
                 };
 
-                var content = Task.Run(() => GetContents(client, path));
+                var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
 
-                if (content == null || content.IsFaulted || content.Status != TaskStatus.RanToCompletion)
+                if (content == null || content.IsFaulted)
                 {
                     Log($"No git data found at {path}", LogLevel.Error);
                     return null;
@@ -192,7 +185,7 @@ namespace RevitDataValidator
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
-        public static string GetPrivateRepoString(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
+        public static string GetRepoData(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
         {
             Stream stream = null;
             try

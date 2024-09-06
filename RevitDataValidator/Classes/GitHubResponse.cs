@@ -55,9 +55,7 @@ namespace RevitDataValidator
         public string client_id { get; set; }
     }
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
-    public class RootB
+    public class TokenInfo
     {
         public string token { get; set; }
         public DateTime expires_at { get; set; }

@@ -126,21 +126,21 @@ namespace RevitDataValidator
             }
         }
 
-        private static string GetGithubTokenFromApp()
+        private static TokenInfo GetGithubTokenFromApp()
         {
             // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 
             // 1 - Generate a JSON web token (JWT) for your app
 
-            var tokenForApp = GenerateJwtToken();            
-            if (string.IsNullOrEmpty(tokenForApp))
+            var jsonWebToken = GenerateJwtToken();            
+            if (string.IsNullOrEmpty(jsonWebToken))
             {
                 Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
                 return null;
             }
 
             // 2 - Get the ID of the installation that you want to authenticate as
-            var installationResponse = Utils.GetPrivateRepoString("https://api.github.com/app/installations", HttpMethod.Get, tokenForApp, "application/vnd.github+json", "Bearer");
+            var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
             var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
             var installation = installations?.FirstOrDefault(q => q.account.login == Utils.GIT_OWNER);
             if (installation == null)
@@ -148,7 +148,7 @@ namespace RevitDataValidator
                 var td = new TaskDialog("Error")
                 {
                     MainInstruction = $"Github app must be installed for {Utils.GIT_OWNER}",
-                    MainContent = "\"<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>\""
+                    MainContent = "<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>"
                 };
                 td.Show();
 
@@ -158,10 +158,9 @@ namespace RevitDataValidator
             var instalationId = installation?.id;
 
             // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
-            var myJsonResponse3 = Utils.GetPrivateRepoString($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, tokenForApp, "application/vnd.github+json", "Bearer");
-            var amazing = JsonConvert.DeserializeObject<RootB>(myJsonResponse3);
-            var tokenNoWay = amazing?.token;
-            return tokenNoWay;
+            var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
+            var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
+            return tokenInfo;
         }
 
         private static string GenerateJwtToken()
@@ -260,6 +259,11 @@ namespace RevitDataValidator
                 else
                 {
                     var parameterPackFilePath = GetGitFileNamesFromConfig();
+                    if (parameterPackFilePath == null)
+                    {
+                        return;
+                    }
+
                     var file = Path.Combine(Utils.dllPath, PARAMETER_PACK_FILE_NAME);
                     string json = "";
                     if (File.Exists(file))
@@ -303,6 +307,10 @@ namespace RevitDataValidator
                 else
                 {
                     gitRuleFilePath = GetGitFileNamesFromConfig();
+                    if (gitRuleFilePath == null)
+                    {
+                        return;
+                    }
                     RepositoryContent ruleData = null;
                     var ruleFileInfo = new RuleFileInfo();
                     if (gitRuleFilePath != null)
