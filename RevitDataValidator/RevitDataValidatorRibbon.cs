@@ -130,7 +130,7 @@ namespace RevitDataValidator
                 Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
             }
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
-            if (git_pat == null)
+            if (string.IsNullOrEmpty(git_pat))
             {
                 Utils.tokenFromGithubApp = GetGithubTokenFromApp();
             }
