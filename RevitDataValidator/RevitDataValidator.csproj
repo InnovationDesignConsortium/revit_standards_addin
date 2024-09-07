@@ -8,7 +8,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 	<Configurations>2022;2023;2024;2025</Configurations>
     <RootNamespace>RevitDataValidator</RootNamespace>
-	<BaseOutputPath>C:\Users\harry\Documents\repos\revit_standards_addin\RevitDataValidator\bin</BaseOutputPath>
+	<BaseOutputPath>.\bin</BaseOutputPath>
     <OutputType>Library</OutputType>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
