@@ -7,7 +7,6 @@ using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 using Octokit;
 using Revit.Async;
 using RevitDataValidator.Classes;
@@ -32,6 +31,7 @@ namespace RevitDataValidator
         public static UpdaterId DataValidationUpdaterId;
         public static string gitRuleFilePath;
 
+        private const string SERVER_ENV = "RevitStandardsAddinGitServerUrl";
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
         private const string PAT_ENV = "RevitStandardsAddinGitPat";
@@ -119,6 +119,8 @@ namespace RevitDataValidator
 
         private static void GetEnvironmentVariableData()
         {
+            Utils.GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
+
             Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_OWNER == null)
             {

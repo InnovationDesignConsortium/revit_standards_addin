@@ -5,7 +5,6 @@ using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
 using Octokit;
@@ -66,6 +65,7 @@ namespace RevitDataValidator
         public static string MsiToRunOnExit = null;
         public static string GIT_OWNER = "";
         public static string GIT_REPO = "";
+        public static string GIT_ENTERPRISE_SERVER_URL = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
 
@@ -152,10 +152,17 @@ namespace RevitDataValidator
         {
             try
             {
-                var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+                const string name = "revit-datavalidator";
+                GitHubClient client;
+                if (string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
                 {
-                    Credentials = new Credentials(tokenFromGithubApp.token)
-                };
+                    client = new GitHubClient(new Octokit.ProductHeaderValue(name));
+                }
+                else
+                {
+                    client = new GitHubClient(new Octokit.ProductHeaderValue(name), new Uri(GIT_ENTERPRISE_SERVER_URL));
+                }
+                client.Credentials = new Credentials(tokenFromGithubApp.token);
 
                 Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Trace);
 
