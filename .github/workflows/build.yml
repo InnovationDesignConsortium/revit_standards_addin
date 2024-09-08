@@ -37,9 +37,7 @@ jobs:
         with:
           file_extension: "dll"
       - name: List
-        run: ls RevitDataValidator
-      - name: List
-        run: ls RevitDataValidator/bin
+        run: ls certificate
       - name: List
         run: ls RevitDataValidator/bin/2023
       - name: Code Sign 2023
