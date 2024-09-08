@@ -5,7 +5,6 @@ using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
 using Octokit;
@@ -68,6 +67,7 @@ namespace RevitDataValidator
         public static string GIT_REPO = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
+        public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -113,7 +113,7 @@ namespace RevitDataValidator
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
 
-            var releasesJson = GetRepoData(url, HttpMethod.Get, tokenFromGithubApp.token, "application/vnd.github.v3.raw", "token");
+            var releasesJson = GetRepoData(url, HttpMethod.Get, token_for_GIT_CODE_REPO_OWNER.token, "application/vnd.github.v3.raw", "token");
 
             if (releasesJson == null)
             {
@@ -191,7 +191,7 @@ namespace RevitDataValidator
                 return null;
             }
         }
-      
+
         public static Version GetInstalledVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
