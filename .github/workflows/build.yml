@@ -13,9 +13,10 @@ jobs:
     steps:
       - name: Create Code Signing Certificate
         run: |
-          mkdir certificate
-          Set-Content -Path certificate\certificate.txt -Value '${{ secrets.PFX_CONTENTS }}'
-          certutil -decode certificate\certificate.txt certificate\certificate.pfx
+          Set-Content -Path certificate.txt -Value '${{ secrets.PFX_CONTENTS }}'
+          certutil -decode certificate.txt certificate.pfx
+      - name: List Files
+        run: ls
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup MSBuild
@@ -31,18 +32,11 @@ jobs:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
       - name: Build 2023
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
-      - name: List Files
-        id: list-files-dll
-        uses: the-coding-turtle/ga-file-list@v0.2
-        with:
-          file_extension: "dll"
-      - name: List
-        run: ls certificate
       - name: List
         run: ls RevitDataValidator/bin/2023
       - name: Code Sign 2023
         run: |
-          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate\certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2023\RevitDataValidator.dll
+          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2023\RevitDataValidator.dll
       - name: Restore Packages 2024
         run: nuget restore RevitDataValidator.sln
         env:
