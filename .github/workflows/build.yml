@@ -31,6 +31,22 @@ jobs:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
       - name: Build 2023
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
+      - name: List DLL Files
+        id: list-files-dll
+        uses: mirko-felice/list-files-action@v3.0.5
+        with:
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          path: "."
+          ext: ".dll"
+      - name: List PFX Files
+        id: list-files
+        uses: mirko-felice/list-files-action@v3.0.5
+        with:
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          path: "."
+          ext: ".pfx"
       - name: Code Sign 2023
         run: |
           & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate\certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2023\RevitDataValidator.dll
