@@ -1,0 +1,10 @@
+runs-on: windows-latest
+steps:
+  uses: DanaBear/code-sign-action@v4
+  with:
+    certificate: '${{ secrets.PFX_CONTENTS }}'
+    password: '${{ secrets.PFX_PASSWORD }}'
+    certificatesha1: 'sha384'
+    certificatename: 'BoostYourBIM'
+    folder: 'releases'
+    recursive: true
