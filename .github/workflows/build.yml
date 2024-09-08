@@ -36,8 +36,12 @@ jobs:
         uses: the-coding-turtle/ga-file-list@v0.2
         with:
           file_extension: "dll"
-      - name: List PFX Files
-        run: ls
+      - name: List
+        run: ls RevitDataValidator
+      - name: List
+        run: ls RevitDataValidator/bin
+      - name: List
+        run: ls RevitDataValidator/bin/2023
       - name: Code Sign 2023
         run: |
           & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate\certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2023\RevitDataValidator.dll
