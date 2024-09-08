@@ -78,6 +78,10 @@ namespace RevitDataValidator
             catch (Exception ex)
             {
                 Utils.LogException("DataValidationUpdater", ex);
+                if (ex.InnerException != null)
+                {
+                    Utils.LogException("DataValidationUpdater", ex.InnerException);
+                }
             }
         }
 
