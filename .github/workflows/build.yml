@@ -11,6 +11,11 @@ jobs:
       pull-requests: write
       repository-projects: write
     steps:
+      - name: Create Code Signing Certificate
+        run: |
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate\certificate.txt -Value '${{ secrets.PFX_CONTENTS }}'
+          certutil -decode certificate\certificate.txt certificate\certificate.pfx
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup MSBuild
@@ -26,6 +31,9 @@ jobs:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
       - name: Build 2023
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
+      - name: Code Sign 2023
+        run: |
+          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate\certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2023\RevitDataValidator.dll
       - name: Restore Packages 2024
         run: nuget restore RevitDataValidator.sln
         env:
