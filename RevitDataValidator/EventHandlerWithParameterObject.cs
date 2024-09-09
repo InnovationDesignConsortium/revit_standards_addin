@@ -1,8 +1,9 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
-using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RevitDataValidator
 {
@@ -19,6 +20,20 @@ namespace RevitDataValidator
                     {
                         if (args.Parameters == null)
                             continue;
+
+                        if (args.Value is string argValueString && double.TryParse(argValueString, out double d))
+                        {
+                            if (!double.IsFinite(d))
+                            {
+                                Utils.Log($"Value is not finite so cannot set {string.Join(',', args.Parameters.Select(q => q.Definition.Name))}", Utils.LogLevel.Error);
+                                continue;
+                            }
+                            if (double.IsNaN(d))
+                            {
+                                Utils.Log($"Value is not a number so cannot set {string.Join(',', args.Parameters.Select(q => q.Definition.Name))}", Utils.LogLevel.Error);
+                                continue;
+                            }
+                        }
 
                         foreach (var parameter in args.Parameters)
                         {
@@ -93,7 +108,7 @@ namespace RevitDataValidator
                                 args.Value is StringInt si &&
                                 int.TryParse(si.Long.ToString(), out int i))
                             {
-                                var elementid =  ElementIdUtils.New(i);
+                                var elementid = ElementIdUtils.New(i);
                                 try
                                 {
                                     bool didSet = parameter.Set(elementid);

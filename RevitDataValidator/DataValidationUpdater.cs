@@ -23,12 +23,14 @@ namespace RevitDataValidator
                 if (Utils.dialogIdShowing == "Dialog_Revit_PartitionsEnable")
                     return;
 
-                Document doc = data.GetDocument();
+                var doc = data.GetDocument();
                 var modifiedIds = data.GetModifiedElementIds().ToList();
                 var addedIds = data.GetAddedElementIds().ToList();
 
-                List<ElementId> addedAndModifiedIds = addedIds.ToList();
+                var addedAndModifiedIds = addedIds.ToList();
                 addedAndModifiedIds.AddRange(modifiedIds);
+                addedAndModifiedIds = addedAndModifiedIds.Where(q => !Utils.idsTriggered.Contains(q)).ToList();
+                Utils.idsTriggered.AddRange(addedAndModifiedIds);
 
                 if (doc.IsWorkshared)
                 {
@@ -49,30 +51,30 @@ namespace RevitDataValidator
                     if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
                     {
                         Utils.Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", Utils.LogLevel.Warn);
-                        FailureMessage failureMessage = new FailureMessage(rule.FailureId);
+                        var failureMessage = new FailureMessage(rule.FailureId);
                         failureMessage.SetFailingElements(ids.ToList());
                         if (doc.IsModifiable)
                         {
                             doc.PostFailure(failureMessage);
                         }
                     }
+                }
 
-                    var ruleFailures = new List<RuleFailure>();
+                var ruleFailures = new List<RuleFailure>();
 
-                    foreach (ElementId id in modifiedIds)
+                foreach (ElementId id in addedAndModifiedIds)
+                {
+                    var failuresForThisRule = Utils.GetFailures(id, null, out List<ParameterString> parametersToSet);
+                    ruleFailures.AddRange(failuresForThisRule);
+                    foreach (var parameterString in parametersToSet)
                     {
-                        var failuresForThisRule = Utils.GetFailures(id, null, out List<ParameterString> parametersToSet);
-                        ruleFailures.AddRange(failuresForThisRule);
-                        foreach (var parameterString in parametersToSet)
-                        {
-                            SetParam(parameterString.Parameter, parameterString.NewValue);
-                        }
+                        SetParam(parameterString.Parameter, parameterString.NewValue);
                     }
-                    if (ruleFailures.Count != 0)
-                    {
-                        FormGridList form = new FormGridList(ruleFailures);
-                        form.Show();
-                    }
+                }
+                if (ruleFailures.Count != 0)
+                {
+                    var form = new FormGridList(ruleFailures);
+                    form.Show();
                 }
             }
             catch (Exception ex)

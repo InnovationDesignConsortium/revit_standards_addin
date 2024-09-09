@@ -65,8 +65,11 @@ namespace RevitDataValidator
         public static string MsiToRunOnExit = null;
         public static string GIT_OWNER = "";
         public static string GIT_REPO = "";
+        public static string GIT_ENTERPRISE_SERVER_URL = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
+        public static bool Debugging = false;
+        public static List<ElementId> idsTriggered = new List<ElementId>();
         public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
@@ -152,10 +155,17 @@ namespace RevitDataValidator
         {
             try
             {
-                var client = new GitHubClient(new Octokit.ProductHeaderValue("revit-datavalidator"))
+                const string name = "revit-datavalidator";
+                GitHubClient client;
+                if (string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
                 {
-                    Credentials = new Credentials(tokenFromGithubApp.token)
-                };
+                    client = new GitHubClient(new Octokit.ProductHeaderValue(name));
+                }
+                else
+                {
+                    client = new GitHubClient(new Octokit.ProductHeaderValue(name), new Uri(GIT_ENTERPRISE_SERVER_URL));
+                }
+                client.Credentials = new Credentials(tokenFromGithubApp.token);
 
                 Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Trace);
 
@@ -386,6 +396,11 @@ namespace RevitDataValidator
 
         public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule, List<ElementId> addedAndModifiedIds)
         {
+            if (doc == null)
+            {
+                return new List<ElementId>();
+            }
+
             CustomCodeRunning.Add(rule.CustomCode);
             var type = dictCustomCode[rule.CustomCode];
             var obj = Activator.CreateInstance(type);
@@ -411,6 +426,12 @@ namespace RevitDataValidator
         {
             parametersToSetForFormatRules = new List<ParameterString>();
             parametersToSet = new List<ParameterString>();
+
+            if (doc == null)
+            {
+                return null;
+            }
+
             var element = doc.GetElement(id);
 
             if (element == null ||
@@ -590,10 +611,32 @@ namespace RevitDataValidator
             {
                 var exp = BuildExpressionString(element, rule.Formula);
                 var context = new ExpressionContext();
-                var e = context.CompileGeneric<double>(exp);
-                var result = e.Evaluate();
-                Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula}", LogLevel.Info);
-                parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                IGenericExpression<double> e = null;
+                try
+                {
+                    e = context.CompileGeneric<double>(exp);
+                }
+                catch (Exception ex)
+                {
+                    LogException($"Cannot compile rule {rule.Formula} for element {id.Value}", ex);
+                }
+                if (e != null)
+                {
+                    double result = double.NaN;
+                    try
+                    {
+                        result = e.Evaluate();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException($"Cannot evaluate rule {rule.Formula} for element {id.Value}", ex);
+                    }
+                    if (!double.IsNaN(result))
+                    {
+                        Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {id.Value}", LogLevel.Info);
+                        parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                    }
+                }
             }
             else if (
                 rule.Regex != null &&
@@ -1012,21 +1055,20 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
-            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+            if (Debugging)
             {
-                var messageReplaced = "";
-                if (ex.Message.Contains('/'))
-                {
-                    messageReplaced = ex.Message.Replace("/", Environment.NewLine) + Environment.NewLine + Environment.NewLine;
-                }
                 var td = new TaskDialog("Error")
                 {
-                    MainInstruction = ex.Message,
-                    MainContent = messageReplaced + ex.StackTrace
+                    MainInstruction = ex.Message.Replace(@"\", Environment.NewLine),
+                    MainContent = ex.StackTrace.Replace(@"\", Environment.NewLine)
                 };
                 td.Show();
             }
-            Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+            Log($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+            if (ex.InnerException != null)
+            {
+                LogException("Inner Exception", ex.InnerException);
+            }
         }
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -1044,7 +1086,8 @@ namespace RevitDataValidator
 
             if (doc.IsWorkshared)
             {
-                return ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
+                var ret = ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
+                return ret;
             }
             else
             {
