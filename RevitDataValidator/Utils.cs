@@ -68,6 +68,8 @@ namespace RevitDataValidator
         public static string GIT_ENTERPRISE_SERVER_URL = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
+        public static bool Debugging = false;
+        public static List<ElementId> idsTriggered = new List<ElementId>();
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -1041,7 +1043,7 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
-            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+            if (Debugging)
             {
                 var td = new TaskDialog("Error")
                 {
@@ -1051,6 +1053,10 @@ namespace RevitDataValidator
                 td.Show();
             }
             Log($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+            if (ex.InnerException != null)
+            {
+                LogException("Inner Exception", ex.InnerException);
+            }
         }
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();

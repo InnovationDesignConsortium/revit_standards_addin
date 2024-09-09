@@ -23,12 +23,14 @@ namespace RevitDataValidator
                 if (Utils.dialogIdShowing == "Dialog_Revit_PartitionsEnable")
                     return;
 
-                Document doc = data.GetDocument();
+                var doc = data.GetDocument();
                 var modifiedIds = data.GetModifiedElementIds().ToList();
                 var addedIds = data.GetAddedElementIds().ToList();
 
-                List<ElementId> addedAndModifiedIds = addedIds.ToList();
+                var addedAndModifiedIds = addedIds.ToList();
                 addedAndModifiedIds.AddRange(modifiedIds);
+                addedAndModifiedIds = addedAndModifiedIds.Where(q => !Utils.idsTriggered.Contains(q)).ToList();
+                Utils.idsTriggered.AddRange(addedAndModifiedIds);
 
                 if (doc.IsWorkshared)
                 {
@@ -78,10 +80,6 @@ namespace RevitDataValidator
             catch (Exception ex)
             {
                 Utils.LogException("DataValidationUpdater", ex);
-                if (ex.InnerException != null)
-                {
-                    Utils.LogException("DataValidationUpdater", ex.InnerException);
-                }
             }
         }
 

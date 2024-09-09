@@ -119,6 +119,16 @@ namespace RevitDataValidator
 
         private static void GetEnvironmentVariableData()
         {
+            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+
+            {
+                Utils.Debugging = true;
+            }
+            else
+            {
+                Utils.Debugging = false;
+            }
+
             Utils.GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_ENTERPRISE_SERVER_URL != null)
             {
@@ -258,6 +268,7 @@ namespace RevitDataValidator
         {
             Utils.dialogIdShowing = "";
             Utils.CustomCodeRunning = new List<string>();
+            Utils.idsTriggered = new List<ElementId>();
         }
 
         private void Application_DialogBoxShowing(object sender, DialogBoxShowingEventArgs e)
@@ -302,7 +313,7 @@ namespace RevitDataValidator
 
                     var file = Path.Combine(Utils.dllPath, PARAMETER_PACK_FILE_NAME);
                     string json = "";
-                    if (File.Exists(file))
+                    if (Utils.Debugging && File.Exists(file))
                     {
                         json = File.ReadAllText(file);
                         Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
@@ -342,30 +353,29 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    gitRuleFilePath = GetGitFileNamesFromConfig();
-                    if (gitRuleFilePath == null)
-                    {
-                        return;
-                    }
-                    RepositoryContent ruleData = null;
                     var ruleFileInfo = new RuleFileInfo();
-                    if (gitRuleFilePath != null)
+                    var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
+                    if (Utils.Debugging && ruleFile != null)
                     {
-                        ruleData = Utils.GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
-                        ruleFileInfo.Url = ruleData.HtmlUrl;
-                        ruleFileContents = ruleData.Content;
-                    }
-
-                    if (ruleData == null)
-                    {
-                        var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
-                        if (ruleFile != null)
+                        using (var reader = new StreamReader(ruleFile))
                         {
-                            using (var reader = new StreamReader(ruleFile))
-                            {
-                                ruleFileContents = reader.ReadToEnd();
-                            }
-                            ruleFileInfo.Filename = ruleFile;
+                            ruleFileContents = reader.ReadToEnd();
+                        }
+                        ruleFileInfo.Filename = ruleFile;
+                    }
+                    else
+                    {
+                        gitRuleFilePath = GetGitFileNamesFromConfig();
+                        if (gitRuleFilePath == null)
+                        {
+                            return;
+                        }
+                        RepositoryContent ruleData = null;
+                        if (gitRuleFilePath != null)
+                        {
+                            ruleData = Utils.GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
+                            ruleFileInfo.Url = ruleData.HtmlUrl;
+                            ruleFileContents = ruleData.Content;
                         }
                     }
 
