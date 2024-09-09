@@ -198,7 +198,7 @@ namespace RevitDataValidator
                 return null;
             }
         }
-      
+
         public static Version GetInstalledVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
@@ -597,10 +597,32 @@ namespace RevitDataValidator
             {
                 var exp = BuildExpressionString(element, rule.Formula);
                 var context = new ExpressionContext();
-                var e = context.CompileGeneric<double>(exp);
-                var result = e.Evaluate();
-                Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula}", LogLevel.Info);
-                parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                IGenericExpression<double> e = null;
+                try
+                {
+                    e = context.CompileGeneric<double>(exp);
+                }
+                catch (Exception ex)
+                {
+                    LogException($"Cannot compile rule {rule.Formula} for element {id.Value}", ex);
+                }
+                if (e != null)
+                {
+                    double result = double.NaN;
+                    try
+                    {
+                        result = e.Evaluate();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException($"Cannot evaluate rule {rule.Formula} for element {id.Value}", ex);
+                    }
+                    if (!double.IsNaN(result))
+                    {
+                        Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {id.Value}", LogLevel.Info);
+                        parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                    }
+                }
             }
             else if (
                 rule.Regex != null &&
@@ -1021,19 +1043,14 @@ namespace RevitDataValidator
         {
             if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
             {
-                var messageReplaced = "";
-                if (ex.Message.Contains('/'))
-                {
-                    messageReplaced = ex.Message.Replace("/", Environment.NewLine) + Environment.NewLine + Environment.NewLine;
-                }
                 var td = new TaskDialog("Error")
                 {
-                    MainInstruction = ex.Message,
-                    MainContent = messageReplaced + ex.StackTrace
+                    MainInstruction = ex.Message.Replace(@"\", Environment.NewLine),
+                    MainContent = ex.StackTrace.Replace(@"\", Environment.NewLine)
                 };
                 td.Show();
             }
-            Log($"Exception in {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+            Log($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
         }
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();

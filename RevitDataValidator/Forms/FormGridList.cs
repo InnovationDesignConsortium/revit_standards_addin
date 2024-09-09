@@ -18,7 +18,7 @@ namespace RevitDataValidator.Forms
 
             try
             {
-                DataTable dataTable = new DataTable
+                var dataTable = new DataTable
                 {
                     TableName = "ResolveErrorsTable"
                 };
@@ -36,13 +36,13 @@ namespace RevitDataValidator.Forms
                     dataTable.Columns.Add(group.Key);
                 }
 
-                bool hasFamily = false;
+                var hasFamily = false;
                 //var failuresOnePerElement = failures
                 //  .GroupBy(p => p.ElementId)
                 //  .Select(g => g.First())
                 //  .ToList();
 
-                foreach (RuleFailure ruleFailure in failures)
+                foreach (var ruleFailure in failures)
                 {
                     var dataRow = dataTable.NewRow();
                     var element = Utils.doc.GetElement(ruleFailure.ElementId);
@@ -150,7 +150,8 @@ namespace RevitDataValidator.Forms
                             Location = new System.Drawing.Point() { X = multiUiX, Y = labelY },
                             DataSource = dataSource,
                             DropDownStyle = ComboBoxStyle.DropDownList,
-                            Name = prefix + group.Key
+                            Name = prefix + group.Key,
+                            Width = 250
                         };
                         multiCbo.SelectedIndexChanged += MultiCbo_SelectedIndexChanged;
                         panel1.Controls.Add(multiCbo);
@@ -199,7 +200,7 @@ namespace RevitDataValidator.Forms
                 });
 
                 dataGridView1.DataSource = dataTable;
-                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
