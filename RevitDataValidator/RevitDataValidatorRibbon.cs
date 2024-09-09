@@ -48,6 +48,8 @@ namespace RevitDataValidator
 
             GetEnvironmentVariableData();
 
+            Utils.token_for_GIT_CODE_REPO_OWNER = GetGithubTokenFromApp(Utils.GIT_CODE_REPO_OWNER);
+
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = Application.ControlledApplication;
@@ -158,7 +160,7 @@ namespace RevitDataValidator
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
             if (string.IsNullOrEmpty(git_pat))
             {
-                Utils.tokenFromGithubApp = GetGithubTokenFromApp();
+                Utils.tokenFromGithubApp = GetGithubTokenFromApp(Utils.GIT_OWNER);
             }
             else
             {
@@ -167,13 +169,13 @@ namespace RevitDataValidator
             }
         }
 
-        private static TokenInfo GetGithubTokenFromApp()
+        private static TokenInfo GetGithubTokenFromApp(string owner)
         {
             // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 
             // 1 - Generate a JSON web token (JWT) for your app
 
-            var jsonWebToken = GenerateJwtToken();            
+            var jsonWebToken = GenerateJwtToken();
             if (string.IsNullOrEmpty(jsonWebToken))
             {
                 Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
@@ -185,17 +187,17 @@ namespace RevitDataValidator
             // 2 - Get the ID of the installation that you want to authenticate as
             var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
             var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
-            var installation = installations?.FirstOrDefault(q => q.account.login == Utils.GIT_OWNER);
+            var installation = installations?.FirstOrDefault(q => q.account.login == owner);
             if (installation == null)
             {
                 var td = new TaskDialog("Error")
                 {
-                    MainInstruction = $"Github app must be installed for {Utils.GIT_OWNER}",
+                    MainInstruction = $"Github app must be installed for {owner}",
                     MainContent = "<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>"
                 };
                 td.Show();
 
-                Utils.Log($"Installation does not exist for {Utils.GIT_OWNER}", Utils.LogLevel.Error);
+                Utils.Log($"Installation does not exist for {owner}", Utils.LogLevel.Error);
                 return null;
             }
             var instalationId = installation?.id;

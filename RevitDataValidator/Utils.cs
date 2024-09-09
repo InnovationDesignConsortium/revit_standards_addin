@@ -70,6 +70,7 @@ namespace RevitDataValidator
         public static TokenInfo tokenFromGithubApp = null;
         public static bool Debugging = false;
         public static List<ElementId> idsTriggered = new List<ElementId>();
+        public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -115,7 +116,7 @@ namespace RevitDataValidator
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
 
-            var releasesJson = GetRepoData(url, HttpMethod.Get, tokenFromGithubApp.token, "application/vnd.github.v3.raw", "token");
+            var releasesJson = GetRepoData(url, HttpMethod.Get, token_for_GIT_CODE_REPO_OWNER.token, "application/vnd.github.v3.raw", "token");
 
             if (releasesJson == null)
             {
