@@ -5,6 +5,7 @@ using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
+using Nice3point.Revit.Extensions;
 using NLog;
 using NLog.Config;
 using Octokit;
@@ -618,7 +619,7 @@ namespace RevitDataValidator
                 }
                 catch (Exception ex)
                 {
-                    LogException($"Cannot compile rule {rule.Formula} for element {id.Value}", ex);
+                    LogException($"Cannot compile rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
                 }
                 if (e != null)
                 {
@@ -629,11 +630,11 @@ namespace RevitDataValidator
                     }
                     catch (Exception ex)
                     {
-                        LogException($"Cannot evaluate rule {rule.Formula} for element {id.Value}", ex);
+                        LogException($"Cannot evaluate rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
                     }
                     if (!double.IsNaN(result))
                     {
-                        Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {id.Value}", LogLevel.Info);
+                        Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
                         parametersToSet.Add(new ParameterString(parameter, result.ToString()));
                     }
                 }
