@@ -120,17 +120,31 @@ namespace RevitDataValidator
         private static void GetEnvironmentVariableData()
         {
             Utils.GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
+            if (Utils.GIT_ENTERPRISE_SERVER_URL != null)
+            {
+                Utils.Log($"SERVER_ENV = {SERVER_ENV}", Utils.LogLevel.Trace);
+            }
 
             Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_OWNER == null)
             {
                 Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
             }
+            else
+            {
+                Utils.Log($"OWNER_ENV = {OWNER_ENV}", Utils.LogLevel.Trace);
+            }
+
             Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_REPO == null)
             {
                 Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
             }
+            else
+            {
+                Utils.Log($"REPO_ENV = {REPO_ENV}", Utils.LogLevel.Trace);
+            }
+
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
             if (string.IsNullOrEmpty(git_pat))
             {
