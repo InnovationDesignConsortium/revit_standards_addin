@@ -395,6 +395,11 @@ namespace RevitDataValidator
 
         public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule, List<ElementId> addedAndModifiedIds)
         {
+            if (doc == null)
+            {
+                return new List<ElementId>();
+            }
+
             CustomCodeRunning.Add(rule.CustomCode);
             var type = dictCustomCode[rule.CustomCode];
             var obj = Activator.CreateInstance(type);
@@ -420,6 +425,12 @@ namespace RevitDataValidator
         {
             parametersToSetForFormatRules = new List<ParameterString>();
             parametersToSet = new List<ParameterString>();
+
+            if (doc == null)
+            {
+                return null;
+            }
+
             var element = doc.GetElement(id);
 
             if (element == null ||
@@ -1074,7 +1085,8 @@ namespace RevitDataValidator
 
             if (doc.IsWorkshared)
             {
-                return ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
+                var ret = ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetWorksharingCentralModelPath());
+                return ret;
             }
             else
             {
