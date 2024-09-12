@@ -104,7 +104,7 @@ namespace VCExtensibleStorageExtension
             }
             catch (Exception ex)
             {
-                Utils.Log($"Could not create schema: {ex.Message}", Utils.LogLevel.Error);
+                Utils.Log($"Could not create schema: {ex.Message}", LogLevel.Error);
                 return null;
             }
         }

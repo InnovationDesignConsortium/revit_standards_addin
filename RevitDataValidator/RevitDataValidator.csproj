@@ -39,6 +39,12 @@
 	<TargetFramework>net8.0-windows</TargetFramework>
 </PropertyGroup>
 <ItemGroup>
+  <Compile Remove="Samples\**" />
+  <EmbeddedResource Remove="Samples\**" />
+  <None Remove="Samples\**" />
+  <Page Remove="Samples\**" />
+</ItemGroup>
+<ItemGroup>
   <Compile Remove="SetQuadrantByScopeBox.cs" />
 </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@ using NLog;
 using NLog.Config;
 using Octokit;
 using RevitDataValidator.Classes;
+using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -83,6 +84,117 @@ namespace RevitDataValidator
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
         public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
         public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
+
+        public static void RunAllRules(List<ElementId> addedAndModifiedIds, WhenToRun whenToRun)
+        {
+            if (addedAndModifiedIds == null)
+            {
+                addedAndModifiedIds = new FilteredElementCollector(doc)
+                    .WherePasses(new LogicalOrFilter(
+                        new ElementIsElementTypeFilter(true),
+                        new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
+            }
+
+            if (doc.IsWorkshared)
+            {
+                foreach (var rule in allWorksetRules.Where(q => q.WhenToRun.Contains(whenToRun)))
+                {
+                    RunWorksetRule(rule, addedAndModifiedIds);
+                }
+            }
+
+            foreach (var rule in
+                allParameterRules
+                .Where(q =>
+                    q.WhenToRun.Contains(whenToRun) &&
+                    q.CustomCode != null &&
+                    !CustomCodeRunning.Contains(q.CustomCode) &&
+                    dictCustomCode.ContainsKey(q.CustomCode)))
+            {
+                var ids = RunCustomRule(rule, addedAndModifiedIds);
+                if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
+                {
+                    Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", LogLevel.Warn);
+                    var failureMessage = new FailureMessage(rule.FailureId);
+                    failureMessage.SetFailingElements(ids.ToList());
+                    if (doc.IsModifiable)
+                    {
+                        doc.PostFailure(failureMessage);
+                    }
+                }
+            }
+
+            var ruleFailures = new List<RuleFailure>();
+            foreach (ElementId id in addedAndModifiedIds)
+            {
+                var failures = GetFailures(id, null, whenToRun, out List<ParameterString> parametersToSet);
+                ruleFailures.AddRange(failures);
+                foreach (var parameterString in parametersToSet)
+                {
+                    SetParam(parameterString.Parameter, parameterString.NewValue);
+                }
+            }
+            if (ruleFailures.Count != 0)
+            {
+                var form = new FormGridList(ruleFailures);
+                form.Show();
+            }
+        }
+
+        private static void SetParam(Parameter p, string s)
+        {
+            if (p == null)
+                return;
+
+            if (p.Definition.Name == "Type Name")
+            {
+                p.Element.Name = s;
+                return;
+            }
+
+            if (p.IsReadOnly)
+            {
+                Utils.Log($"Parameter {p.Definition.Name} for element '{Utils.GetElementInfo(p.Element)}' is readonly", LogLevel.Error);
+                return;
+            }
+
+            if (p.StorageType == StorageType.String)
+            {
+                p.Set(s);
+            }
+            else if (p.StorageType == StorageType.Integer)
+            {
+                if (int.TryParse(s, out int sInt))
+                {
+                    p.Set(sInt);
+                }
+                else if (double.TryParse(s, out double d))
+                {
+                    p.Set(Convert.ToInt32(d));
+                }
+                else if (s == "No")
+                {
+                    p.Set(0);
+                }
+                else if (s == "Yes")
+                {
+                    p.Set(1);
+                }
+            }
+            else if (p.StorageType == StorageType.Double &&
+                double.TryParse(s, out double d))
+            {
+                if (double.IsInfinity(d) ||
+                    double.IsNaN(d))
+                {
+                    p.Set(0);
+                }
+                else
+                {
+                    p.Set(d);
+                }
+            }
+        }
 
         public static void DownloadAsset(string tag, Asset asset)
         {
@@ -594,11 +706,11 @@ namespace RevitDataValidator
                     var result = e.Evaluate();
                     if (result)
                     {
-                        Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. Rule passed", LogLevel.Trace);
+                        Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule passed", LogLevel.Trace);
                     }
                     else
                     {
-                        Log($"{rule.RuleName}|{GetElementInfo(element)}|Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. Rule failed!", LogLevel.Warn);
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule failed!", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -711,7 +823,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
+                Log($"IRule Not Implmented {rule.RuleName}", LogLevel.Error);
             }
             return null;
         }
@@ -727,11 +839,11 @@ namespace RevitDataValidator
             };
         }
 
-        public static List<RuleFailure> GetFailures(ElementId id, List<ParameterString> inputParameterValues, out List<ParameterString> parametersToSet)
+        public static List<RuleFailure> GetFailures(ElementId id, List<ParameterString> inputParameterValues, WhenToRun whenToRun, out List<ParameterString> parametersToSet)
         {
             var ret = new List<RuleFailure>();
             parametersToSet = new List<ParameterString>();
-            foreach (var rule in allParameterRules)
+            foreach (var rule in allParameterRules.Where(q => q.WhenToRun.Contains(whenToRun)))
             {
                 var ruleFailure = RunParameterRule(
                     rule,
@@ -1045,15 +1157,6 @@ namespace RevitDataValidator
             return ret;
         }
 
-        public enum LogLevel
-        {
-            Warn,
-            Info,
-            Error,
-            Exception,
-            Trace
-        }
-
         public static void LogException(string s, Exception ex)
         {
             if (Debugging)
@@ -1147,7 +1250,7 @@ namespace RevitDataValidator
             }
         }
 
-        public static List<BuiltInCategory> GetBuiltInCats(Rule rule)
+        public static List<BuiltInCategory> GetBuiltInCats(IRule rule)
         {
             if (rule.Categories.Count == 1 && rule.Categories[0] == ALL)
             {

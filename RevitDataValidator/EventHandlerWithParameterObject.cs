@@ -25,12 +25,12 @@ namespace RevitDataValidator
                         {
                             if (double.IsInfinity(d))
                             {
-                                Utils.Log($"Value is not finite so cannot set {string.Join(",", args.Parameters.Select(q => q.Definition.Name))}", Utils.LogLevel.Error);
+                                Utils.Log($"Value is not finite so cannot set {string.Join(",", args.Parameters.Select(q => q.Definition.Name))}", LogLevel.Error);
                                 continue;
                             }
                             if (double.IsNaN(d))
                             {
-                                Utils.Log($"Value is not a number so cannot set {string.Join(",", args.Parameters.Select(q => q.Definition.Name))}", Utils.LogLevel.Error);
+                                Utils.Log($"Value is not a number so cannot set {string.Join(",", args.Parameters.Select(q => q.Definition.Name))}", LogLevel.Error);
                                 continue;
                             }
                         }

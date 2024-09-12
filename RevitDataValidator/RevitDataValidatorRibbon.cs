@@ -44,7 +44,7 @@ namespace RevitDataValidator
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
-            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", Utils.LogLevel.Trace);
+            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Trace);
 
             GetEnvironmentVariableData();
 
@@ -57,6 +57,8 @@ namespace RevitDataValidator
             Utils.allParameterRules = new List<ParameterRule>();
             Utils.allWorksetRules = new List<WorksetRule>();
             Application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
+            Application.ControlledApplication.DocumentSaving += ControlledApplication_DocumentSaving;
+            Application.ControlledApplication.DocumentSynchronizingWithCentral += ControlledApplication_DocumentSynchronizingWithCentral;
             Application.ViewActivated += Application_ViewActivated;
             Application.DialogBoxShowing += Application_DialogBoxShowing;
             Application.ControlledApplication.DocumentClosed += ControlledApplication_DocumentClosed;
@@ -103,11 +105,21 @@ namespace RevitDataValidator
             Update.CheckForUpdates();
         }
 
+        private void ControlledApplication_DocumentSynchronizingWithCentral(object sender, Autodesk.Revit.DB.Events.DocumentSynchronizingWithCentralEventArgs e)
+        {
+            Utils.RunAllRules(null, WhenToRun.SyncToCentral);
+        }
+
+        private void ControlledApplication_DocumentSaving(object sender, Autodesk.Revit.DB.Events.DocumentSavingEventArgs e)
+        {
+            Utils.RunAllRules(null, WhenToRun.Save);
+        }
+
         public override void OnShutdown()
         {
             if (Utils.MsiToRunOnExit != null)
             {
-                Utils.Log($"Installing new version {Utils.MsiToRunOnExit}", Utils.LogLevel.Trace);
+                Utils.Log($"Installing new version {Utils.MsiToRunOnExit}", LogLevel.Trace);
                 try
                 {
                     Utils.StartShell(Utils.MsiToRunOnExit, true);
@@ -134,27 +146,27 @@ namespace RevitDataValidator
             Utils.GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_ENTERPRISE_SERVER_URL != null)
             {
-                Utils.Log($"SERVER_ENV = {SERVER_ENV}", Utils.LogLevel.Trace);
+                Utils.Log($"SERVER_ENV = {SERVER_ENV}", LogLevel.Trace);
             }
 
             Utils.GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_OWNER == null)
             {
-                Utils.Log($"Environment variable {OWNER_ENV} is empty", Utils.LogLevel.Error);
+                Utils.Log($"Environment variable {OWNER_ENV} is empty", LogLevel.Error);
             }
             else
             {
-                Utils.Log($"OWNER_ENV = {OWNER_ENV}", Utils.LogLevel.Trace);
+                Utils.Log($"OWNER_ENV = {OWNER_ENV}", LogLevel.Trace);
             }
 
             Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
             if (Utils.GIT_REPO == null)
             {
-                Utils.Log($"Environment variable {REPO_ENV} is empty", Utils.LogLevel.Error);
+                Utils.Log($"Environment variable {REPO_ENV} is empty", LogLevel.Error);
             }
             else
             {
-                Utils.Log($"REPO_ENV = {REPO_ENV}", Utils.LogLevel.Trace);
+                Utils.Log($"REPO_ENV = {REPO_ENV}", LogLevel.Trace);
             }
 
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
@@ -165,7 +177,7 @@ namespace RevitDataValidator
             else
             {
                 Utils.tokenFromGithubApp = new TokenInfo { token = git_pat };
-                Utils.Log($"Github: Using personal access token {git_pat}", Utils.LogLevel.Trace);
+                Utils.Log($"Github: Using personal access token {git_pat}", LogLevel.Trace);
             }
         }
 
@@ -178,11 +190,11 @@ namespace RevitDataValidator
             var jsonWebToken = GenerateJwtToken();
             if (string.IsNullOrEmpty(jsonWebToken))
             {
-                Utils.Log("JwtToken is empty", Utils.LogLevel.Error);
+                Utils.Log("JwtToken is empty", LogLevel.Error);
                 return null;
             }
 
-            Utils.Log($"Github: JSON Web Token {jsonWebToken}", Utils.LogLevel.Trace);
+            Utils.Log($"Github: JSON Web Token {jsonWebToken}", LogLevel.Trace);
 
             // 2 - Get the ID of the installation that you want to authenticate as
             var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
@@ -197,17 +209,17 @@ namespace RevitDataValidator
                 };
                 td.Show();
 
-                Utils.Log($"Installation does not exist for {owner}", Utils.LogLevel.Error);
+                Utils.Log($"Installation does not exist for {owner}", LogLevel.Error);
                 return null;
             }
             var instalationId = installation?.id;
-            Utils.Log($"Github: Got installation id {instalationId}", Utils.LogLevel.Trace);
+            Utils.Log($"Github: Got installation id {instalationId}", LogLevel.Trace);
 
             // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
             var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
             var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
-            Utils.Log($"Github: Got access token {tokenInfo.token}", Utils.LogLevel.Trace);
-            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", Utils.LogLevel.Trace);
+            Utils.Log($"Github: Got access token {tokenInfo.token}", LogLevel.Trace);
+            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Trace);
             return tokenInfo;
         }
 
@@ -318,18 +330,18 @@ namespace RevitDataValidator
                     if (Utils.Debugging && File.Exists(file))
                     {
                         json = File.ReadAllText(file);
-                        Utils.Log($"Read parameter packs from {file}", Utils.LogLevel.Info);
+                        Utils.Log($"Read parameter packs from {file}", LogLevel.Info);
                     }
                     else
                     {
                         var data = Utils.GetGitData(ContentType.File, $"{parameterPackFilePath}/{PARAMETER_PACK_FILE_NAME}");
                         if (data == null)
                         {
-                            Utils.Log($"No parameter pack data at {parameterPackFilePath}", Utils.LogLevel.Warn);
+                            Utils.Log($"No parameter pack data at {parameterPackFilePath}", LogLevel.Warn);
                         }
                         else
                         {
-                            Utils.Log($"Found parameter pack file {parameterPackFilePath}", Utils.LogLevel.Trace);
+                            Utils.Log($"Found parameter pack file {parameterPackFilePath}", LogLevel.Trace);
                             parameterPackFileContents = data.Content;
                         }
                     }
@@ -461,7 +473,7 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
                         }
                     }
                 }
@@ -487,7 +499,7 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            Utils.Log($"Ignoring workset rule '{worksetRule}' because it conflicts with the rule '{conflictingRule}'", Utils.LogLevel.Error);
+                            Utils.Log($"Ignoring workset rule '{worksetRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
                         }
                     }
                 }
@@ -540,7 +552,7 @@ namespace RevitDataValidator
 
             if (data == null)
             {
-                Utils.Log($"No git data at {path}", Utils.LogLevel.Warn);
+                Utils.Log($"No git data at {path}", LogLevel.Warn);
                 return null;
             }
 
@@ -650,11 +662,12 @@ namespace RevitDataValidator
         private void ControlledApplication_DocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
             Utils.doc = e.Document;
+            Utils.RunAllRules(null, WhenToRun.Open);
         }
 
         private static void RegisterWorksetRule(WorksetRule worksetRule)
         {
-            Utils.Log("Registering workset rule " + worksetRule, Utils.LogLevel.Trace);
+            Utils.Log("Registering workset rule " + worksetRule, LogLevel.Trace);
             if (worksetRule.Categories != null)
             {
                 var builtInCats = Utils.GetBuiltInCats(worksetRule);
@@ -677,7 +690,7 @@ namespace RevitDataValidator
 
         private void RegisterParameterRule(ParameterRule rule)
         {
-            Utils.Log($"Registering parameter rule '{rule}'", Utils.LogLevel.Trace);
+            Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
             try
             {
                 if (rule.CustomCode != null)
@@ -695,7 +708,7 @@ namespace RevitDataValidator
                         var repositoryContent = Utils.GetGitData(ContentType.File, customCodeFile);
                         if (repositoryContent == null)
                         {
-                            Utils.Log($"Could not get content from file {customCodeFile}", Utils.LogLevel.Error);
+                            Utils.Log($"Could not get content from file {customCodeFile}", LogLevel.Error);
                             return;
                         }
                         else
@@ -718,7 +731,7 @@ namespace RevitDataValidator
                         {
                             foreach (var error in result)
                             {
-                                Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", Utils.LogLevel.Error);
+                                Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", LogLevel.Error);
                             }
                         }
                     }
@@ -788,7 +801,7 @@ namespace RevitDataValidator
         private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
         {
             var currentError = e.ErrorContext.Error.Message;
-            Utils.Log($"Error deserializing JSON: {currentError}", Utils.LogLevel.Error);
+            Utils.Log($"Error deserializing JSON: {currentError}", LogLevel.Error);
             e.ErrorContext.Handled = true;
         }
     }

@@ -151,7 +151,7 @@ namespace RevitDataValidator.Forms
                             DataSource = dataSource,
                             DropDownStyle = ComboBoxStyle.DropDownList,
                             Name = prefix + group.Key,
-                            Width = 250
+                            Width = 350
                         };
                         multiCbo.SelectedIndexChanged += MultiCbo_SelectedIndexChanged;
                         panel1.Controls.Add(multiCbo);
@@ -262,7 +262,7 @@ namespace RevitDataValidator.Forms
                 var parameter = row.Cells["Parameter"].Value.ToString();
                 if (!string.IsNullOrEmpty(reasonForException?.ToString()))
                 {
-                    Utils.Log($"{ruleName}|EXCEPTION|{Utils.GetElementInfo(element)}|{parameter}|{reasonForException}", Utils.LogLevel.Warn);
+                    Utils.Log($"{ruleName}|EXCEPTION|{Utils.GetElementInfo(element)}|{parameter}|{reasonForException}", LogLevel.Warn);
                     Utils.SetReasonAllowed(element, ruleName, parameter, reasonForException);
                     continue;
                 }
@@ -290,7 +290,7 @@ namespace RevitDataValidator.Forms
                     var item = new ParameterObject(parameters, value.ToString());
                     parameterObjects.Add(item);
                 }
-                var failuresForThisId = Utils.GetFailures(id, parameterStrings, out _).Where(q => q.Rule.ParameterName == parameter).ToList();
+                var failuresForThisId = Utils.GetFailures(id, parameterStrings, WhenToRun.Realtime, out _).Where(q => q.Rule.ParameterName == parameter).ToList();
                 if (failuresForThisId.Count != 0)
                 {
                     failures.AddRange(failuresForThisId);

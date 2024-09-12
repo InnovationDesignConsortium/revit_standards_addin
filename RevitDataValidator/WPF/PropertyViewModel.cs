@@ -118,7 +118,7 @@ namespace RevitDataValidator
 
                 if (parameterPack == null)
                 {
-                    Utils.Log($"{packName} is listed in {packSet.Name} but does not exist", Utils.LogLevel.Error);
+                    Utils.Log($"{packName} is listed in {packSet.Name} but does not exist", LogLevel.Error);
                     continue;
                 }
 

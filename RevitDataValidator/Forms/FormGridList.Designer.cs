@@ -41,10 +41,9 @@
             // btnOk
             // 
             btnOk.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            btnOk.Location = new System.Drawing.Point(526, 413);
-            btnOk.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            btnOk.Location = new System.Drawing.Point(751, 688);
             btnOk.Name = "btnOk";
-            btnOk.Size = new System.Drawing.Size(79, 31);
+            btnOk.Size = new System.Drawing.Size(113, 52);
             btnOk.TabIndex = 2;
             btnOk.Text = "OK";
             btnOk.UseVisualStyleBackColor = true;
@@ -58,24 +57,21 @@
             dataGridView1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new System.Drawing.Point(7, 7);
-            dataGridView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            dataGridView1.Location = new System.Drawing.Point(10, 12);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.RowHeadersWidth = 82;
-            dataGridView1.RowTemplate.Height = 33;
             dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.Size = new System.Drawing.Size(598, 280);
+            dataGridView1.Size = new System.Drawing.Size(854, 467);
             dataGridView1.TabIndex = 3;
             dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
             // 
             // btnShow
             // 
             btnShow.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            btnShow.Location = new System.Drawing.Point(7, 413);
-            btnShow.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            btnShow.Location = new System.Drawing.Point(10, 688);
             btnShow.Name = "btnShow";
-            btnShow.Size = new System.Drawing.Size(94, 31);
+            btnShow.Size = new System.Drawing.Size(134, 52);
             btnShow.TabIndex = 5;
             btnShow.Text = "Show Element";
             btnShow.UseVisualStyleBackColor = true;
@@ -87,19 +83,17 @@
             panel1.AutoScroll = true;
             panel1.Controls.Add(btnSelAll);
             panel1.Controls.Add(label1);
-            panel1.Location = new System.Drawing.Point(7, 291);
-            panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            panel1.Location = new System.Drawing.Point(10, 485);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(598, 112);
+            panel1.Size = new System.Drawing.Size(854, 187);
             panel1.TabIndex = 6;
             // 
             // btnSelAll
             // 
             btnSelAll.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            btnSelAll.Location = new System.Drawing.Point(519, 6);
-            btnSelAll.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            btnSelAll.Location = new System.Drawing.Point(741, 10);
             btnSelAll.Name = "btnSelAll";
-            btnSelAll.Size = new System.Drawing.Size(70, 24);
+            btnSelAll.Size = new System.Drawing.Size(100, 40);
             btnSelAll.TabIndex = 1;
             btnSelAll.Text = "Select All";
             btnSelAll.UseVisualStyleBackColor = true;
@@ -108,25 +102,23 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(9, 6);
-            label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            label1.Location = new System.Drawing.Point(13, 10);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(174, 15);
+            label1.Size = new System.Drawing.Size(266, 25);
             label1.TabIndex = 0;
             label1.Text = "Set Values For All Selected Rows";
             // 
             // FormGridList
             // 
             AcceptButton = btnOk;
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(612, 451);
+            ClientSize = new System.Drawing.Size(874, 752);
             ControlBox = false;
             Controls.Add(panel1);
             Controls.Add(btnShow);
             Controls.Add(dataGridView1);
             Controls.Add(btnOk);
-            Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             Name = "FormGridList";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Resolve Rule Errors";

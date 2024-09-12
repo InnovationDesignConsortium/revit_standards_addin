@@ -1,7 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace RevitDataValidator
 {

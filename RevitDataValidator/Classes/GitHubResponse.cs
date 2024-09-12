@@ -62,6 +62,7 @@ namespace RevitDataValidator
         public Permissions permissions { get; set; }
         public string repository_selection { get; set; }
     }
+
     public class Asset
     {
         public string url { get; set; }
@@ -144,5 +145,4 @@ namespace RevitDataValidator
         public string type { get; set; }
         public bool site_admin { get; set; }
     }
-
 }
