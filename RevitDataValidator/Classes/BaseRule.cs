@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RevitDataValidator
 {
@@ -20,7 +21,7 @@ namespace RevitDataValidator
             {
                 if (WhenRun == null)
                 {
-                    return Enum.GetValues<WhenToRun>();
+                    return Enum.GetValues(typeof(WhenToRun)).Cast<WhenToRun>();
                 }
 
                 var ret = new List<WhenToRun>();
