@@ -87,57 +87,77 @@ namespace RevitDataValidator
 
         public static void RunAllRules(List<ElementId> addedAndModifiedIds, WhenToRun whenToRun)
         {
-            if (addedAndModifiedIds == null)
+            using (var t = new Transaction(doc, "Run Rules"))
             {
-                addedAndModifiedIds = new FilteredElementCollector(doc)
-                    .WherePasses(new LogicalOrFilter(
-                        new ElementIsElementTypeFilter(true),
-                        new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
-            }
+                bool started = false;
 
-            if (doc.IsWorkshared)
-            {
-                foreach (var rule in allWorksetRules.Where(q => q.WhenToRun.Contains(whenToRun)))
+                if (!doc.IsModifiable)
                 {
-                    RunWorksetRule(rule, addedAndModifiedIds);
-                }
-            }
-
-            foreach (var rule in
-                allParameterRules
-                .Where(q =>
-                    q.WhenToRun.Contains(whenToRun) &&
-                    q.CustomCode != null &&
-                    !CustomCodeRunning.Contains(q.CustomCode) &&
-                    dictCustomCode.ContainsKey(q.CustomCode)))
-            {
-                var ids = RunCustomRule(rule, addedAndModifiedIds);
-                if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
-                {
-                    Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", LogLevel.Warn);
-                    var failureMessage = new FailureMessage(rule.FailureId);
-                    failureMessage.SetFailingElements(ids.ToList());
-                    if (doc.IsModifiable)
+                    try
                     {
-                        doc.PostFailure(failureMessage);
+                        t.Start();
+                        started = true;
+                    }
+                    catch { }
+                }
+
+                if (addedAndModifiedIds == null)
+                {
+                    addedAndModifiedIds = new FilteredElementCollector(doc)
+                        .WherePasses(new LogicalOrFilter(
+                            new ElementIsElementTypeFilter(true),
+                            new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
+                }
+
+                if (doc.IsWorkshared)
+                {
+                    foreach (var rule in allWorksetRules.Where(q => q.WhenToRun.Contains(whenToRun)))
+                    {
+                        RunWorksetRule(rule, addedAndModifiedIds);
                     }
                 }
-            }
 
-            var ruleFailures = new List<RuleFailure>();
-            foreach (ElementId id in addedAndModifiedIds)
-            {
-                var failures = GetFailures(id, null, whenToRun, out List<ParameterString> parametersToSet);
-                ruleFailures.AddRange(failures);
-                foreach (var parameterString in parametersToSet)
+                foreach (var rule in
+                    allParameterRules
+                    .Where(q =>
+                        q.WhenToRun.Contains(whenToRun) &&
+                        q.CustomCode != null &&
+                        !CustomCodeRunning.Contains(q.CustomCode) &&
+                        dictCustomCode.ContainsKey(q.CustomCode)))
                 {
-                    SetParam(parameterString.Parameter, parameterString.NewValue);
+                    var ids = RunCustomRule(rule, addedAndModifiedIds);
+                    if (ids.Any() && addedAndModifiedIds.Any(x => ids.Any(y => y == x)))
+                    {
+                        Log($"{rule.CustomCode}|Custom rule failed for elements [{string.Join(", ", ids.Select(q => Utils.GetElementInfo(doc.GetElement(q))))}]", LogLevel.Warn);
+                        var failureMessage = new FailureMessage(rule.FailureId);
+                        failureMessage.SetFailingElements(ids.ToList());
+                        if (doc.IsModifiable)
+                        {
+                            doc.PostFailure(failureMessage);
+                        }
+                    }
                 }
-            }
-            if (ruleFailures.Count != 0)
-            {
-                var form = new FormGridList(ruleFailures);
-                form.Show();
+
+                var ruleFailures = new List<RuleFailure>();
+                foreach (ElementId id in addedAndModifiedIds)
+                {
+                    var failures = GetFailures(id, null, whenToRun, out List<ParameterString> parametersToSet);
+                    ruleFailures.AddRange(failures);
+                    foreach (var parameterString in parametersToSet)
+                    {
+                        SetParam(parameterString.Parameter, parameterString.NewValue);
+                    }
+                }
+                if (ruleFailures.Count != 0)
+                {
+                    var form = new FormGridList(ruleFailures);
+                    form.Show();
+                }
+
+                if (started)
+                {
+                    t.Commit();
+                }
             }
         }
 
@@ -425,9 +445,14 @@ namespace RevitDataValidator
             }
 
             var fiEntity = e.GetEntity(schema);
+            var stopwatch = new Stopwatch();
             try
             {
+                stopwatch.Start();
                 var ruleFromElement = fiEntity.Get<string>(schema.GetField(FIELD_RULENAME));
+                stopwatch.Stop();
+                var elapsed = stopwatch.Elapsed;
+                Log($"{e.Id} Time for entity get {elapsed}", LogLevel.Trace);
                 var parameterFromElement = fiEntity.Get<string>(schema.GetField(FIELD_PARAMETERNAME));
                 exception = fiEntity.Get<string>(schema.GetField(FIELD_EXCEPTION));
                 if (ruleFromElement == ruleName &&
@@ -438,6 +463,9 @@ namespace RevitDataValidator
             }
             catch (Autodesk.Revit.Exceptions.ArgumentException)
             {
+                stopwatch.Stop();
+                var elapsed = stopwatch.Elapsed;
+                Log($"{e.Id} Time for entity get {elapsed} after exception thrown", LogLevel.Trace);
                 return false;
             }
 
@@ -513,7 +541,7 @@ namespace RevitDataValidator
             {
                 return new List<ElementId>();
             }
-
+            Log($"RunCustomRule '{rule.CustomCode}'", LogLevel.Trace);
             CustomCodeRunning.Add(rule.CustomCode);
             var type = dictCustomCode[rule.CustomCode];
             var obj = Activator.CreateInstance(type);
@@ -559,8 +587,9 @@ namespace RevitDataValidator
 
             var parameter = GetParameter(element, rule.ParameterName);
             if (parameter == null)
+            {
                 return null;
-
+            }
             var parameterValueAsString = GetParamAsString(parameter);
             if (inputParameterValues?.FirstOrDefault(q => q.Parameter.Definition.Name == rule.ParameterName) != null)
             {
@@ -751,9 +780,7 @@ namespace RevitDataValidator
                     }
                 }
             }
-            else if (
-                rule.Regex != null &&
-                parameterValueAsString != null)
+            else if (rule.Regex != null)
             {
                 if (parameterValueAsString == null ||
                     !Regex.IsMatch(parameterValueAsString, rule.Regex))
@@ -823,7 +850,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Log($"IRule Not Implmented {rule.RuleName}", LogLevel.Error);
+                Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
             }
             return null;
         }

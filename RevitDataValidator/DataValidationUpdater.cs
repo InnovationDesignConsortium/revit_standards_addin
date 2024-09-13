@@ -29,7 +29,7 @@ namespace RevitDataValidator
                 addedAndModifiedIds.AddRange(modifiedIds);
                 addedAndModifiedIds = addedAndModifiedIds.Where(q => !Utils.idsTriggered.Contains(q)).ToList();
                 Utils.idsTriggered.AddRange(addedAndModifiedIds);
-
+                Utils.doc = data.GetDocument();
                 Utils.RunAllRules(addedAndModifiedIds, WhenToRun.Realtime);
             
             }

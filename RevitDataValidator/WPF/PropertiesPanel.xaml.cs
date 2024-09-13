@@ -265,12 +265,37 @@ namespace RevitDataValidator
             }
             else
             {
-                List<ElementId> allDocumentIds = new FilteredElementCollector(Utils.doc)
+                var filteredElementCollector = new FilteredElementCollector(Utils.doc)
                     .WherePasses(new LogicalOrFilter(
                         new ElementIsElementTypeFilter(true),
-                        new ElementIsElementTypeFilter(false))).ToElementIds().ToList();
+                        new ElementIsElementTypeFilter(false)));
+
+                if (rule.Categories != null)
+                {
+                    var cats = new List<BuiltInCategory>();
+                    var allBic = Enum.GetValues<BuiltInCategory>().Cast<BuiltInCategory>();
+                    foreach (var cat in rule.Categories)
+                    {
+                        var thisbic = Utils.catMap[cat];
+                        cats.Add(thisbic);
+                    }
+                    filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticategoryFilter(cats));
+                }
+                if (rule.ElementClasses != null)
+                {
+                    var types = new List<Type>();
+                    foreach (var className in rule.ElementClasses)
+                    {
+                        var type = Type.GetType(className);
+                        types.Add(type);
+                    }
+                    filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticlassFilter(types));
+                }
+
+                var ids = filteredElementCollector.ToElementIds();
                 var parametersToSetForFormatRules = new List<ParameterString>();
-                foreach (var id in allDocumentIds)
+
+                foreach (var id in ids)
                 {
                     var thisFailure = Utils.RunParameterRule(
                         rule,

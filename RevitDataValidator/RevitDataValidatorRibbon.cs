@@ -194,8 +194,6 @@ namespace RevitDataValidator
                 return null;
             }
 
-            Utils.Log($"Github: JSON Web Token {jsonWebToken}", LogLevel.Trace);
-
             // 2 - Get the ID of the installation that you want to authenticate as
             var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
             var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
@@ -213,12 +211,10 @@ namespace RevitDataValidator
                 return null;
             }
             var instalationId = installation?.id;
-            Utils.Log($"Github: Got installation id {instalationId}", LogLevel.Trace);
 
             // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
             var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
             var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
-            Utils.Log($"Github: Got access token {tokenInfo.token}", LogLevel.Trace);
             Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Trace);
             return tokenInfo;
         }
@@ -326,10 +322,9 @@ namespace RevitDataValidator
                     }
 
                     var file = Path.Combine(Utils.dllPath, PARAMETER_PACK_FILE_NAME);
-                    string json = "";
                     if (Utils.Debugging && File.Exists(file))
                     {
-                        json = File.ReadAllText(file);
+                        parameterPackFileContents = File.ReadAllText(file);
                         Utils.Log($"Read parameter packs from {file}", LogLevel.Info);
                     }
                     else
