@@ -273,7 +273,6 @@ namespace RevitDataValidator
                 if (rule.Categories != null)
                 {
                     var cats = new List<BuiltInCategory>();
-                    var allBic = Enum.GetValues<BuiltInCategory>().Cast<BuiltInCategory>();
                     foreach (var cat in rule.Categories)
                     {
                         var thisbic = Utils.catMap[cat];

@@ -47,6 +47,18 @@
 <ItemGroup>
   <Compile Remove="SetQuadrantByScopeBox.cs" />
 </ItemGroup>
+<ItemGroup>
+  <None Remove="ImageFiles\about.png" />
+  <None Remove="ImageFiles\about16.png" />
+  <None Remove="ImageFiles\show.png" />
+  <None Remove="ImageFiles\show16.png" />
+</ItemGroup>
+<ItemGroup>
+  <EmbeddedResource Include="ImageFiles\about.png" />
+  <EmbeddedResource Include="ImageFiles\about16.png" />
+  <EmbeddedResource Include="ImageFiles\show.png" />
+  <EmbeddedResource Include="ImageFiles\show16.png" />
+</ItemGroup>
   <ItemGroup>
 	  
 	<PackageReference Include="Nice3point.Revit.Toolkit" Condition="$(Configuration) == '2023'" Version="2023.2.1" />

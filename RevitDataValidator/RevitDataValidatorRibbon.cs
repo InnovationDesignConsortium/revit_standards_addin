@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 
 namespace RevitDataValidator
 {
@@ -99,10 +100,34 @@ namespace RevitDataValidator
                 RULE_DEFAULT_MESSAGE);
 
             var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
-            panel.AddItem(new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand"));
-            panel.AddItem(new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand"));
+
+            var showPaneCommand = new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "show16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "show.png")
+            };
+
+            panel.AddItem(showPaneCommand);
+            
+            var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "about16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "about.png")
+            };
+            panel.AddItem(aboutCommand);
+
             ShowErrors();
             Update.CheckForUpdates();
+        }
+        public static BitmapImage NewBitmapImage(string ns, string imageName)
+        {
+            string imagePath = ns + ".ImageFiles." + imageName;
+            Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(imagePath);
+            BitmapImage img = new BitmapImage();
+            img.BeginInit();
+            img.StreamSource = s;
+            img.EndInit();
+            return img;
         }
 
         private void ControlledApplication_DocumentSynchronizingWithCentral(object sender, Autodesk.Revit.DB.Events.DocumentSynchronizingWithCentralEventArgs e)
@@ -691,9 +716,8 @@ namespace RevitDataValidator
                 if (rule.CustomCode != null)
                 {
                     string code = null;
-                    var localPath = Path.Combine(
-                        "C:\\Users\\harry\\OneDrive\\Public\\Documents\\GitHub\\revit_standards_addin\\RevitDataValidator", $"{rule.CustomCode}.cs");
-                    if (File.Exists(localPath))
+                    var localPath = Path.Combine(Utils.dllPath, $"{rule.CustomCode}.cs");
+                    if (Utils.Debugging && File.Exists(localPath))
                     {
                         code = File.ReadAllText(localPath);
                     }
