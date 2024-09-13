@@ -207,7 +207,7 @@ namespace RevitDataValidator
                 }
 
                 // https://github.com/gruntwork-io/fetch
-                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {tokenFromGithubApp} {dllPath}";
+                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {token_for_GIT_CODE_REPO_OWNER.token} {dllPath}";
 
                 StartShell(
                     $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
