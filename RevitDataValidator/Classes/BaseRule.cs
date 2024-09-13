@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RevitDataValidator
 {
@@ -19,12 +18,12 @@ namespace RevitDataValidator
         {
             get
             {
+                var ret = new List<WhenToRun>();
                 if (WhenRun == null)
                 {
-                    return Enum.GetValues(typeof(WhenToRun)).Cast<WhenToRun>();
+                    return new List<WhenToRun> { RevitDataValidator.WhenToRun.Realtime };
                 }
 
-                var ret = new List<WhenToRun>();
                 foreach (string s in WhenRun)
                 {
                     if (Enum.TryParse(s, out WhenToRun whenToRun))

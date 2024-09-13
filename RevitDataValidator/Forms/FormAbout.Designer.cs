@@ -41,50 +41,50 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(17, 15);
-            label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            label1.Location = new System.Drawing.Point(12, 9);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(145, 25);
+            label1.Size = new System.Drawing.Size(95, 15);
             label1.TabIndex = 0;
             label1.Text = "Installed Version:";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(17, 65);
-            label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            label2.Location = new System.Drawing.Point(12, 39);
+            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(202, 25);
+            label2.Size = new System.Drawing.Size(133, 15);
             label2.TabIndex = 1;
             label2.Text = "Newest Relased Version:";
             // 
             // lblInstalled
             // 
             lblInstalled.AutoSize = true;
-            lblInstalled.Location = new System.Drawing.Point(211, 15);
-            lblInstalled.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            lblInstalled.Location = new System.Drawing.Point(148, 9);
+            lblInstalled.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             lblInstalled.Name = "lblInstalled";
-            lblInstalled.Size = new System.Drawing.Size(20, 25);
+            lblInstalled.Size = new System.Drawing.Size(13, 15);
             lblInstalled.TabIndex = 2;
             lblInstalled.Text = "x";
             // 
             // lblNewest
             // 
             lblNewest.AutoSize = true;
-            lblNewest.Location = new System.Drawing.Point(214, 65);
-            lblNewest.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            lblNewest.Location = new System.Drawing.Point(150, 39);
+            lblNewest.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             lblNewest.Name = "lblNewest";
-            lblNewest.Size = new System.Drawing.Size(20, 25);
+            lblNewest.Size = new System.Drawing.Size(13, 15);
             lblNewest.TabIndex = 3;
             lblNewest.Text = "x";
             // 
             // btnClose
             // 
             btnClose.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            btnClose.Location = new System.Drawing.Point(390, 238);
-            btnClose.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btnClose.Location = new System.Drawing.Point(273, 143);
+            btnClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             btnClose.Name = "btnClose";
-            btnClose.Size = new System.Drawing.Size(107, 38);
+            btnClose.Size = new System.Drawing.Size(75, 23);
             btnClose.TabIndex = 4;
             btnClose.Text = "Close";
             btnClose.UseVisualStyleBackColor = true;
@@ -93,38 +93,39 @@
             // lbl3
             // 
             lbl3.AutoSize = true;
-            lbl3.Location = new System.Drawing.Point(17, 112);
-            lbl3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            lbl3.Location = new System.Drawing.Point(12, 67);
+            lbl3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             lbl3.Name = "lbl3";
-            lbl3.Size = new System.Drawing.Size(264, 25);
+            lbl3.Size = new System.Drawing.Size(173, 15);
             lbl3.TabIndex = 5;
             lbl3.Text = "Release Date of Newest Version:";
             // 
             // lblReleaseDate
             // 
             lblReleaseDate.AutoSize = true;
-            lblReleaseDate.Location = new System.Drawing.Point(273, 112);
-            lblReleaseDate.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            lblReleaseDate.Location = new System.Drawing.Point(191, 67);
+            lblReleaseDate.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             lblReleaseDate.Name = "lblReleaseDate";
-            lblReleaseDate.Size = new System.Drawing.Size(20, 25);
+            lblReleaseDate.Size = new System.Drawing.Size(13, 15);
             lblReleaseDate.TabIndex = 6;
             lblReleaseDate.Text = "x";
             // 
             // btnDownload
             // 
-            btnDownload.Location = new System.Drawing.Point(17, 155);
-            btnDownload.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            btnDownload.Location = new System.Drawing.Point(12, 93);
+            btnDownload.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             btnDownload.Name = "btnDownload";
-            btnDownload.Size = new System.Drawing.Size(440, 38);
+            btnDownload.Size = new System.Drawing.Size(308, 23);
             btnDownload.TabIndex = 7;
             btnDownload.Text = "Download Newest Version && Install on Exit";
             btnDownload.UseVisualStyleBackColor = true;
+            btnDownload.Click += btnDownload_Click;
             // 
             // frmAbout
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(514, 297);
+            ClientSize = new System.Drawing.Size(360, 178);
             Controls.Add(btnDownload);
             Controls.Add(lblReleaseDate);
             Controls.Add(lbl3);
@@ -134,7 +135,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             Name = "frmAbout";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "About";
