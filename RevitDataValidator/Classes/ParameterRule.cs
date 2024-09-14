@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -19,6 +18,9 @@ namespace RevitDataValidator
 
         [JsonProperty("List Options")]
         public List<ListOption> ListOptions { get; set; }
+
+        [JsonProperty("List Source")]
+        public string ListSource { get; set; }
 
         [JsonProperty("Requirement")]
         public string Requirement { get; set; }

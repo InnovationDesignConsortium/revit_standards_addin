@@ -108,7 +108,7 @@ namespace RevitDataValidator
             };
 
             panel.AddItem(showPaneCommand);
-            
+
             var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "about16.png"),
@@ -119,6 +119,7 @@ namespace RevitDataValidator
             ShowErrors();
             Update.CheckForUpdates();
         }
+
         public static BitmapImage NewBitmapImage(string ns, string imageName)
         {
             string imagePath = ns + ".ImageFiles." + imageName;
@@ -380,6 +381,7 @@ namespace RevitDataValidator
                     ShowErrors();
                 }
 
+                var ruleFileInfo = new RuleFileInfo();
                 string ruleFileContents = null;
                 if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
                 {
@@ -387,7 +389,6 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    var ruleFileInfo = new RuleFileInfo();
                     var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
                     if (Utils.Debugging && ruleFile != null)
                     {
@@ -396,6 +397,7 @@ namespace RevitDataValidator
                             ruleFileContents = reader.ReadToEnd();
                         }
                         ruleFileInfo.Filename = ruleFile;
+                        ruleFileInfo.FilePath = Path.GetDirectoryName(ruleFile);
                     }
                     else
                     {
@@ -410,6 +412,7 @@ namespace RevitDataValidator
                             ruleData = Utils.GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
                             ruleFileInfo.Url = ruleData.HtmlUrl;
                             ruleFileContents = ruleData.Content;
+                            ruleFileInfo.FilePath = gitRuleFilePath;
                         }
                     }
 
@@ -488,7 +491,7 @@ namespace RevitDataValidator
                         }
                         if (conflictingRule == null)
                         {
-                            RegisterParameterRule(parameterRule);
+                            RegisterParameterRule(parameterRule, ruleFileInfo);
                             Utils.allParameterRules.Add(parameterRule);
                         }
                         else
@@ -708,7 +711,7 @@ namespace RevitDataValidator
             }
         }
 
-        private void RegisterParameterRule(ParameterRule rule)
+        private void RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
         {
             Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
             try
@@ -783,6 +786,36 @@ namespace RevitDataValidator
                             DataValidationUpdaterId,
                             new ElementMulticlassFilter(types),
                             Element.GetChangeTypeElementAddition());
+                    }
+                }
+
+                if (rule.ListSource != null)
+                {
+                    var path = Path.Combine(Utils.dllPath, rule.ListSource);
+                    List<string> listData = null;
+                    if (Utils.Debugging && File.Exists(path))
+                    {
+                        using (var v = new StreamReader(path))
+                        {
+                            listData = v.ReadToEnd().Split(",").ToList();
+                        }
+                    }
+                    else
+                    {
+                        var data = Utils.GetGitData(ContentType.File, $"{ruleFileInfo.FilePath}/{rule.ListSource}");
+                        if (data == null)
+                        {
+                            Utils.Log($"{rule.ListSource} not found at {ruleFileInfo.FilePath}", LogLevel.Error);
+                        }
+                        else
+                        {
+                            Utils.Log($"Found {rule.ListSource} at {ruleFileInfo.FilePath}", LogLevel.Trace);
+                            listData = data.Content.Split(',').ToList();
+                        }
+                    }
+                    if (listData != null)
+                    {
+                        rule.ListOptions = listData.Select(q => new ListOption { Name = q }).ToList();
                     }
                 }
             }
