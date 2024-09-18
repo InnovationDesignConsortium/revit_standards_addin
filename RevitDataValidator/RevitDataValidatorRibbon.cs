@@ -182,7 +182,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.Log($"OWNER_ENV = {OWNER_ENV}", LogLevel.Trace);
+                Utils.Log($"OWNER_ENV = {Utils.GIT_OWNER}", LogLevel.Trace);
             }
 
             Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
@@ -192,7 +192,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.Log($"REPO_ENV = {REPO_ENV}", LogLevel.Trace);
+                Utils.Log($"REPO_ENV = {Utils.GIT_REPO}", LogLevel.Trace);
             }
 
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
@@ -789,33 +789,55 @@ namespace RevitDataValidator
                     }
                 }
 
+                if (rule.KeyValuePath != null)
+                {
+                    if (rule.KeyValues != null)
+                    {
+                        Utils.Log($"Rule should not have both KeyValuePath {rule.KeyValuePath} and KeyValues {rule.KeyValues}", LogLevel.Error);
+                    }
+
+                    var fileContents = GetFileContents(rule.KeyValuePath, ruleFileInfo.FilePath);
+
+                    if (fileContents != null)
+                    {
+                        var listData = fileContents.Split('\n').Select(q => q.Split(',').ToList()).ToList();
+                        rule.FilterParameter = listData[0][0];
+                        rule.ParameterName = listData[0][1];
+                        rule.DrivenParameters = listData[0].Skip(2).Select(w => w.TrimEnd('\r').TrimEnd('\n')).ToList();
+                        listData = listData.Skip(1).ToList();
+                        var keys = listData.Select(q => q[0]).Distinct();
+                        rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                        foreach (var key in keys)
+                        {
+                            var allForThisKey = listData.Where(q => q[0] == key);
+                            var valuesForThisKey = allForThisKey.Select(q => q.Skip(1).Select(w => w.TrimEnd('\r').TrimEnd('\n')).ToList()).ToList();
+                            rule.DictKeyValues.Add(key, valuesForThisKey);
+                        }
+                    }
+                }
+
+                if (rule.KeyValues != null)
+                {
+                    rule.DictKeyValues.Add("", rule.KeyValues);
+                }
+
                 if (rule.ListSource != null)
                 {
-                    var path = Path.Combine(Utils.dllPath, rule.ListSource);
-                    List<string> listData = null;
-                    if (Utils.Debugging && File.Exists(path))
+                    if (rule.ListOptions != null)
                     {
-                        using (var v = new StreamReader(path))
-                        {
-                            listData = v.ReadToEnd().Split(",").ToList();
-                        }
+                        Utils.Log($"Rule should not have both ListOptions {rule.ListOptions} and ListSource {rule.ListSource}", LogLevel.Error);
                     }
-                    else
+
+                    var fileContents = GetFileContents(rule.ListSource, ruleFileInfo.FilePath);
+
+                    if (fileContents != null)
                     {
-                        var data = Utils.GetGitData(ContentType.File, $"{ruleFileInfo.FilePath}/{rule.ListSource}");
-                        if (data == null)
+                        var listData = fileContents.Split('\n').Select(q => q.Split(',').ToList()).ToList();
+
+                        if (listData != null)
                         {
-                            Utils.Log($"{rule.ListSource} not found at {ruleFileInfo.FilePath}", LogLevel.Error);
+                            rule.ListOptions = listData.Select(q => new ListOption { Name = q[0].TrimEnd('\r').TrimEnd('\n') }).ToList();
                         }
-                        else
-                        {
-                            Utils.Log($"Found {rule.ListSource} at {ruleFileInfo.FilePath}", LogLevel.Trace);
-                            listData = data.Content.Split(',').ToList();
-                        }
-                    }
-                    if (listData != null)
-                    {
-                        rule.ListOptions = listData.Select(q => new ListOption { Name = q }).ToList();
                     }
                 }
             }
@@ -848,6 +870,34 @@ namespace RevitDataValidator
             {
                 rule.FailureId = genericFailureId;
             }
+        }
+
+        private static string GetFileContents(string fileName, string ruleInfoFilePath)
+        {
+            var path = Path.Combine(Utils.dllPath, fileName);
+            string fileContents = null;
+
+            if (Utils.Debugging && File.Exists(path))
+            {
+                using (var v = new StreamReader(path))
+                {
+                    fileContents = v.ReadToEnd();
+                }
+            }
+            else
+            {
+                var data = Utils.GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
+                if (data == null)
+                {
+                    Utils.Log($"File not found at {ruleInfoFilePath}", LogLevel.Error);
+                }
+                else
+                {
+                    Utils.Log($"Found {ruleInfoFilePath}", LogLevel.Trace);
+                    fileContents = data.Content;
+                }
+            }
+            return fileContents;
         }
 
         private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)

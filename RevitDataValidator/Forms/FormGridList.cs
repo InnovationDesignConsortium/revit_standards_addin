@@ -134,7 +134,7 @@ namespace RevitDataValidator.Forms
                             ToolTipText = rule.UserMessage
                         });
                     }
-                    else if (rule.ListOptions != null || rule.KeyValues != null)
+                    else if (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null)
                     {
                         List<string> dataSource = null;
                         if (rule.ListOptions != null)
@@ -144,6 +144,10 @@ namespace RevitDataValidator.Forms
                         else if (rule.KeyValues != null)
                         {
                             dataSource = rule.KeyValues.ConvertAll(q => q[0]);
+                        }
+                        else if (rule.DictKeyValues != null)
+                        {
+                            dataSource = Utils.GetKeyValuesFromFilterParameter(rule).ConvertAll(q => q[0]);
                         }
                         var multiCbo = new System.Windows.Forms.ComboBox
                         {

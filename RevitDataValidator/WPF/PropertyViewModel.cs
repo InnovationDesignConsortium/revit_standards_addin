@@ -77,7 +77,7 @@ namespace RevitDataValidator
             {
                 return;
             }
-                
+
             if (packSet.ParameterPacks == null)
                 packSet.ParameterPacks = new List<string>();
 
@@ -118,7 +118,7 @@ namespace RevitDataValidator
 
                 if (parameterPack == null)
                 {
-                    Utils.Log($"{packName} is listed in {packSet.Name} but does not exist", LogLevel.Error);
+                    Utils.Log($"Parameter Pack '{packName}' is listed in the Pack Set '{packSet.Name}' but does not exist", LogLevel.Error);
                     continue;
                 }
 
@@ -130,7 +130,7 @@ namespace RevitDataValidator
                     foreach (var rule in Utils.allParameterRules)
                     {
                         if (rule.Categories?.Contains(parameterPack.Category) == true &&
-                            (rule.ListOptions != null || rule.KeyValues != null) &&
+                            (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
                             rule.ParameterName == pname)
                         {
                             List<StringInt> choices;
@@ -140,7 +140,12 @@ namespace RevitDataValidator
                             }
                             else
                             {
-                                choices = rule.KeyValues.ConvertAll(q => new StringInt(q[0], 0));
+                                var keyValues = rule.KeyValues;
+                                if (rule.FilterParameter != null)
+                                {
+                                    keyValues = Utils.GetKeyValuesFromFilterParameter(rule);
+                                }
+                                choices = keyValues.ConvertAll(q => new StringInt(q[0], 0));
                             }
                             var paramValue = GetParameterValue(pname);
                             var selected = choices.Find(q => q.String == paramValue);

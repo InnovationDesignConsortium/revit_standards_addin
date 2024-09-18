@@ -47,8 +47,16 @@ namespace RevitDataValidator
         [JsonProperty("Driven Parameters")]
         public List<string> DrivenParameters { get; set; }
 
+        public Dictionary<string, List<List<string>>> DictKeyValues { get; set; }
+
         [JsonProperty("Key Values")]
         public List<List<string>> KeyValues { get; set; }
+
+        [JsonProperty("Key Value Path")]
+        public string KeyValuePath { get; set; }
+
+        [JsonProperty("Filter Parameter")]
+        public string FilterParameter { get; set; }
 
         public string Format { get; set; }
 
