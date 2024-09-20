@@ -166,7 +166,7 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        if (parameters?.Count() > 0 && parameters[0] != null)
+                        if (parameters?.Count > 0 && parameters[0] != null)
                         {
                             var parameter = parameters[0];
                             var value = GetParameterValue(pname);
@@ -238,7 +238,7 @@ namespace RevitDataValidator
                                     }
                                     catch
                                     { }
-                                    List<StringInt> choices = new List<StringInt>();
+                                    var choices = new List<StringInt>();
                                     if (typeid == null)
                                     {
                                         if (parameter.Definition.GetDataType() == SpecTypeId.Reference.Material)

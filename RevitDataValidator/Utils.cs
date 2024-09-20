@@ -645,7 +645,7 @@ namespace RevitDataValidator
                     var keyValues = new List<List<string>>();
                     if (rule.FilterParameter != null)
                     {
-                        keyValues = GetKeyValuesFromFilterParameter(rule);                       
+                        keyValues = GetKeyValuesFromFilterParameter(rule);
                     }
                     else
                     {
@@ -894,7 +894,6 @@ namespace RevitDataValidator
             }
             return new List<List<string>>();
         }
-
 
         public static Autodesk.Revit.UI.TaskDialog GetTaskDialogForFormatRenaming(ParameterRule rule, List<ParameterString> thisRuleParametersToSetForFormatRules)
         {

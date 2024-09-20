@@ -702,10 +702,12 @@ namespace RevitDataValidator
                     });
                 UpdaterRegistry.AddTrigger(
                     DataValidationUpdaterId,
+                    Utils.doc,
                     filter,
                     Element.GetChangeTypeAny());
                 UpdaterRegistry.AddTrigger(
                     DataValidationUpdaterId,
+                    Utils.doc,
                     filter,
                     Element.GetChangeTypeElementAddition());
             }
@@ -763,6 +765,7 @@ namespace RevitDataValidator
                     var builtInCats = Utils.GetBuiltInCats(rule);
                     UpdaterRegistry.AddTrigger(
                         DataValidationUpdaterId,
+                        Utils.doc,
                         new ElementMulticategoryFilter(builtInCats),
                         Element.GetChangeTypeAny());
                 }
@@ -780,10 +783,12 @@ namespace RevitDataValidator
                     {
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
+                            Utils.doc,
                             new ElementMulticlassFilter(types),
                             Element.GetChangeTypeAny());
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
+                            Utils.doc,
                             new ElementMulticlassFilter(types),
                             Element.GetChangeTypeElementAddition());
                     }
