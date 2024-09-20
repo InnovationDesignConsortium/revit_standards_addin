@@ -771,14 +771,7 @@ namespace RevitDataValidator
                 }
                 else if (rule.ElementClasses != null)
                 {
-                    var types = new List<Type>();
-                    foreach (string className in rule.ElementClasses)
-                    {
-                        var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
-                        var type = asm.GetType(className);
-                        if (type != null)
-                            types.Add(type);
-                    }
+                    var types = Utils.GetRuleTypes(rule);
                     if (types.Count > 0)
                     {
                         UpdaterRegistry.AddTrigger(
@@ -842,6 +835,22 @@ namespace RevitDataValidator
                         if (listData != null)
                         {
                             rule.ListOptions = listData.Select(q => new ListOption { Name = q[0].TrimEnd('\r').TrimEnd('\n') }).ToList();
+                        }
+                    }
+                }
+
+                if (rule.FilterParameter != null)
+                {
+                    var paramId = GlobalParametersManager.FindByName(Utils.doc, rule.FilterParameter);
+                    if (paramId != null)
+                    {
+                        if (Utils.doc.GetElement(paramId) is GlobalParameter param)
+                        {
+                            UpdaterRegistry.AddTrigger(
+                                DataValidationUpdaterId,
+                                Utils.doc,
+                                new List<ElementId> { paramId },
+                                Element.GetChangeTypeAny());
                         }
                     }
                 }

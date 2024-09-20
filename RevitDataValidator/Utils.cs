@@ -138,6 +138,25 @@ namespace RevitDataValidator
                     }
                 }
 
+                var globalParameterIds = addedAndModifiedIds.Where(q => doc.GetElement(q) is GlobalParameter);
+                var globalParameters = globalParameterIds.Select(q => doc.GetElement(q) as GlobalParameter);
+                var elementsToAdd = new List<ElementId>();
+                foreach (var rule in allParameterRules
+                    .Where(q => q.FilterParameter != null &&
+                                globalParameters.Select(w => w.Name).Contains(q.FilterParameter)))
+                {
+                    if (rule.Categories != null)
+                    {
+                        addedAndModifiedIds.AddRange(new FilteredElementCollector(doc)
+                            .WherePasses(new ElementMulticategoryFilter(GetBuiltInCats(rule))).ToElementIds());
+                    }
+                    if (rule.ElementClasses != null)
+                    {
+                        addedAndModifiedIds.AddRange(new FilteredElementCollector(doc)
+                            .WherePasses(new ElementMulticlassFilter(GetRuleTypes(rule))).ToElementIds());
+                    }
+                }
+
                 var ruleFailures = new List<RuleFailure>();
                 foreach (ElementId id in addedAndModifiedIds)
                 {
@@ -161,6 +180,23 @@ namespace RevitDataValidator
             }
         }
 
+        public static List<Type> GetRuleTypes(ParameterRule rule)
+        {
+            if (rule.ElementClasses == null)
+            {
+                return new List<Type>();
+            }
+
+            var types = new List<Type>();
+            foreach (string className in rule.ElementClasses)
+            {
+                var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
+                var type = asm.GetType(className);
+                if (type != null)
+                    types.Add(type);
+            }
+            return types;
+        }
         private static void SetParam(Parameter p, string s)
         {
             if (p == null)
