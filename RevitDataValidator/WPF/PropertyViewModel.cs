@@ -199,7 +199,7 @@ namespace RevitDataValidator
                                     .FirstOrDefault(q => q.Replace(path + "\\", "").StartsWith(typeidstring));
                                 if (enumFile != null)
                                 {
-                                    using (var sr = new StreamReader(enumFile))
+                                    using (var sr = new StreamReader(new FileStream(enumFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                                     {
                                         var contents = sr.ReadToEnd();
                                         var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents);

@@ -392,7 +392,7 @@ namespace RevitDataValidator
                     var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
                     if (Utils.Debugging && ruleFile != null)
                     {
-                        using (var reader = new StreamReader(ruleFile))
+                        using (var reader = new StreamReader(new FileStream(ruleFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                         {
                             ruleFileContents = reader.ReadToEnd();
                         }
@@ -879,7 +879,7 @@ namespace RevitDataValidator
 
             if (Utils.Debugging && File.Exists(path))
             {
-                using (var v = new StreamReader(path))
+                using (var v = new StreamReader(new FileStream(path, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                 {
                     fileContents = v.ReadToEnd();
                 }
