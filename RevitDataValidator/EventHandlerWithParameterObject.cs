@@ -13,6 +13,11 @@ namespace RevitDataValidator
         {
             try
             {
+                if (Utils.doc == null)
+                {
+                    return;
+                }
+
                 using (Transaction t = new Transaction(Utils.doc, "Update Parameters"))
                 {
                     t.Start();

@@ -60,6 +60,10 @@ namespace RevitDataValidator
 
         public string Format { get; set; }
 
+        [JsonProperty("Is Value Required")]
+        public bool IsValueRequired { get; set; }
+
+
         public override string ToString()
         {
             return RuleName;
