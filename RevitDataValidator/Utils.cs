@@ -85,6 +85,14 @@ namespace RevitDataValidator
         public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
         public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
 
+        public static List<ListOption> GetChoicesFromList(Element element, ParameterRule rule)
+        {
+            return rule.ListOptions.Where(q => q.FilterValue == null ||
+                (rule.FilterParameter != null &&
+                element.LookupParameter(rule.FilterParameter) != null &&
+                element.LookupParameter(rule.FilterParameter).AsString() == q.FilterValue)).ToList();
+        }
+
         public static void RunAllRules(List<ElementId> addedAndModifiedIds, WhenToRun whenToRun)
         {
             using (var t = new Transaction(doc, "Run Rules"))
@@ -1268,7 +1276,9 @@ namespace RevitDataValidator
             {
                 var td = new TaskDialog("Error")
                 {
-                    MainInstruction = s + Environment.NewLine + Environment.NewLine + ex.Message.Replace(@"\", Environment.NewLine),
+                    MainInstruction = s + Environment.NewLine + Environment.NewLine + ex.Message
+                    .Replace(@"\", Environment.NewLine)
+                    .Replace(@"/", Environment.NewLine),
                     MainContent = ex.StackTrace.Replace(@"\", Environment.NewLine)
                 };
                 td.Show();

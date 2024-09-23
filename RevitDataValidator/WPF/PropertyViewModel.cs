@@ -136,7 +136,21 @@ namespace RevitDataValidator
                             List<StringInt> choices;
                             if (rule.ListOptions != null)
                             {
-                                choices = rule.ListOptions.ConvertAll(q => new StringInt(q.Name, 0));
+                                choices = Utils.GetChoicesFromList(element, rule)
+                                    .ConvertAll(q => new StringInt(q.Name, 0));
+                                if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
+                                {
+                                    foreach (var parameter in parameters)
+                                    {
+                                        if (parameter.AsValueString() != "")
+                                        {
+                                            Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject>
+                                    {
+                                        new ParameterObject(parameters, "")
+                                    });
+                                        }
+                                    }
+                                }
                             }
                             else
                             {

@@ -64,6 +64,7 @@
             dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.Size = new System.Drawing.Size(854, 467);
             dataGridView1.TabIndex = 3;
+            dataGridView1.CellClick += dataGridView1_CellClick;
             dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
             // 
             // btnShow

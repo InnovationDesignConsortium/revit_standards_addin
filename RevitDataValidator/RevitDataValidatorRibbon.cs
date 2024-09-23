@@ -816,6 +816,10 @@ namespace RevitDataValidator
 
                 if (rule.KeyValues != null)
                 {
+                    if (rule.DictKeyValues == null)
+                    {
+                        rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                    }
                     rule.DictKeyValues.Add("", rule.KeyValues);
                 }
 
