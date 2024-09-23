@@ -77,7 +77,7 @@ namespace RevitDataValidator
             {
                 return;
             }
-                
+
             if (packSet.ParameterPacks == null)
                 packSet.ParameterPacks = new List<string>();
 
@@ -118,7 +118,7 @@ namespace RevitDataValidator
 
                 if (parameterPack == null)
                 {
-                    Utils.Log($"{packName} is listed in {packSet.Name} but does not exist", LogLevel.Error);
+                    Utils.Log($"Parameter Pack '{packName}' is listed in the Pack Set '{packSet.Name}' but does not exist", LogLevel.Error);
                     continue;
                 }
 
@@ -130,17 +130,36 @@ namespace RevitDataValidator
                     foreach (var rule in Utils.allParameterRules)
                     {
                         if (rule.Categories?.Contains(parameterPack.Category) == true &&
-                            (rule.ListOptions != null || rule.KeyValues != null) &&
+                            (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
                             rule.ParameterName == pname)
                         {
                             List<StringInt> choices;
                             if (rule.ListOptions != null)
                             {
-                                choices = rule.ListOptions.ConvertAll(q => new StringInt(q.Name, 0));
+                                choices = Utils.GetChoicesFromList(element, rule)
+                                    .ConvertAll(q => new StringInt(q.Name, 0));
+                                if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
+                                {
+                                    foreach (var parameter in parameters)
+                                    {
+                                        if (parameter.AsValueString() != "")
+                                        {
+                                            Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject>
+                                    {
+                                        new ParameterObject(parameters, "")
+                                    });
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
-                                choices = rule.KeyValues.ConvertAll(q => new StringInt(q[0], 0));
+                                var keyValues = rule.KeyValues;
+                                if (rule.FilterParameter != null)
+                                {
+                                    keyValues = Utils.GetKeyValuesFromFilterParameter(rule);
+                                }
+                                choices = keyValues.ConvertAll(q => new StringInt(q[0], 0));
                             }
                             var paramValue = GetParameterValue(pname);
                             var selected = choices.Find(q => q.String == paramValue);
@@ -161,7 +180,7 @@ namespace RevitDataValidator
                     }
                     if (!foundRule)
                     {
-                        if (parameters?.Count() > 0 && parameters[0] != null)
+                        if (parameters?.Count > 0 && parameters[0] != null)
                         {
                             var parameter = parameters[0];
                             var value = GetParameterValue(pname);
@@ -194,7 +213,7 @@ namespace RevitDataValidator
                                     .FirstOrDefault(q => q.Replace(path + "\\", "").StartsWith(typeidstring));
                                 if (enumFile != null)
                                 {
-                                    using (var sr = new StreamReader(enumFile))
+                                    using (var sr = new StreamReader(new FileStream(enumFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                                     {
                                         var contents = sr.ReadToEnd();
                                         var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents);
@@ -233,7 +252,7 @@ namespace RevitDataValidator
                                     }
                                     catch
                                     { }
-                                    List<StringInt> choices = new List<StringInt>();
+                                    var choices = new List<StringInt>();
                                     if (typeid == null)
                                     {
                                         if (parameter.Definition.GetDataType() == SpecTypeId.Reference.Material)

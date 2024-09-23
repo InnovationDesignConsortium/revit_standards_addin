@@ -108,7 +108,7 @@ namespace RevitDataValidator
             };
 
             panel.AddItem(showPaneCommand);
-            
+
             var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "about16.png"),
@@ -119,6 +119,7 @@ namespace RevitDataValidator
             ShowErrors();
             Update.CheckForUpdates();
         }
+
         public static BitmapImage NewBitmapImage(string ns, string imageName)
         {
             string imagePath = ns + ".ImageFiles." + imageName;
@@ -181,7 +182,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.Log($"OWNER_ENV = {OWNER_ENV}", LogLevel.Trace);
+                Utils.Log($"OWNER_ENV = {Utils.GIT_OWNER}", LogLevel.Trace);
             }
 
             Utils.GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
@@ -191,7 +192,7 @@ namespace RevitDataValidator
             }
             else
             {
-                Utils.Log($"REPO_ENV = {REPO_ENV}", LogLevel.Trace);
+                Utils.Log($"REPO_ENV = {Utils.GIT_REPO}", LogLevel.Trace);
             }
 
             var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
@@ -380,6 +381,7 @@ namespace RevitDataValidator
                     ShowErrors();
                 }
 
+                var ruleFileInfo = new RuleFileInfo();
                 string ruleFileContents = null;
                 if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
                 {
@@ -387,15 +389,15 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    var ruleFileInfo = new RuleFileInfo();
                     var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
                     if (Utils.Debugging && ruleFile != null)
                     {
-                        using (var reader = new StreamReader(ruleFile))
+                        using (var reader = new StreamReader(new FileStream(ruleFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                         {
                             ruleFileContents = reader.ReadToEnd();
                         }
                         ruleFileInfo.Filename = ruleFile;
+                        ruleFileInfo.FilePath = Path.GetDirectoryName(ruleFile);
                     }
                     else
                     {
@@ -410,6 +412,7 @@ namespace RevitDataValidator
                             ruleData = Utils.GetGitData(ContentType.File, $"{gitRuleFilePath}/{RULE_FILE_NAME}");
                             ruleFileInfo.Url = ruleData.HtmlUrl;
                             ruleFileContents = ruleData.Content;
+                            ruleFileInfo.FilePath = gitRuleFilePath;
                         }
                     }
 
@@ -488,7 +491,7 @@ namespace RevitDataValidator
                         }
                         if (conflictingRule == null)
                         {
-                            RegisterParameterRule(parameterRule);
+                            RegisterParameterRule(parameterRule, ruleFileInfo);
                             Utils.allParameterRules.Add(parameterRule);
                         }
                         else
@@ -699,16 +702,18 @@ namespace RevitDataValidator
                     });
                 UpdaterRegistry.AddTrigger(
                     DataValidationUpdaterId,
+                    Utils.doc,
                     filter,
                     Element.GetChangeTypeAny());
                 UpdaterRegistry.AddTrigger(
                     DataValidationUpdaterId,
+                    Utils.doc,
                     filter,
                     Element.GetChangeTypeElementAddition());
             }
         }
 
-        private void RegisterParameterRule(ParameterRule rule)
+        private void RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
         {
             Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
             try
@@ -760,29 +765,97 @@ namespace RevitDataValidator
                     var builtInCats = Utils.GetBuiltInCats(rule);
                     UpdaterRegistry.AddTrigger(
                         DataValidationUpdaterId,
+                        Utils.doc,
                         new ElementMulticategoryFilter(builtInCats),
                         Element.GetChangeTypeAny());
                 }
                 else if (rule.ElementClasses != null)
                 {
-                    var types = new List<Type>();
-                    foreach (string className in rule.ElementClasses)
-                    {
-                        var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
-                        var type = asm.GetType(className);
-                        if (type != null)
-                            types.Add(type);
-                    }
+                    var types = Utils.GetRuleTypes(rule);
                     if (types.Count > 0)
                     {
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
+                            Utils.doc,
                             new ElementMulticlassFilter(types),
                             Element.GetChangeTypeAny());
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
+                            Utils.doc,
                             new ElementMulticlassFilter(types),
                             Element.GetChangeTypeElementAddition());
+                    }
+                }
+
+                if (rule.KeyValuePath != null)
+                {
+                    if (rule.KeyValues != null)
+                    {
+                        Utils.Log($"Rule should not have both KeyValuePath {rule.KeyValuePath} and KeyValues {rule.KeyValues}", LogLevel.Error);
+                    }
+
+                    var fileContents = GetFileContents(rule.KeyValuePath, ruleFileInfo.FilePath);
+
+                    if (fileContents != null)
+                    {
+                        var listData = fileContents.Split('\n').Select(q => q.Split(',').ToList()).ToList();
+                        rule.FilterParameter = listData[0][0];
+                        rule.ParameterName = listData[0][1];
+                        rule.DrivenParameters = listData[0].Skip(2).Select(w => w.TrimEnd('\r').TrimEnd('\n')).ToList();
+                        listData = listData.Skip(1).ToList();
+                        var keys = listData.Select(q => q[0]).Distinct();
+                        rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                        foreach (var key in keys)
+                        {
+                            var allForThisKey = listData.Where(q => q[0] == key);
+                            var valuesForThisKey = allForThisKey.Select(q => q.Skip(1).Select(w => w.TrimEnd('\r').TrimEnd('\n')).ToList()).ToList();
+                            rule.DictKeyValues.Add(key, valuesForThisKey);
+                        }
+                    }
+                }
+
+                if (rule.KeyValues != null)
+                {
+                    if (rule.DictKeyValues == null)
+                    {
+                        rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                    }
+                    rule.DictKeyValues.Add("", rule.KeyValues);
+                }
+
+                if (rule.ListSource != null)
+                {
+                    if (rule.ListOptions != null)
+                    {
+                        Utils.Log($"Rule should not have both ListOptions {rule.ListOptions} and ListSource {rule.ListSource}", LogLevel.Error);
+                    }
+
+                    var fileContents = GetFileContents(rule.ListSource, ruleFileInfo.FilePath);
+
+                    if (fileContents != null)
+                    {
+                        var listData = fileContents.Split('\n').Select(q => q.Split(',').ToList()).ToList();
+
+                        if (listData != null)
+                        {
+                            rule.ListOptions = listData.Select(q => new ListOption { Name = q[0].TrimEnd('\r').TrimEnd('\n') }).ToList();
+                        }
+                    }
+                }
+
+                if (rule.FilterParameter != null)
+                {
+                    var paramId = GlobalParametersManager.FindByName(Utils.doc, rule.FilterParameter);
+                    if (paramId != null)
+                    {
+                        if (Utils.doc.GetElement(paramId) is GlobalParameter param)
+                        {
+                            UpdaterRegistry.AddTrigger(
+                                DataValidationUpdaterId,
+                                Utils.doc,
+                                new List<ElementId> { paramId },
+                                Element.GetChangeTypeAny());
+                        }
                     }
                 }
             }
@@ -815,6 +888,34 @@ namespace RevitDataValidator
             {
                 rule.FailureId = genericFailureId;
             }
+        }
+
+        private static string GetFileContents(string fileName, string ruleInfoFilePath)
+        {
+            var path = Path.Combine(Utils.dllPath, fileName);
+            string fileContents = null;
+
+            if (Utils.Debugging && File.Exists(path))
+            {
+                using (var v = new StreamReader(new FileStream(path, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                {
+                    fileContents = v.ReadToEnd();
+                }
+            }
+            else
+            {
+                var data = Utils.GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
+                if (data == null)
+                {
+                    Utils.Log($"File not found at {ruleInfoFilePath}", LogLevel.Error);
+                }
+                else
+                {
+                    Utils.Log($"Found {ruleInfoFilePath}", LogLevel.Trace);
+                    fileContents = data.Content;
+                }
+            }
+            return fileContents;
         }
 
         private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)

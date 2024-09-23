@@ -85,6 +85,14 @@ namespace RevitDataValidator
         public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
         public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
 
+        public static List<ListOption> GetChoicesFromList(Element element, ParameterRule rule)
+        {
+            return rule.ListOptions.Where(q => q.FilterValue == null ||
+                (rule.FilterParameter != null &&
+                element.LookupParameter(rule.FilterParameter) != null &&
+                element.LookupParameter(rule.FilterParameter).AsString() == q.FilterValue)).ToList();
+        }
+
         public static void RunAllRules(List<ElementId> addedAndModifiedIds, WhenToRun whenToRun)
         {
             using (var t = new Transaction(doc, "Run Rules"))
@@ -138,6 +146,25 @@ namespace RevitDataValidator
                     }
                 }
 
+                var globalParameterIds = addedAndModifiedIds.Where(q => doc.GetElement(q) is GlobalParameter);
+                var globalParameters = globalParameterIds.Select(q => doc.GetElement(q) as GlobalParameter);
+                var elementsToAdd = new List<ElementId>();
+                foreach (var rule in allParameterRules
+                    .Where(q => q.FilterParameter != null &&
+                                globalParameters.Select(w => w.Name).Contains(q.FilterParameter)))
+                {
+                    if (rule.Categories != null)
+                    {
+                        addedAndModifiedIds.AddRange(new FilteredElementCollector(doc)
+                            .WherePasses(new ElementMulticategoryFilter(GetBuiltInCats(rule))).ToElementIds());
+                    }
+                    if (rule.ElementClasses != null)
+                    {
+                        addedAndModifiedIds.AddRange(new FilteredElementCollector(doc)
+                            .WherePasses(new ElementMulticlassFilter(GetRuleTypes(rule))).ToElementIds());
+                    }
+                }
+
                 var ruleFailures = new List<RuleFailure>();
                 foreach (ElementId id in addedAndModifiedIds)
                 {
@@ -161,6 +188,23 @@ namespace RevitDataValidator
             }
         }
 
+        public static List<Type> GetRuleTypes(ParameterRule rule)
+        {
+            if (rule.ElementClasses == null)
+            {
+                return new List<Type>();
+            }
+
+            var types = new List<Type>();
+            foreach (string className in rule.ElementClasses)
+            {
+                var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
+                var type = asm.GetType(className);
+                if (type != null)
+                    types.Add(type);
+            }
+            return types;
+        }
         private static void SetParam(Parameter p, string s)
         {
             if (p == null)
@@ -545,15 +589,27 @@ namespace RevitDataValidator
             CustomCodeRunning.Add(rule.CustomCode);
             var type = dictCustomCode[rule.CustomCode];
             var obj = Activator.CreateInstance(type);
-            var x = type.InvokeMember("Run",
-                                BindingFlags.Default | BindingFlags.InvokeMethod,
-                                null,
-                                obj,
-                                new object[] { doc, addedAndModifiedIds });
-            if (x is IEnumerable<ElementId> ids)
+            try
             {
-                return ids;
+                var x = type.InvokeMember("Run",
+                                    BindingFlags.Default | BindingFlags.InvokeMethod,
+                                    null,
+                                    obj,
+                                    new object[] { doc, addedAndModifiedIds });
+                if (x is IEnumerable<ElementId> ids)
+                {
+                    return ids;
+                }
             }
+            catch (MissingMethodException ex)
+            {
+                LogException($"Cannot run custom rule '{rule.CustomCode}' because this method is missing in the {rule.CustomCode} namespace: public IEnumerable<ElementId> Run(Document doc, List<ElementId> ids)", ex);
+            }
+            catch (Exception ex)
+            {
+                LogException($"Cannot run custom rule '{rule.CustomCode}'", ex);
+            }
+
             return new List<ElementId>();
         }
 
@@ -600,10 +656,10 @@ namespace RevitDataValidator
 
             // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
             // rule should run if target paramater has no value
-            //if (parameterValueAsString == null)
-            //{
-            //    return null;
-            //}
+            if (!rule.IsValueRequired && parameterValueAsString.IsNullOrEmpty())
+            {
+                return null;
+            }
 
             if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
             {
@@ -614,7 +670,8 @@ namespace RevitDataValidator
             Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
 
             if (rule.KeyValues != null ||
-                rule.ListOptions != null)
+                rule.ListOptions != null ||
+                rule.DictKeyValues != null)
             {
                 if (rule.ListOptions != null && (parameterValueAsString == null ||
                     !rule.ListOptions.Select(q => q.Name).Contains(parameterValueAsString)))
@@ -627,12 +684,22 @@ namespace RevitDataValidator
                         FailureType = FailureType.List
                     };
                 }
-                else if (rule.KeyValues != null)
+                else if (rule.DictKeyValues != null)
                 {
-                    var keys = rule.KeyValues.Find(q => q[0] == parameterValueAsString);
-                    if (keys == null)
+                    var keyValues = new List<List<string>>();
+                    if (rule.FilterParameter != null)
                     {
-                        Log($"{rule.RuleName}|{GetElementInfo(element)}|{parameterValueAsString} is not a valid key value. Valid values are [{string.Join(", ", rule.KeyValues)}]", LogLevel.Warn);
+                        keyValues = GetKeyValuesFromFilterParameter(rule);
+                    }
+                    else
+                    {
+                        keyValues = rule.DictKeyValues[""];
+                    }
+
+                    var keys = keyValues.Find(q => q[0] == parameterValueAsString);
+                    if (keyValues.Count > 0 && keys == null)
+                    {
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|{parameterValueAsString} is not a valid key value. Valid values are [{string.Join(", ", keyValues)}]", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -640,15 +707,18 @@ namespace RevitDataValidator
                             FailureType = FailureType.List
                         };
                     }
-                    for (var i = 0; i < rule.DrivenParameters.Count; i++)
+                    if (keys != null)
                     {
-                        var drivenParam = GetParameter(element, rule.DrivenParameters[i]);
-                        if (drivenParam == null)
+                        for (var i = 0; i < rule.DrivenParameters.Count; i++)
                         {
-                            Log($"{rule.RuleName}|{GetElementInfo(element)}|Cannot set the driven parameter {rule.DrivenParameters[i]} which does not exist", LogLevel.Warn);
-                            continue;
+                            var drivenParam = GetParameter(element, rule.DrivenParameters[i]);
+                            if (drivenParam == null)
+                            {
+                                Log($"{rule.RuleName}|{GetElementInfo(element)}|Cannot set the driven parameter {rule.DrivenParameters[i]} which does not exist", LogLevel.Warn);
+                                continue;
+                            }
+                            parametersToSet.Add(new ParameterString(drivenParam, keys[i + 1]));
                         }
-                        parametersToSet.Add(new ParameterString(drivenParam, keys[i + 1]));
                     }
                 }
             }
@@ -855,6 +925,20 @@ namespace RevitDataValidator
             return null;
         }
 
+        public static List<List<string>> GetKeyValuesFromFilterParameter(ParameterRule rule)
+        {
+            var paramId = GlobalParametersManager.FindByName(doc, rule.FilterParameter);
+            if (paramId != null)
+            {
+                if (doc.GetElement(paramId) is GlobalParameter param && param.GetValue() is StringParameterValue spv)
+                {
+                    var v = spv.Value;
+                    return rule.DictKeyValues[v];
+                }
+            }
+            return new List<List<string>>();
+        }
+
         public static Autodesk.Revit.UI.TaskDialog GetTaskDialogForFormatRenaming(ParameterRule rule, List<ParameterString> thisRuleParametersToSetForFormatRules)
         {
             return new Autodesk.Revit.UI.TaskDialog("Alert")
@@ -895,7 +979,9 @@ namespace RevitDataValidator
                 }
 
                 if (ruleFailure != null)
+                {
                     ret.Add(ruleFailure);
+                }
             }
             return ret;
         }
@@ -1190,7 +1276,9 @@ namespace RevitDataValidator
             {
                 var td = new TaskDialog("Error")
                 {
-                    MainInstruction = ex.Message.Replace(@"\", Environment.NewLine),
+                    MainInstruction = s + Environment.NewLine + Environment.NewLine + ex.Message
+                    .Replace(@"\", Environment.NewLine)
+                    .Replace(@"/", Environment.NewLine),
                     MainContent = ex.StackTrace.Replace(@"\", Environment.NewLine)
                 };
                 td.Show();

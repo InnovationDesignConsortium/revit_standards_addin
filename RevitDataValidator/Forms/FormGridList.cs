@@ -29,6 +29,8 @@ namespace RevitDataValidator.Forms
                 dataTable.Columns.Add("Id");
                 dataTable.Columns.Add("Message");
                 dataTable.Columns.Add("RuleName");
+                dataTable.Columns.Add("IsValueRequired");
+                dataTable.Columns.Add("RuleGuid");
 
                 var rulesByParameterName = failures.GroupBy(q => q.Rule.ParameterName);
                 foreach (var group in rulesByParameterName)
@@ -52,6 +54,8 @@ namespace RevitDataValidator.Forms
                     dataRow["Message"] = ruleFailure.Rule.UserMessage;
                     dataRow["RuleName"] = ruleFailure.Rule.RuleName;
                     dataRow["Parameter"] = ruleFailure.Rule.ParameterName;
+                    dataRow["IsValueRequired"] = ruleFailure.Rule.IsValueRequired;
+                    dataRow["RuleGuid"] = ruleFailure.Rule.Guid;
 
                     if (element is FamilyInstance fi)
                     {
@@ -134,7 +138,7 @@ namespace RevitDataValidator.Forms
                             ToolTipText = rule.UserMessage
                         });
                     }
-                    else if (rule.ListOptions != null || rule.KeyValues != null)
+                    else if (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null)
                     {
                         List<string> dataSource = null;
                         if (rule.ListOptions != null)
@@ -144,6 +148,14 @@ namespace RevitDataValidator.Forms
                         else if (rule.KeyValues != null)
                         {
                             dataSource = rule.KeyValues.ConvertAll(q => q[0]);
+                        }
+                        else if (rule.DictKeyValues != null)
+                        {
+                            dataSource = Utils.GetKeyValuesFromFilterParameter(rule).ConvertAll(q => q[0]);
+                        }
+                        if (!rule.IsValueRequired)
+                        {
+                            dataSource.Add("");
                         }
                         var multiCbo = new System.Windows.Forms.ComboBox
                         {
@@ -160,7 +172,6 @@ namespace RevitDataValidator.Forms
                         {
                             Name = PARAM + group.Key,
                             HeaderText = group.Key,
-                            DataSource = dataSource,
                             ToolTipText = rule.UserMessage,
                             FlatStyle = FlatStyle.Flat
                         };
@@ -197,6 +208,22 @@ namespace RevitDataValidator.Forms
                     Name = "Parameter",
                     ReadOnly = true,
                     Visible = true
+                });
+
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "IsValueRequired",
+                    Name = "IsValueRequired",
+                    ReadOnly = true,
+                    Visible = false
+                });
+
+                dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "RuleGuid",
+                    Name = "RuleGuid",
+                    ReadOnly = true,
+                    Visible = false
                 });
 
                 dataGridView1.DataSource = dataTable;
@@ -278,7 +305,9 @@ namespace RevitDataValidator.Forms
                         continue;
                     }
                     var value = row.Cells[col.Name].Value;
-                    if (value == null)
+
+                    var isValueRequired = bool.Parse(row.Cells["IsValueRequired"].Value.ToString());
+                    if (isValueRequired && value == null)
                     {
                         Autodesk.Revit.UI.TaskDialog.Show("Error", "Must select a value for all elements");
                         return;
@@ -364,6 +393,40 @@ namespace RevitDataValidator.Forms
         private void btnSelAll_Click(object sender, EventArgs e)
         {
             dataGridView1.SelectAll();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            var row = dataGridView1.Rows[e.RowIndex];
+            var col = dataGridView1.Columns[e.ColumnIndex];
+            var elementId = ElementIdUtils.New(int.Parse(row.Cells["Id"].Value.ToString()));
+            var element = Utils.doc.GetElement(elementId);
+            var rule = Utils.allParameterRules.First(q => q.Guid.ToString() == row.Cells["RuleGuid"].Value.ToString());
+            var dataSource = new List<string>();
+            if (rule.ListOptions != null)
+            {
+                dataSource = Utils.GetChoicesFromList(element, rule).Select(q => q.Name).ToList();
+            }
+            else if (rule.KeyValues != null)
+            {
+                dataSource = rule.KeyValues.ConvertAll(q => q[0]);
+            }
+            else if (rule.DictKeyValues != null)
+            {
+                dataSource = Utils.GetKeyValuesFromFilterParameter(rule).ConvertAll(q => q[0]);
+            }
+            if (!rule.IsValueRequired)
+            {
+                dataSource.Add("");
+            }
+            if (dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewComboBoxCell dgvcbc)
+            {
+                dgvcbc.Items.Clear();
+                foreach (object itemToAdd in dataSource)
+                {
+                    dgvcbc.Items.Add(itemToAdd);
+                }
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -19,6 +18,9 @@ namespace RevitDataValidator
 
         [JsonProperty("List Options")]
         public List<ListOption> ListOptions { get; set; }
+
+        [JsonProperty("List Source")]
+        public string ListSource { get; set; }
 
         [JsonProperty("Requirement")]
         public string Requirement { get; set; }
@@ -45,10 +47,22 @@ namespace RevitDataValidator
         [JsonProperty("Driven Parameters")]
         public List<string> DrivenParameters { get; set; }
 
+        public Dictionary<string, List<List<string>>> DictKeyValues { get; set; }
+
         [JsonProperty("Key Values")]
         public List<List<string>> KeyValues { get; set; }
 
+        [JsonProperty("Key Value Path")]
+        public string KeyValuePath { get; set; }
+
+        [JsonProperty("Filter Parameter")]
+        public string FilterParameter { get; set; }
+
         public string Format { get; set; }
+
+        [JsonProperty("Is Value Required")]
+        public bool IsValueRequired { get; set; }
+
 
         public override string ToString()
         {
