@@ -52,26 +52,6 @@ jobs:
       - name: Code Sign 2025
         run: |
           & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate/certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2025\RevitDataValidator.dll
-      - name: Build AIP
-        uses: caphyon/advinst-github-action@v1.0
-        with:
-          advinst-version: '21.9'
-          advinst-license: ${{ secrets.ADVINST_LICENSE_KEY }}
-          advinst-enable-automation: 'true'
-          aip-path: ${{ github.workspace }}\RevitDataValidator.aip
-          aip-build-name: DefaultBuild
-          aip-package-name: RevitDataValidator.msi
-          aip-output-dir:  ${{ github.workspace }}\setup
-          aip-commands: |
-            SetVersion 1.2.0
-      - name: Code Sign MSI
-        run: |
-          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate/certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode setup\RevitDataValidator.msi
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.3.6
-        with:
-          name: setup
-          path: ${{ github.workspace }}\setup\RevitDataValidator.msi
       - name: Read AssemblyInfo.cs
         id: assemblyinfo
         uses: jaywcjlove/github-action-read-file@main
@@ -83,6 +63,26 @@ jobs:
         with:
           text: ${{ steps.assemblyinfo.outputs.content }}
           regex: 'AssemblyVersion\(\"([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\"'
+      - name: Build AIP
+        uses: caphyon/advinst-github-action@v1.0
+        with:
+          advinst-version: '21.9'
+          advinst-license: ${{ secrets.ADVINST_LICENSE_KEY }}
+          advinst-enable-automation: 'true'
+          aip-path: ${{ github.workspace }}\RevitDataValidator.aip
+          aip-build-name: DefaultBuild
+          aip-package-name: RevitDataValidator.msi
+          aip-output-dir:  ${{ github.workspace }}\setup
+          aip-commands: |
+            SetVersion ${{steps.get_version_number.outputs.group1}}
+      - name: Code Sign MSI
+        run: |
+          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate/certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode setup\RevitDataValidator.msi
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.3.6
+        with:
+          name: setup
+          path: ${{ github.workspace }}\setup\RevitDataValidator.msi
       - name: Push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.2
