@@ -122,6 +122,13 @@ namespace RevitDataValidator
             };
             panel.AddItem(showPaneCommand);
 
+            var showLogsCommand = new PushButtonData("ShowLogCommand", "Show\nLog", dll, "RevitDataValidator.ShowLogCommand")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "log16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "log.png")
+            };
+            panel.AddItem(showLogsCommand);
+
             var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "about16.png"),
