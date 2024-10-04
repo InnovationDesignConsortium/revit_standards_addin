@@ -7,6 +7,9 @@ using Markdig.Syntax;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using Octokit;
 using Revit.Async;
 using RevitDataValidator.Classes;
@@ -45,6 +48,18 @@ namespace RevitDataValidator
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
+            LogManager.Configuration = new XmlLoggingConfiguration(Path.Combine(Utils.dllPath, "NLog.config"));
+            var logConfig = LogManager.Configuration;
+            var targets = logConfig.AllTargets;
+            foreach (var target in targets)
+            {
+                if (target is FileTarget ft)
+                {
+                    ft.FileName = string.Concat(ft.FileName.ToString().AsSpan(0, ft.FileName.ToString().Length - 4), " ", DateTime.Now.ToString().Replace(":", "-").Replace("/", "_"), ".log");
+                }
+            }
+            LogManager.Configuration = logConfig;
+
             Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Trace);
 
             GetEnvironmentVariableData();
@@ -54,7 +69,6 @@ namespace RevitDataValidator
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
             Utils.app = Application.ControlledApplication;
-            Utils.errors = new List<string>();
             Utils.allParameterRules = new List<ParameterRule>();
             Utils.allWorksetRules = new List<WorksetRule>();
             Application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
@@ -101,12 +115,11 @@ namespace RevitDataValidator
 
             var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
 
-            var showPaneCommand = new PushButtonData("ShowPaneCommand", "Show Pane", dll, "RevitDataValidator.ShowPaneCommand")
+            var showPaneCommand = new PushButtonData("ShowPaneCommand", "Show\nPane", dll, "RevitDataValidator.ShowPaneCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "show16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "show.png")
             };
-
             panel.AddItem(showPaneCommand);
 
             var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
@@ -116,7 +129,6 @@ namespace RevitDataValidator
             };
             panel.AddItem(aboutCommand);
 
-            ShowErrors();
             Update.CheckForUpdates();
         }
 
@@ -286,20 +298,6 @@ namespace RevitDataValidator
             Utils.propertiesPanel?.Refresh();
         }
 
-        private static void ShowErrors()
-        {
-            if (Utils.errors.Count != 0)
-            {
-                var errorfile = Path.Combine(Path.GetDirectoryName(Path.GetTempPath()), @"..\RevitValidator-ErrorLog-" + DateTime.Now.ToString().Replace(":", "-").Replace("/", "_") + ".txt");
-                using (StreamWriter sw = new StreamWriter(errorfile, true))
-                {
-                    sw.Write(string.Join(Environment.NewLine, Utils.errors));
-                }
-                Utils.StartShell(errorfile, true);
-                Utils.errors.Clear();
-            }
-        }
-
         private void Application_Idling(object sender, IdlingEventArgs e)
         {
             Utils.dialogIdShowing = "";
@@ -378,7 +376,6 @@ namespace RevitDataValidator
                         Error = HandleDeserializationError,
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
-                    ShowErrors();
                 }
 
                 var ruleFileInfo = new RuleFileInfo();
@@ -447,7 +444,6 @@ namespace RevitDataValidator
                             Error = HandleDeserializationError,
                             MissingMemberHandling = MissingMemberHandling.Error
                         });
-                        ShowErrors();
                     }
                     catch (Exception ex)
                     {
@@ -585,7 +581,6 @@ namespace RevitDataValidator
                 Error = HandleDeserializationError,
                 MissingMemberHandling = MissingMemberHandling.Error
             });
-            ShowErrors();
 
             foreach (var config in configs.StandardsConfig)
             {

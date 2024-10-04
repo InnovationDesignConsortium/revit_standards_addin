@@ -39,7 +39,6 @@ namespace RevitDataValidator
         public static readonly char LIST_SEP = ',';
         public static List<ParameterRule> allParameterRules;
         public static List<WorksetRule> allWorksetRules;
-        public static List<string> errors;
         public static PropertiesPanel propertiesPanel;
         public static DockablePaneId paneId;
         public static ParameterUIData parameterUIData;
@@ -205,6 +204,7 @@ namespace RevitDataValidator
             }
             return types;
         }
+
         private static void SetParam(Parameter p, string s)
         {
             if (p == null)
@@ -1336,7 +1336,6 @@ namespace RevitDataValidator
 
         public static void Log(string message, LogLevel level)
         {
-            LogManager.Configuration = new XmlLoggingConfiguration(Path.Combine(dllPath, "NLog.config"));
             message = Path.GetFileName(GetFileName()) + "|" + message;
             if (level == LogLevel.Info)
             {
