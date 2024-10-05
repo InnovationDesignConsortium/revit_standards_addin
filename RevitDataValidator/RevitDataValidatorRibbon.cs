@@ -55,7 +55,7 @@ namespace RevitDataValidator
             {
                 if (target is FileTarget ft)
                 {
-                    ft.FileName = string.Concat(ft.FileName.ToString().AsSpan(0, ft.FileName.ToString().Length - 4), " ", DateTime.Now.ToString().Replace(":", "-").Replace("/", "_"), ".log");
+                    ft.FileName = string.Concat(ft.FileName.ToString().Substring(0, ft.FileName.ToString().Length - 4), " ", DateTime.Now.ToString().Replace(":", "-").Replace("/", "_"), ".log");
                 }
             }
             LogManager.Configuration = logConfig;
