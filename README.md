@@ -22,6 +22,11 @@ The Revit application is dependent on a few bits of infrastructure.
 1. First you must identify an empty github repo to store your rules.  This can be public, but the application was designed for it to be private. You can clone this repo to get access to sample rule files for you testing.
 Sample Repo to Clone (https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main)
 2. Once you have the repo setup you need to install the RevitStandardsGithubApp and give it access to your repo.
-https://github.com/apps/revitstandardsgithubapp/installations/new   Here are the generic instructions from Github.  The App must have read access so it can read the rule and configuration files. 
+https://github.com/apps/revitstandardsgithubapp/installations/new   Here are the generic instructions from Github.  The App must have read access so it can read the rule and configuration files.
+3. Once you have this information you need to ensure that any user accessing the application has environmental variabels that direct the Revit Addin to the correct repo.
+
+This image shows the sample setup. The keys must match, but you need to get the values from your repo.
+![image](https://github.com/user-attachments/assets/6618e2a3-4b36-452a-bbe7-a6d1319e84b0)
+
 
 [Documentation] ([https://docs.google.com/document/d/1RsWmZouS6jPszB60BpDToNKCkMIO1Pc8LKXXLXn-4O0/edit?usp=sharing](https://docs.google.com/document/d/1C9JdVicjKdV8yUelszdzi-aJxLn5y9Hm/edit?usp=sharing&ouid=113873482648746687410&rtpof=true&sd=true))
