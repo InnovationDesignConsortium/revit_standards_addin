@@ -25,7 +25,7 @@ Sample Repo to Clone (https://github.com/InnovationDesignConsortium/revit_standa
 https://github.com/apps/revitstandardsgithubapp/installations/new   Here are the generic instructions from Github.  The App must have read access so it can read the rule and configuration files.
 3. Once you have this information you need to ensure that any user accessing the application has environmental variabels that direct the Revit Addin to the correct repo.
 
-This image shows the sample setup. The keys must match, but you need to get the values from your repo.
+This image shows required keys. The keys must match, but you need to get the values from your repo.
 ![image](https://github.com/user-attachments/assets/6618e2a3-4b36-452a-bbe7-a6d1319e84b0)
 
 
