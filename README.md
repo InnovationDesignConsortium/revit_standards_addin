@@ -19,6 +19,6 @@ For the Application to function you need four primary components;
 # Admin Setup
 
 The Revit application is dependent on a few bits of infrastructure.
-1. First you must Create or have Repo to store your rule files.  Fork This Repo for your own testing.  It can be private as the Addin
+1. First you must identify an empty repo to store your rules.  This can be public, but the application was designed for it to be private. You can clone this repo to get access to sample rule files for you testing. 
 
 [Documentation] ([https://docs.google.com/document/d/1RsWmZouS6jPszB60BpDToNKCkMIO1Pc8LKXXLXn-4O0/edit?usp=sharing](https://docs.google.com/document/d/1C9JdVicjKdV8yUelszdzi-aJxLn5y9Hm/edit?usp=sharing&ouid=113873482648746687410&rtpof=true&sd=true))
