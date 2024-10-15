@@ -69,5 +69,6 @@ We took this approach so a firm deploying the addin can only apply it to select 
 
 The config file is evaluated top to bottom and thus the "last one wins" if a file matches more then one criteria. 
 
+## Rules
 
-[Documentation] ([https://docs.google.com/document/d/1RsWmZouS6jPszB60BpDToNKCkMIO1Pc8LKXXLXn-4O0/edit?usp=sharing](https://docs.google.com/document/d/1C9JdVicjKdV8yUelszdzi-aJxLn5y9Hm/edit?usp=sharing&ouid=113873482648746687410&rtpof=true&sd=true))
+
