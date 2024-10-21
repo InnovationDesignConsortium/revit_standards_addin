@@ -69,9 +69,12 @@ We took this approach so a firm deploying the addin can only apply it to select 
 
 The config file is evaluated top to bottom and thus the "first match wins" if a file matches more then one criteria. 
 
-## Understanding the Rules
+## Understanding the Rules File
+Markdown file in the specified directory... point people to the rule file that documents each rule type. Then we don't need the next couple of sections
 
-### Workset Rules
+### Workset Rules (document in the sample rule file)
+Explain the example below...
+This rule runs automatically if the workset applies
 ```json
 "Categories": [
   "Furniture", "Entourage"
@@ -80,21 +83,32 @@ The config file is evaluated top to bottom and thus the "first match wins" if a 
 "Parameters":
 [
   {"Name": "Level", "Value": "Level 1"},
-  {"Name": "Workset Rule Applies", "Value": "1"} // This is a parameter value 
+  {"Name": "Workset Rule Applies", "Value": "1"}
 ]
-// change the variable name used to flag an item for inclusion
 ```
 // video
 
-### Parameter Rules
+### Parameter Rules (document in the sample rule file)
 ```json
 // code snippet for each rule
 ```
 // video for some rules
 
+## User Interface for Rule Enforcement
+Address the rule validations in batch. The multi-element rule editor.
+
 ## Test the Setup
 
 ## Test the Rules
 
+
+## Parameter Packs and Pack Sets
+
 ## User Interface
+
+
+
+
+
+
 
