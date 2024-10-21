@@ -9,7 +9,7 @@ The Revit Standard Addin is a project that enables firms to control, deploy, and
 
 ## Prerequisites
 
-For the Application to function, you need four primary components.
+For the Application to function, you need four primary components:
 1. A Public or Private Github repo to store your Rules File
 2. The [Revit Standards Github App](https://github.com/apps/revitstandardsgithubapp/) installed on your repo to enable access to the content from Revit
 3. Environment Variables that map the local Revit addin to the repo
@@ -17,7 +17,7 @@ For the Application to function, you need four primary components.
 
 ## Firm Setup and Deployment
 
-The Revit addin is dependent on a few bits of infrastructure.
+The Revit addin is dependent on a few bits of infrastructure:
 1. First, create an empty Github repo to store your rules. This can be public, but the application was designed for it to be private. You may clone [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main) to get access to a set of sample Rules Files for testing.
 2. Once you have the repo setup, install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. For more information on installing Github apps, refer to [this page](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The App needs read access so it can read the rules and configuration files.
 3. Once you have this information, ensure that anyone using the addin has environment variables that direct the Revit addin to the correct repo.
