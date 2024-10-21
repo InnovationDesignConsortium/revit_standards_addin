@@ -30,9 +30,10 @@ This image shows required keys. The keys must match, but you should provide the 
 ### Software Updates
 
 The Revit addin is designed to notify the user of updates and prompt to update itself when Revit is closed. 
-
+```
 // Can this be disabled? 
 // Do we have a deployment strategy that might include an option to disable this?
+```
 
 ## Rule Administration
 The application stores the Rules and Configuraton Files in a standard folder structure as seen in this image. 
@@ -71,7 +72,7 @@ The `Config.json` file is the first file the Revit addin needs. It should always
 }
 ```
 
-Only one Rules File can be active for each Revit model. The Configuration File is evaluated from top to bottom when a model is opened or activated, so in the event that a file matches more than one criteria, the "first match wins."
+Only one Rules File can be active for each Revit model. The Configuration File is evaluated from top to bottom when a model is opened or activated, so in the event that a file matches more than one pattern, the "first match wins."
 
 We took this approach so a firm deploying the addin can limit the application of rules to only select projects. The Configuration File can be adjusted so that it applies a default set of rules to all projects. If a file doesn't match any of the Regex rules found in the Configuration File, none of the rules will apply. 
 
