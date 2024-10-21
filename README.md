@@ -1,6 +1,6 @@
 # Revit Standards Addin
 
-## Descripton
+## Description
 
 The Revit Standard Addin is a project that looks to enable firms to control, deploy and manage the data in Revit files.
 It does this by focusing on the key parts.
@@ -8,13 +8,13 @@ It does this by focusing on the key parts.
 - A UI Schema that defines an alternative Properties Panel
 - A Github based Central Management Approach to apply this to individual projects.
 
-## Application Structure
+## Prerequisites
 
 For the Application to function you need four primary components;
-1. Public or Private Github Repo to Store your Rules
+1. Public or Private Github Repo to store your Rules
 2. The "Revit Standards Github App" installed on your repo to enable access to the content from Revit
-3. Environment Varailes that Map the local Revit Plugin to the Repo
-4. The Revit Addin
+3. Environment Variables that map the local Revit addin to the Repo
+4. The Revit Standards Addin
 
 ## Firm Setup and Deployment
 
@@ -67,8 +67,34 @@ The "Config.json" is the first file the Reivt Addin looks for.  It should always
 
 We took this approach so a firm deploying the addin can only apply it to select projects and when ready apply a default set of rules to all projects.   If a file doesn't match any of the Regex fules found in the config.json, none of the rules will apply. 
 
-The config file is evaluated top to bottom and thus the "last one wins" if a file matches more then one criteria. 
+The config file is evaluated top to bottom and thus the "first match wins" if a file matches more then one criteria. 
 
-## Rules
+## Understanding the Rules
 
+### Workset Rules
+```json
+"Categories": [
+  "Furniture", "Entourage"
+],
+"Workset": "Level 1 Stuff",
+"Parameters":
+[
+  {"Name": "Level", "Value": "Level 1"},
+  {"Name": "Workset Rule Applies", "Value": "1"} // This is a parameter value 
+]
+// change the variable name used to flag an item for inclusion
+```
+// video
+
+### Parameter Rules
+```json
+// code snippet for each rule
+```
+// video for some rules
+
+## Test the Setup
+
+## Test the Rules
+
+## User Interface
 
