@@ -83,7 +83,7 @@ The Revit Standards Addin provides a framework for two types of rules - Workset 
 
 ### Workset Rules
 
-**Workset rules** all follow the same, simple structure.
+Workset rules all follow the same, simple structure.
 
 1. A list of Revit Categories
 2. The name of a Workset
@@ -101,6 +101,7 @@ If all the parameters match the corresponding value, then the elements of those 
       [
         {"Name": "Level", "Value": "Level 1"},
         {"Name": "Workset Rule Applies", "Value": "1"}
+        // Additional parameter names/values can be added. All criteria must be met in order for the rule to apply 
       ]
     }
   ]
@@ -112,7 +113,20 @@ Additional description may be available in the Sample Rules File.
 
 ### Parameter Rules
 
-**Parameter Rules** are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, and a Parameter Name as well as a way to specify which elements to operate on (generally this is by specifying a Revit Category) and some additional information specific to the kind of rule. 
+Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, and a Parameter Name as well as a way to specify which elements to operate on (generally this is by specifying a Revit Category) and some additional information specific to the kind of rule.
+
+```json
+  "Parameter Rules":
+  [
+    {
+      "Rule Name": "This is the name of the rule",
+      "Categories": ["Walls"], // in some cases this can be substituted with "Element Classes": "Autodesk.Revit.DB.WallType"
+      "Parameter Name": "Comments",
+      // Each kind of rule requires additional key/value pairs that are described below
+      "User Message": "This is the message the user will see if the rule is violated"
+    }
+  ]
+```
 
 #### List Rules
 
@@ -122,7 +136,7 @@ Additionally, there is an option to specify a "Filter Parameter" where we want t
 
 #### Key Value Rules
 
-Settong the value of one parameter changes the values of multiple other parameters on the same element. Similar to a Key Schedule in Revit, but available in more places.
+Setting the value of one parameter changes the values of multiple other parameters on the same element. Similar to a Key Schedule in Revit, but available in more places.
 
 #### Requirement Rules
 
