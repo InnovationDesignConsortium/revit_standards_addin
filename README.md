@@ -77,29 +77,80 @@ Only one Rules File can be active for each Revit model. The Configuration File i
 We took this approach so a firm deploying the addin can limit the application of rules to only select projects. The Configuration File can be adjusted so that it applies a default set of rules to all projects. If a file doesn't match any of the Regex rules found in the Configuration File, none of the rules will apply. 
 
 ## The Rules File
-At it's most basic level, the Rules File is a Markdown file with JSON code blocks intersperced to define each rule. Markdown syntax can be used inbetween the code blocks to describe each rule or to provide valuable context. Future development could reveal this context to the user. The Rules File should be located in a subfolder inside `Standards/RevitStandardsPanel` and at least one path in the Configuration File should point to this folder. This [sample Rules file](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/blob/main/Standards/RevitStandardsPanel/AllOtherFiles/rules.md) describes each rule type and demonstrates the file format.
+At it's most basic level, the Rules File is a Markdown file with JSON code blocks intersperced to define each rule. Markdown syntax can be used inbetween the code blocks to describe each rule or to provide valuable context. Future development could reveal this context to the user. The Rules File should be located in a subfolder inside `Standards/RevitStandardsPanel` and at least one path in the Configuration File should point to this folder. This [Sample Rules File](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/blob/main/Standards/RevitStandardsPanel/AllOtherFiles/rules.md) describes each rule type and demonstrates the file format.
 
-### Workset Rules (document in the sample rule file)
-Explain the example below...
-This rule runs automatically if the workset applies
-```json
-"Categories": [
-  "Furniture", "Entourage"
-],
-"Workset": "Level 1 Stuff",
-"Parameters":
-[
-  {"Name": "Level", "Value": "Level 1"},
-  {"Name": "Workset Rule Applies", "Value": "1"}
-]
-```
-// video
+The Revit Standards Addin provides a framework for two types of rules - Workset Rules and Parameter Rules.
 
-### Parameter Rules (document in the sample rule file)
+### Workset Rules
+
+**Workset rules** all follow the same, simple structure.
+
+1. A list of Revit Categories
+2. The name of a Workset
+3. A list of Instance or Type Parameter names and values
+
+If all the parameters match the corresponding value, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped.
+
 ```json
-// code snippet for each rule
+  "Workset Rules":
+  [
+    {
+      "Categories": ["Furniture", "Entourage"],
+      "Workset": "Level 1 Stuff",
+      "Parameters":
+      [
+        {"Name": "Level", "Value": "Level 1"},
+        {"Name": "Workset Rule Applies", "Value": "1"}
+      ]
+    }
+  ]
 ```
-// video for some rules
+
+Note that elements in different Revit Categories may use different parameters to indicate the same similar relationships. For example, Furniture is associated with a _Level_ while Walls have a _Base Constraint_. In this case two rules would be needed to enforce Furniture and Walls located on Level 1 with the same Workset.
+
+Additional description may be available in the Sample Rules File.
+
+### Parameter Rules
+
+**Parameter Rules** are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, and a Parameter Name as well as a way to specify which elements to operate on (generally this is by specifying a Revit Category) and some additional information specific to the kind of rule. 
+
+#### List Rules
+
+This type of rule restricts a Parameter to only values defined in a list (i.e. Comments must be "a", "b", or "c"). The list of allowed values can either be enumerated in the rule file or read from an external CSV file.
+
+Additionally, there is an option to specify a "Filter Parameter" where we want to have the value of one parameter (i.e. MyCat) will filter the values that are allowed for another parameter (SubCat).
+
+#### Key Value Rules
+
+Settong the value of one parameter changes the values of multiple other parameters on the same element. Similar to a Key Schedule in Revit, but available in more places.
+
+#### Requirement Rules
+
+A conditional equation can be written to define a requirement for a parameter's value. For example, the Sill Height of a Window must be greater than the Width.
+
+#### Format Rules
+
+Specify a format that will use other parameter values of the same element to define the parameter's value. For example, the Type Name of a Wall must be the concatenation of its Function, Structural Material, and Width with a fixed text string.
+
+#### Regex Rules
+
+Check that a parameter value matches a [regular expression](https://regexr.com/). For example, the Mark value must be a number.
+
+#### Formula Rules
+
+Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter.
+
+#### From Host Instance Rules
+
+Set the value a parameter in a hosted element to have the same value as a parameter in the element's host. For example, setting a Windows's orientation to match the orientation of the host Wall.
+
+#### Prevent Duplicates Rules
+
+Makes sure that there are not two elements with the same value for the same parameter. For example, preventing duplicate Room Number values.
+
+#### Custom Code Rules
+
+This runs the code in a C# file in the same folder as the rule definition file. It can check the model and return an error (such as the "model can have a maximum of 5 in-place families") or it can modify the document (such as "set the SheetGroup parameter to the first two characters of the Sheet Number parameter")
 
 ## User Interface for Rule Enforcement
 Address the rule validations in batch. The multi-element rule editor.
