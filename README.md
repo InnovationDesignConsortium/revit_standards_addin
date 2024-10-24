@@ -18,18 +18,18 @@ For the Application to function, you need four primary components:
 ## Firm Setup and Deployment
 
 The Revit addin is dependent on a few bits of infrastructure:
-1. First, create an empty Github repo to store your rules. This can be public, but the application was designed for it to be private. You may clone [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main) to get access to a set of sample Rules Files for testing.
-2. Once you have the repo setup, install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. For more information on installing Github apps, refer to [this page](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The App needs read access so it can read the rules and configuration files.
-3. Once you have this information, ensure that anyone using the addin has environment variables that direct the Revit addin to the correct repo.
+1. Create an empty Github repo to store your rules and configuration files. This can be public, but the application was designed for it to be private. Clone [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main) to start with a set of sample files for testing.
+2. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The App needs read access so it can read the rules and configuration files.
+3. Each user's machine MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
 
-This image shows required keys. The keys must match, but you should provide the values from your own repo.
-![image](https://github.com/user-attachments/assets/6618e2a3-4b36-452a-bbe7-a6d1319e84b0)
+    This image shows required keys. The keys must match, but you should provide the values from your own repo.
+    ![image](https://github.com/user-attachments/assets/022232f8-361d-4ae6-95bb-3bffa6675d9e)
 
-4. Install the latest release of the Revit addin from https://github.com/InnovationDesignConsortium/revit_standards_addin/releases
+4. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin.
 
 ### Software Updates
 
-The Revit addin is designed to notify the user of updates and prompt to update itself when Revit is closed. 
+The Revit addin is designed to notify a user of updates and prompt to update itself when Revit is closed. 
 ```
 // Can this be disabled? 
 // Do we have a deployment strategy that might include an option to disable this?
@@ -41,7 +41,7 @@ The application stores the Rules and Configuraton Files in a standard folder str
 
 ### The Configuration File
 
-The `Config.json` file is the first file the Revit addin needs. It should always be found in the `/Standards/RevitStandardsPanel` folder. This file communicates which set of rules applies to each file opened in Revit. In the image above the `AllOtherFiles`, `House`, and `Library` files are distinct collections of rules. 
+The `Config.json` file is the first file the Revit addin needs. It MUST be found in the `/Standards/RevitStandardsPanel` folder. In the image above, the `AllOtherFiles`, `House`, and `Library` files are distinct collections of rules. The Configuration File establishes a series of file path patterns, using regular expressions `RvtFullPathRegex`, that define what Rules File, `PathToStandardsFiles`, a given Revit model will use.
 
 ```json
 {
