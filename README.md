@@ -22,7 +22,7 @@ The Revit addin is dependent on a few bits of infrastructure:
 2. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The App needs read access so it can read the rules and configuration files.
 3. Each user's machine MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
 
-    This image shows required keys. The keys must match, but you should provide the values from your own repo.
+    This image shows required variables. The variables must match, but you should provide the values from your own repo.
     ![image](https://github.com/user-attachments/assets/022232f8-361d-4ae6-95bb-3bffa6675d9e)
 
 4. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin.
