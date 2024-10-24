@@ -3,7 +3,7 @@
 ## Description
 
 The Revit Standard Addin is a project that enables firms to control, deploy, and manage the data in their Revit files. It does this by focusing on the following key parts.
-- A Rules File that control what rules and validations are enforced
+- A Rules File that controls what rules and validations are enforced
 - A UI Schema that defines an alternative Properties Panel
 - A Github-based, central management approach to apply this to individual projects
 
