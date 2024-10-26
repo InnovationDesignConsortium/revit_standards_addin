@@ -458,22 +458,13 @@ namespace RevitDataValidator
                     }
                     if (rules != null)
                     {
-                        parameterRules = rules.ParameterRules;
-                        worksetRules = rules.WorksetRules;
-
-                        if (parameterRules != null)
+                        if (rules.ParameterRules != null)
                         {
-                            foreach (var rule in parameterRules)
-                            {
-                                rule.Guid = Guid.NewGuid();
-                            }
+                            parameterRules.AddRange(rules.ParameterRules);
                         }
-                        if (worksetRules != null)
+                        if (rules.WorksetRules != null)
                         {
-                            foreach (var rule in worksetRules)
-                            {
-                                rule.Guid = Guid.NewGuid();
-                            }
+                            worksetRules.AddRange(rules.WorksetRules);
                         }
                     }
                 }
@@ -494,6 +485,7 @@ namespace RevitDataValidator
                         }
                         if (conflictingRule == null)
                         {
+                            parameterRule.Guid = Guid.NewGuid();
                             RegisterParameterRule(parameterRule, ruleFileInfo);
                             Utils.allParameterRules.Add(parameterRule);
                         }
@@ -520,6 +512,7 @@ namespace RevitDataValidator
 
                         if (conflictingRule == null)
                         {
+                            worksetRule.Guid = Guid.NewGuid();
                             RegisterWorksetRule(worksetRule);
                             Utils.allWorksetRules.Add(worksetRule);
                         }
