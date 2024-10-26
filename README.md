@@ -92,11 +92,18 @@ The Revit Standards Addin provides a framework for two types of rules - Workset 
 ### Workset Rules
 Workset rules all follow the same, simple structure.
 
-1. A list of Revit Categories
+1. A list of Revit Categories or API Classes
 2. The name of a Workset
 3. A list of Parameter names and values
 
 If all the parameters match the corresponding value, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped. Parameters MAY be either Instance or Type.
+
+Categories are Revit Categories as displayed in the Revit user interface. Element Classes are Revit API classes. The class names need to include the full namespace of the class which can be found in the API CHM at https://github.com/ADN-DevTech/revit-api-chms or https://www.revitapidocs.com/
+
+For example:
+- Autodesk.Revit.DB.Architecture.Room
+- Autodesk.Revit.DB.Structure.AreaLoad
+- Autodesk.Revit.DB.Mechanical.Duct
 
 ```json
 "Workset Rules":
@@ -119,7 +126,9 @@ Note that elements in different Revit Categories may use different parameters to
 Additional description may be available in the Sample Rules File.
 
 ### Parameter Rules
-Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, and a Parameter Name (unless otherwise noted, this must be an Instance Parameter), but they require slightly different, additional information to specify which element(s) to operate on (generally by specifying a Revit Category) and how to execute the desired behavior.
+Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, a Parameter Name, and a Categories or Element Classes list. Each sub-type requires slightly different, additional information about how to execute the desired behavior.
+
+Unless otherwise noted, the parameter must be an Instance Parameter.
 
 ```json
 "Parameter Rules":
@@ -205,7 +214,8 @@ Setting the value of one parameter changes the values of multiple other paramete
     "Categories": ["Rooms"],
     "Parameter Name": "Room Style",
     "Driven Parameters": ["Wall Finish", "Floor Finish", "Ceiling Finish"],
-    "Key Values": [
+    "Key Values":
+    [
         ["A", "Wall A", "Floor A", "Ceiling A"],
         ["B", "Wall B", "Floor B", "Ceiling B"],
         ["C", "Wall C", "Floor C", "Ceiling C"]
@@ -213,7 +223,7 @@ Setting the value of one parameter changes the values of multiple other paramete
 }
 ```
 
-Key Value Rules can also be driven by an external CSV and a Global Parameter. Using this variation, the rule would look like this:
+Key Value Rules can also be driven by a Global Parameter and an external CSV file. Using this variation, the rule would look like this:
 
 ```json
 {
@@ -223,7 +233,7 @@ Key Value Rules can also be driven by an external CSV and a Global Parameter. Us
 }
 ```
 
-And the corresponding CSV would be formatted as shown below. The first column is a Global Parameter, the second is the Driving Parameter of the corresonding element, and the remaining columns are the Driven Parameters.
+And the corresponding CSV should be formatted as below. The first column is the Global Parameter, the second is the Driving Parameter of the corresonding element, and the remaining columns are the Driven Parameters.
 
 ```csv
 State_Code,Occupant,OccupantLoadFactor,Occupant_General,Occupant_Specific_Use
@@ -239,41 +249,158 @@ NYC-BLD-68,Storage NY,410,Storage NY,
 NYC-BLD-68,Assembly_Excercise_without_Equip NY,160,Assembly NY,Excercise_without_Equip NY
 ```
 
-#### Requirement Rules
-A conditional equation can be written to define a requirement for a parameter's value. For example, the Sill Height of a Window must be greater than the Width.
-
 #### Format Rules
-Specify a format that will use other parameter values of the same element to define the parameter's value. For example, the Type Name of a Wall must be the concatenation of its Function, Structural Material, and Width with a fixed text string.
+Specify a format that uses other parameter values of the same element to define the parameter's value. For example, the Type Name of a Wall must be the concatenation of its Function, Structural Material, and Width with fixed text strings inbetween. Note that the other parameters must be surrounded by curly braces.
+
+```json
+{
+    "Rule Name": "Set Wall Type Function",
+    "Element Classes": ["Autodesk.Revit.DB.WallType"],
+    "Parameter Name": "Type Name",
+    "Format": "{Function} - {Structural Material} - {Width}",
+    "User Message": "Type name does not match required format"
+}
+```
+
+#### Requirement Rules
+A conditional equation can be written to define a requirement for a parameter's value. For example, the Sill Height of a Window must be greater than its Width or the Sill Height of a Door must be equal to 0. Note that as in Format Rules, the referenced parameters must be surrounded by curly braces.
+
+```json
+{
+    "Rule Name": "Window Sill Height",
+    "Categories": ["Windows"],
+    "Parameter Name": "Sill Height",
+    "Requirement": "> {Width}",
+    "User Message": "Sill height must greater than width"
+},
+{
+    "Rule Name": "Door Sill Height",
+    "Categories": ["Doors"],
+    "Parameter Name": "Sill Height",
+    "Requirement": "= 0",
+    "User Message": "Sill height must be 0"
+}
+```
 
 #### Regex Rules
-Check that a parameter value matches a [regular expression](https://regexr.com/). For example, the Mark value must be a number.
+Check that a parameter value matches a [regular expression](https://regexr.com/). For example, the Mark value must be a number. Note that you can apply a rule to a list of categories, but you can also apply it to all categories by specifying `<all>` in the categories list.
+
+```json
+{
+    "Rule Name": "Mark is Number",
+    "User Message": "Mark must be a number",
+    "Categories": ["<all>"],
+    "Parameter Name": "Mark",
+    "Regex": "^[0-9]+$"
+}
+```
 
 #### Formula Rules
-Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter.
+Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter. Note that referenced parameters are surrounded by curly braces. Allowable operators are addition `+`, subtraction `-`, multiplication `*`, and division `/`. (Others?).
+
+```json
+{
+    "Rule Name": "Room Occupancy",
+    "Categories": ["Rooms"],
+    "Parameter Name": "Occupant Count",
+    "Formula": "{Occupancy Load} * {Area}"
+}
+```
 
 #### From Host Instance Rules
 Set the value a parameter in a hosted element to have the same value as a parameter in the element's host. For example, setting a Windows's orientation to match the orientation of the host Wall.
 
+```json
+{
+    "Rule Name": "Insert Orientation = Host Insert",
+    "Categories": ["Doors", "Windows"],
+    "Parameter Name": "Orientation",
+    "From Host Instance": "Orientation",
+    "User Message": "The Orientation of an insert must equal the Orientation of its host"
+}
+```
+
 #### Prevent Duplicates Rules
 Makes sure that there are not two elements with the same value for the same parameter. For example, preventing duplicate Room Number values.
 
+```json
+{
+    "Rule Name": "Room Number Dup",
+    "Categories": ["Rooms"],
+    "User Message": "Room Number cannot duplicate an existing value",
+    "Parameter Name": "Number",
+    "Prevent Duplicates": "True"
+}
+```
+
 #### Custom Code Rules
-This runs the code in a C# file in the same folder as the rule definition file. It can check the model and return an error (such as the "model can have a maximum of 5 in-place families") or it can modify the document (such as "set the SheetGroup parameter to the first two characters of the Sheet Number parameter")
+This runs the code in a C# file in the same folder as the rule definition file. It can check the model and return an error (such as the "model can have a maximum of 5 in-place families") or it can modify the document (such as "set the SheetGroup parameter to the first two characters of the Sheet Number parameter").
+
+CS files must implement a public method named "Run" as follows:
+
+```cs
+public IEnumerable<ElementId> Run(Document doc, List<ElementId> ids)
+{
+}
+```
+
+If you push the "Run" button in the panel, then `ids` will be null
+
+If the rule is run because of a modification to the Revit document, then `ids` will be the added & modified ids.
+
+Create an entry in the `rules.md` file such as this, with the file name in the "Custom Code" field.
+
+```json
+{
+    "Rule Name": "In Place Family Quantity",
+    "Element Classes": ["Autodesk.Revit.DB.FamilyInstance"],
+    "Custom Code": "InPlaceFamilyCheck",
+    "User Message": "There are too many In-Place Families in the model."
+}
+```
 
 ## User Interface for Rule Enforcement
 Address the rule validations in batch. The multi-element rule editor.
 
 ## Test the Setup
+Hello World?
+
+### Logging
+- The logging uses the [NLog](https://nlog-project.org/) framework
+- There will be an NLog.config file in the Addin folder (such as `C:\ProgramData\Autodesk\Revit\Addins\2023\RevitDataValidator`). NLog is highly configurable - for example you can specify what severity of log messages are written to one or more different types of files.
+- Message severities are:
+    - `Trace`: Everything is fine, internal message given to report status
+    - `Info`: A parameter value was changed because of a rule
+        - Setting Occupancy Load to 10097.54 to match formula {Occupancy Count} * {Area}
+        - Rename type 'Interior - By Category - 8"' to 'Coreshaft - By Category - 8"' to match format '{Function} - {Structural Material} - {Width}'
+    - `Warn`: User has done something that violates a rule
+        - Walls:Interior - By Category - 8":364636' parameter 'Comments' value 'x' is not a valid value! Valid values are [a, b, c]
+        - 'Walls:Interior - By Category - 8":364636' 'Mark' value '1x' does not match regex ^[0-9]+$ for rule ‘Mark is Number’
+    - `Error`: Something has gone wrong. Probably indicates a software bug
+- Revit changes the TEMP folder to be a subfolder of the TEMP folder that it creates. So if you want the log file to be written to the TEMP folder the config file needs to specify that the file should be one directory up from the TEMP folder
+  
+`fileName="${tempdir}/../RevitDataValidatorLog.log"`
 
 ## Test the Rules
+Hello World?
 
 ## Parameter Packs and Pack Sets
 
 ## User Interface
 
+## Known Issues
 
+### General
+1. Handle when there are multiple parameters with the same name
 
+### Properties Panel
+1. Not implemented for all parameter types
+    - Partially implemented for parameters that store an ElementId (currently implemented for Levels and Phases)
+    - Not implemented for Properties that offer user a list of values (such as Location Line for Walls which has valid values Wall Centerline, Core Centerline, Finish Face: Interior, Finish Face: Exterior, Core Face: Interior, Core Face: Exterior) 
+2. Initial width of the data grid is too small. Need to manually stretch the panel to get it to have the correct width
+3. Support “enum” parameters like Wall Location Line, Revit has a fixed set of values (Wall Centerline, Core Centerline, Finish Face: Exterior, etc). 
 
-
+### Rules
+1. 
 
 
