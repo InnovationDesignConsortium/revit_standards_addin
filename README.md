@@ -10,14 +10,14 @@ The Revit Standard Addin is a project that enables firms to control, deploy, and
 There are four components required to use this application.
 1. A **Github repository**
 2. The **Revit Standards Github App** installed on your repository
-3. A couple of custom **System Variables** on each workstation
+3. A couple of custom **Environment Variables** on each workstation
 4. The **Revit Standards Addin**
 
 ## Setup and Deployment
 Below are instructions to set up and deploy each component across an organization.
 1. Create an empty Github repository. It can be Public, but the application was designed to work with a Private repository. This repository is where you will store your rules and configuration files and any other referenced files. You can start with a set of sample files by cloning [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main). Alternatively, you can create the folder structure and files from scratch using the samples as a guide. There are very few files required to get this up and running.
 2. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The RevitStandardsGithubApp needs read access so it can read the rules and configuration files.
-3. Each workstation using this application MUST have the following System Variables configured to direct the Revit addin to the Github repo from step 1. 
+3. Each workstation using this application MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
 
     `RevitStandardsAddinGitOwner`: owner of the repo where the rules and JSON are saved, such as InnovationDesignConsortium  
     `RevitStandardsAddinGitRepo`: name of the repo where the rules and JSON are stored, such as PrivateRepoTest which is the test repo at https://github.com/InnovationDesignConsortium/PrivateRepoTest
@@ -26,7 +26,7 @@ Below are instructions to set up and deploy each component across an organizatio
 
     ![image](https://github.com/user-attachments/assets/022232f8-361d-4ae6-95bb-3bffa6675d9e)
 
-   Additional System Variables that MAY be used are:
+   Additional Environment Variables that MAY be used are:
 
    `RevitDataValidatorDebug`: when set to 1 you can put JSON and rule files in the same folder as the DLL and those will be used instead of the files on Github  
     `RevitStandardsAddinGitServerUrl`: the URL for a Github Enterprise server account, if it exists.  
