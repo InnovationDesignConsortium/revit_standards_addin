@@ -365,24 +365,25 @@ Address the rule validations in batch. The multi-element rule editor.
 ## Test the Setup
 Hello World?
 
+## Test the Rules
+Hello World?
+
 ### Logging
 - The logging uses the [NLog](https://nlog-project.org/) framework
-- There will be an NLog.config file in the Addin folder (such as `C:\ProgramData\Autodesk\Revit\Addins\2023\RevitDataValidator`). NLog is highly configurable - for example you can specify what severity of log messages are written to one or more different types of files.
+- There will be an NLog.config file in the Addin folder (such as `C:\ProgramData\Autodesk\Revit\Addins\2023\RevitDataValidator`).
+- NLog is highly configurable - for example you can specify what severity of log messages are written to one or more different types of files.
 - Message severities are:
     - `Trace`: Everything is fine, internal message given to report status
     - `Info`: A parameter value was changed because of a rule
-        - Setting Occupancy Load to 10097.54 to match formula {Occupancy Count} * {Area}
-        - Rename type 'Interior - By Category - 8"' to 'Coreshaft - By Category - 8"' to match format '{Function} - {Structural Material} - {Width}'
+        - `Setting Occupancy Load to 10097.54 to match formula {Occupancy Count} * {Area}`
+        - `Rename type 'Interior - By Category - 8"' to 'Coreshaft - By Category - 8"' to match format '{Function} - {Structural Material} - {Width}'`
     - `Warn`: User has done something that violates a rule
-        - Walls:Interior - By Category - 8":364636' parameter 'Comments' value 'x' is not a valid value! Valid values are [a, b, c]
-        - 'Walls:Interior - By Category - 8":364636' 'Mark' value '1x' does not match regex ^[0-9]+$ for rule ‘Mark is Number’
+        - `'Walls:Interior - By Category - 8":364636' parameter 'Comments' value 'x' is not a valid value! Valid values are [a, b, c]`
+        - `'Walls:Interior - By Category - 8":364636' 'Mark' value '1x' does not match regex ^[0-9]+$ for rule 'Mark is Number'`
     - `Error`: Something has gone wrong. Probably indicates a software bug
 - Revit changes the TEMP folder to be a subfolder of the TEMP folder that it creates. So if you want the log file to be written to the TEMP folder the config file needs to specify that the file should be one directory up from the TEMP folder
   
 `fileName="${tempdir}/../RevitDataValidatorLog.log"`
-
-## Test the Rules
-Hello World?
 
 ## Parameter Packs and Pack Sets
 
