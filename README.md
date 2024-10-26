@@ -334,7 +334,7 @@ Makes sure that there are not two elements with the same value for the same para
 ```
 
 #### Custom Code Rules
-This runs the code in a C# file in the same folder as the rule definition file. It can check the model and return an error (such as the "model can have a maximum of 5 in-place families") or it can modify the document (such as "set the SheetGroup parameter to the first two characters of the Sheet Number parameter").
+This runs the code in a C# file in the same folder as the rule definition file. It can check the model and return an error (such as the "model can have a maximum of 5 in-place families") or it can modify the document (such as "set the SheetGroup parameter to the first two characters of the Sheet Number parameter"). There are several examples demonstrating the powerful capabilities of this type of rule in the Sample Rules Repository.
 
 CS files must implement a public method named "Run" as follows:
 
