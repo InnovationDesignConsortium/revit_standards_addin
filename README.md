@@ -296,7 +296,7 @@ Check that a parameter value matches a [regular expression](https://regexr.com/)
 ```
 
 #### Formula Rules
-Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter. Note that referenced parameters are surrounded by curly braces. Allowable operators are addition `+`, subtraction `-`, multiplication `*`, and division `/`. (Others?).
+Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter. Note that referenced parameters are surrounded by curly braces. Allowable operators include addition `+`, subtraction `-`, multiplication `*`, and division `/`, exponents using the `^2` format, and trigonometric functions such as `sin(x)`. Order of operations can be controlled using parenthesis. This feature uses [Flee library](https://github.com/mparlak/Flee/).
 
 ```json
 {
