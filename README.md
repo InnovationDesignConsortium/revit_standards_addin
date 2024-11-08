@@ -359,8 +359,8 @@ Create an entry in the `rules.md` file such as this, with the file name in the "
 }
 ```
 
-## User Interface for Rule Enforcement
-Address the rule validations in batch. The multi-element rule editor.
+## User Interface for Rule Interaction
+Address the rule validations in batch. The multi-element rule editor. Various dialog boxes.
 
 ## Test the Setup
 Hello World?
@@ -385,9 +385,63 @@ Hello World?
   
 `fileName="${tempdir}/../RevitDataValidatorLog.log"`
 
-## Parameter Packs and Pack Sets
-
 ## User Interface
+
+### Properties Panel
+While most of the rules do not require much of a user interface, those that do are complimented by the Properties Panel. The Properties Panel lists all Workset and Parameter Rules along with a "Run" button to force a rule to run on demand. Below the rules, at the bottom of the Panel, is a link to view the Rules File. This makes the ability to document each rule directly in the rules.md file quite valuable and easily accessible to each team member. 
+
+![image](https://github.com/user-attachments/assets/9745cd47-8985-4375-964e-e493f6f1b706)
+
+### Parameter Packs and Pack Sets
+
+In addition to viewing the rules, the Properties Panel can be configured to show various subsets of parameters in a contextually aware manner based on what elements are selected. This can be useful for users needing to perform a specific task. For example, if someone was populating Rooms in a model, they might only be concerned with the Name, Number, Occupancy, Room Style, and Department. A Parameter Pack can be defined to only show those values in the Properties Panel when a Room is selected. A Parameter Pack is a collection of parameters applied to one or more Revit Categories. Multiple Packs can be created for a single Category, so in addition to the Room parameters above, we can create another group of important reference parameters to be shown below. These are called Pack Sets. The order within a Pack and the groupings of Pack Sets are customizable. In collaboration with a List Rule, the allowable values of a particular parameter, such as Room Style, can be displayed in a dropdown for easy selection. The Properties Panel is non-modal and dockable which means it can remain open (either docked to the side or floating) while you are working in the model. A Pack Set selection dropdown sits at the top of the Properties Panel. This provides a way for different Pack Sets to be chosen if there are multiple workflows set up for the same Revit Categories. 
+
+This example parameterpacks.json file only has two Packs and one Set. The Pack Set includes both Parameter Packs.
+
+```json
+{
+    "Parameter Packs": 
+    [
+        {
+            "Name": "Rooms - Core Placement Parameters",
+            "Category": "Rooms",
+            "Parameters":
+            [    
+                "Name", "Number", "Occupancy", "Room Style", "Department"
+            ],
+            "Custom Tools":
+            [
+                "Place Furniture Instance In Room"
+            ],
+            "URL": "https://help.autodesk.com/view/RVT/2024/ENU/?guid=GUID-DD74A51D-A0B0-4461-A4BA-0F9CCC191CDB",
+            "PDF": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+            "Name": "Rooms - Important Reference Parameters",
+            "Category": "Rooms",
+            "Parameters":
+            [    
+                "Level", "Area", "Floor Finish", "Base Finish", "Wall Finish", "Ceiling Finish"
+            ]
+        }
+    ],
+    "Pack Sets":
+    [
+        {
+            "Name": "Room Placement",
+            "Category": "Rooms",
+            "Parameter Packs":
+            [
+                "Rooms - Core Placement Parameters", "Rooms - Important Reference Parameters"
+            ]
+        }
+    ] 
+}
+```
+
+The Properties Panel can also display custom links to URLs and PDFs intersperced between the Packs. These can be useful for providing a link to external documentation about the workflow associated with a Parameter Pack.
+
+![image](https://github.com/user-attachments/assets/93b0f9ab-870a-450f-99b0-4fe880ec49f5)
 
 ## Known Issues
 
