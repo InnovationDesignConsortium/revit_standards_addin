@@ -390,6 +390,9 @@ Similar to the Properties Panel, the Resolve Rule Errors dialog box can show the
 
 Custom Rules can also provide code for custom dialog boxes.
 
+![image](https://github.com/user-attachments/assets/589e095e-0672-40eb-b7a1-41fbdf65d3cc)
+
+
 ### Logging
 - The logging uses the [NLog](https://nlog-project.org/) framework
 - There will be an NLog.config file in the Addin folder (such as `C:\ProgramData\Autodesk\Revit\Addins\2023\RevitDataValidator`).
