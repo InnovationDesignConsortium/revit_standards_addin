@@ -92,9 +92,10 @@ The Revit Standards Addin provides a framework for two types of rules - Workset 
 ### Workset Rules
 Workset rules all follow the same, simple structure.
 
-1. A list of Revit Categories or API Classes
+1. A list of Revit Categories or Element Classes
 2. The name of a Workset
 3. A list of Parameter names and values
+4. An optional "When Run" property
 
 If all the parameters match the corresponding value, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped. Parameters MAY be either Instance or Type.
 
@@ -104,6 +105,8 @@ For example:
 - Autodesk.Revit.DB.Architecture.Room
 - Autodesk.Revit.DB.Structure.AreaLoad
 - Autodesk.Revit.DB.Mechanical.Duct
+
+The allowable values for "When Run" are `"Realtime"`, `"Open"`, `"Save"`, `"SyncToCentral"` and essentially define when the rule is evaluated. The default is Realtime if unspecified and you can specify more than one per rule as a list.
 
 ```json
 "Workset Rules":
@@ -116,7 +119,8 @@ For example:
             {"Name": "Level", "Value": "Level 1"},
             {"Name": "Workset Rule Applies", "Value": "1"}
             // Additional parameter names/values can be added. All criteria must be met in order for the rule to apply 
-        ]
+        ],
+        "When Run": ["Save", "SyncToCentral"]
     }
 ]
 ```
@@ -126,7 +130,7 @@ Note that elements in different Revit Categories may use different parameters to
 Additional description may be available in the Sample Rules File.
 
 ### Parameter Rules
-Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, a Parameter Name, and a Categories or Element Classes list. Each sub-type requires slightly different, additional information about how to execute the desired behavior.
+Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, a Parameter Name, and a Categories or Element Classes list. Each sub-type requires slightly different, additional information about how to execute the desired behavior. The optional "When Run" property also applies here.
 
 Unless otherwise noted, the parameter must be an Instance Parameter.
 
@@ -206,7 +210,7 @@ Additionally, there is variation of a list rule that provides an option to speci
 ```
 
 #### Key Value Rules
-Setting the value of one parameter changes the values of multiple other parameters on the same element. Similar to a Key Schedule in Revit, but available in more places and enforced outside of the model.
+Setting the value of one parameter changes the values of multiple other parameters on the same element. Similar to a Key Schedule in Revit, but available in more places and enforced outside of the model. 
 
 ```json
 {
@@ -222,6 +226,10 @@ Setting the value of one parameter changes the values of multiple other paramete
     ]
 }
 ```
+
+When properly configured, the Properties Panel can show the allowable values for key value rules as a dropdown menu.
+
+![image](https://github.com/user-attachments/assets/f73ebb12-5ec7-4827-aa6e-2d4adf648ce4)
 
 Key Value Rules can also be driven by a Global Parameter and an external CSV file. Using this variation, the rule would look like this:
 
@@ -360,13 +368,27 @@ Create an entry in the `rules.md` file such as this, with the file name in the "
 ```
 
 ## User Interface for Rule Interaction
-Address the rule validations in batch. The multi-element rule editor. Various dialog boxes.
+Many rules and behaviors are intended to run silently in the background without any user interaction. Workset rules, for example, do not typically prompt for user interaction, the placement of furniture family on Level 1 will automatically be set to workset Level 1 Stuff if all the criteria are met. No prompts or notifications will appear. Similarly, Key Value Rules, From Host Rules, Calculation Rules, and some Custom Rules can perform their validations and actions without dialogs interrupting or notifying the user. 
 
-## Test the Setup
-Hello World?
+In other cases, when a rule is triggered, it's because an incorrect value has been input and we need the user to correct it. For example, if a rule requires the Mark to be a number and the user has input a series of letters, the correct value cannot be automatically deduced and the user must be prompted to correct it. This will start with a standard Revit Warning explaining the rule that was triggered which can be expanded to show the elements involved.
 
-## Test the Rules
-Hello World?
+![image](https://github.com/user-attachments/assets/240db269-0f88-44a2-b8ce-7b4f0f0a1b7d)
+
+![image](https://github.com/user-attachments/assets/d9f43ba0-9d9c-4b58-b896-9089ebaf4365)
+
+At the same time, an interactive Resolve Rule Errors dialog box will open up providing a mechanism for understanding and correcting the error as well as focusing on each element.
+
+![image](https://github.com/user-attachments/assets/2e7133a6-5192-499a-85a9-b1718acb0620)
+
+Additional warnings may be displayed if attempting to close the Resolve Rule Errors dialog without resolving all the errors.
+
+![image](https://github.com/user-attachments/assets/3b9e8313-7e68-47c9-b7bf-56829e70b7fe)
+
+Similar to the Properties Panel, the Resolve Rule Errors dialog box can show the list of allowable values to resolve certain errors.
+
+![image](https://github.com/user-attachments/assets/02ccbaab-bcee-4c67-8c17-b320faa318fe)
+
+Custom Rules can also provide code for custom dialog boxes.
 
 ### Logging
 - The logging uses the [NLog](https://nlog-project.org/) framework
