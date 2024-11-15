@@ -453,7 +453,10 @@ The Properties Panel can also display custom links to URLs and PDFs intersperced
     - Partially implemented for parameters that store an ElementId (currently implemented for Levels and Phases)
     - Not implemented for Properties that offer user a list of values (such as Location Line for Walls which has valid values Wall Centerline, Core Centerline, Finish Face: Interior, Finish Face: Exterior, Core Face: Interior, Core Face: Exterior) 
 2. Initial width of the data grid is too small. Need to manually stretch the panel to get it to have the correct width
-3. Support “enum” parameters like Wall Location Line, Revit has a fixed set of values (Wall Centerline, Core Centerline, Finish Face: Exterior, etc). 
+3. Support “enum” parameters like Wall Location Line, Revit has a fixed set of values (Wall Centerline, Core Centerline, Finish Face: Exterior, etc).
+
+### Rules
+1. Custom Rule:Hello World Dialog,  is being triggered with any rule. [Issue](https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/34)
 
 
 
