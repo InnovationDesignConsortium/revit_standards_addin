@@ -455,7 +455,5 @@ The Properties Panel can also display custom links to URLs and PDFs intersperced
 2. Initial width of the data grid is too small. Need to manually stretch the panel to get it to have the correct width
 3. Support “enum” parameters like Wall Location Line, Revit has a fixed set of values (Wall Centerline, Core Centerline, Finish Face: Exterior, etc). 
 
-### Rules
-1. 
 
 
