@@ -397,6 +397,10 @@ namespace RevitDataValidator.Forms
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex == -1)
+            {
+                return;
+            }
             var row = dataGridView1.Rows[e.RowIndex];
             var col = dataGridView1.Columns[e.ColumnIndex];
             var elementId = ElementIdUtils.New(int.Parse(row.Cells["Id"].Value.ToString()));
