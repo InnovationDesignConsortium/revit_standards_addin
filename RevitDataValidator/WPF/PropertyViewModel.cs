@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
+using org.mariuszgromada.math.mxparser.mathcollection;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -127,55 +128,58 @@ namespace RevitDataValidator
                 {
                     var parameters = GetParameter(pname);
                     bool foundRule = false;
-                    foreach (var rule in Utils.allParameterRules)
+                    if (parameters.Any())
                     {
-                        if (rule.Categories?.Contains(parameterPack.Category) == true &&
-                            (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
-                            rule.ParameterName == pname)
+                        foreach (var rule in Utils.allParameterRules)
                         {
-                            List<StringInt> choices;
-                            if (rule.ListOptions != null)
+                            if (rule.Categories?.Contains(parameterPack.Category) == true &&
+                                (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
+                                rule.ParameterName == pname)
                             {
-                                choices = Utils.GetChoicesFromList(element, rule)
-                                    .ConvertAll(q => new StringInt(q.Name, 0));
-                                if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
+                                List<StringInt> choices;
+                                if (rule.ListOptions != null)
                                 {
-                                    foreach (var parameter in parameters)
+                                    choices = Utils.GetChoicesFromList(element, rule)
+                                        .ConvertAll(q => new StringInt(q.Name, 0));
+                                    if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
                                     {
-                                        if (parameter.AsValueString() != "")
+                                        foreach (var parameter in parameters)
                                         {
-                                            Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject>
+                                            if (parameter.AsValueString() != "")
+                                            {
+                                                Utils.eventHandlerWithParameterObject.Raise(new List<ParameterObject>
                                     {
                                         new ParameterObject(parameters, "")
                                     });
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                var keyValues = rule.KeyValues;
-                                if (rule.FilterParameter != null)
+                                else
                                 {
-                                    keyValues = Utils.GetKeyValuesFromFilterParameter(rule);
+                                    var keyValues = rule.KeyValues;
+                                    if (rule.FilterParameter != null)
+                                    {
+                                        keyValues = Utils.GetKeyValuesFromFilterParameter(rule);
+                                    }
+                                    choices = keyValues.ConvertAll(q => new StringInt(q[0], 0));
                                 }
-                                choices = keyValues.ConvertAll(q => new StringInt(q[0], 0));
-                            }
-                            var paramValue = GetParameterValue(pname);
-                            var selected = choices.Find(q => q.String == paramValue);
-                            if (parameters.Any(q => q != null))
-                            {
-                                packParameters.Add(new ChoiceStateParameter
+                                var paramValue = GetParameterValue(pname);
+                                var selected = choices.Find(q => q.String == paramValue);
+                                if (parameters.Any(q => q != null))
                                 {
-                                    Parameters = parameters,
-                                    Name = pname,
-                                    Choices = choices,
-                                    SelectedChoice = selected,
-                                    IsEnabled = !parameters[0].IsReadOnly
-                                });
-                                foundRule = true;
+                                    packParameters.Add(new ChoiceStateParameter
+                                    {
+                                        Parameters = parameters,
+                                        Name = pname,
+                                        Choices = choices,
+                                        SelectedChoice = selected,
+                                        IsEnabled = !parameters[0].IsReadOnly
+                                    });
+                                    foundRule = true;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                     if (!foundRule)
@@ -517,9 +521,11 @@ namespace RevitDataValidator
             }
             else
             {
-                return Utils.selectedIds.ConvertAll(w =>
+                var parameters = Utils.selectedIds.ConvertAll(w =>
                 Utils.doc.GetElement(w).Parameters.
                     Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
+
+                return parameters.Where(q => q != null).ToList();
             }
         }
 
