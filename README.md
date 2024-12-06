@@ -39,7 +39,7 @@ The Revit addin is designed to notify a user of updates and prompt to update its
 ```
 // Can this be disabled? 
 // Do we have a deployment strategy that might include an option to disable this?
-// Can we provide some inforation about digitally signing?
+// Can we provide some information about digitally signing?
 ```
 
 ## Rule Administration
