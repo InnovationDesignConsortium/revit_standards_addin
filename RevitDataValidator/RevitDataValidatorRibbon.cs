@@ -73,6 +73,7 @@ namespace RevitDataValidator
             Utils.allWorksetRules = new List<WorksetRule>();
             Application.ControlledApplication.DocumentOpened += ControlledApplication_DocumentOpened;
             Application.ControlledApplication.DocumentSaving += ControlledApplication_DocumentSaving;
+            Application.ControlledApplication.DocumentSavedAs += ControlledApplication_DocumentSavedAs;
             Application.ControlledApplication.DocumentSynchronizingWithCentral += ControlledApplication_DocumentSynchronizingWithCentral;
             Application.ViewActivated += Application_ViewActivated;
             Application.DialogBoxShowing += Application_DialogBoxShowing;
@@ -137,6 +138,11 @@ namespace RevitDataValidator
             panel.AddItem(aboutCommand);
 
             Update.CheckForUpdates();
+        }
+
+        private void ControlledApplication_DocumentSavedAs(object sender, Autodesk.Revit.DB.Events.DocumentSavedAsEventArgs e)
+        {
+            Utils.doc = e.Document;
         }
 
         public static BitmapImage NewBitmapImage(string ns, string imageName)
