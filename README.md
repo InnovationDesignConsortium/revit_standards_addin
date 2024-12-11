@@ -39,7 +39,7 @@ The Revit addin is designed to notify a user of updates and prompt to update its
 ```
 // Can this be disabled? 
 // Do we have a deployment strategy that might include an option to disable this?
-// Can we provide some inforation about digitally signing?
+// Can we provide some information about digitally signing?
 ```
 
 ## Rule Administration
@@ -480,7 +480,7 @@ The Properties Panel can also display custom links to URLs and PDFs intersperced
 3. Support “enum” parameters like Wall Location Line, Revit has a fixed set of values (Wall Centerline, Core Centerline, Finish Face: Exterior, etc).
 
 ### Rules
-1. Custom Rule:Hello World Dialog,  is being triggered with any rule. [Issue](https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/34)
+1. 
 
 
 
