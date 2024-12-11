@@ -234,7 +234,14 @@ namespace RevitDataValidator
                 }
                 else if (double.TryParse(s, out double d))
                 {
-                    p.Set(Convert.ToInt32(d));
+                    try
+                    {
+                        p.Set(Convert.ToInt32(d));
+                    }
+                    catch
+                    {
+                        Log($"Cannot convert {d} to an integer when trying to set {p.Definition.Name} for {GetElementInfo(p.Element)}", LogLevel.Error);
+                    }
                 }
                 else if (s == "No")
                 {
