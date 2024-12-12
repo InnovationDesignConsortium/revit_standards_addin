@@ -273,15 +273,15 @@ namespace RevitDataValidator
             }
             if (double.IsNaN(result))
             {
-                Log($"Cannot set {parameter.Definition.Name} to 'not-a-number' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
+                Log($"Cannot set {parameter.Definition.Name} to 'not-a-number' {formulaText} for element {ElementIdExtension.GetValue(parameter.Element.Id)}", LogLevel.Warn);
             }
             else if (double.IsPositiveInfinity(result))
             {
-                Log($"Cannot set {parameter.Definition.Name} to 'positive infinity' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
+                Log($"Cannot set {parameter.Definition.Name} to 'positive infinity' {formulaText} for element {ElementIdExtension.GetValue(parameter.Element.Id)}", LogLevel.Warn);
             }
             else if (double.IsNegativeInfinity(result))
             {
-                Log($"Cannot set {parameter.Definition.Name} to 'negative infinity' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
+                Log($"Cannot set {parameter.Definition.Name} to 'negative infinity' {formulaText} for element {ElementIdExtension.GetValue(parameter.Element.Id)}", LogLevel.Warn);
             }
         }
 
