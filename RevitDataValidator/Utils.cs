@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
 using Nice3point.Revit.Extensions;
 using NLog;
-using NLog.Config;
 using Octokit;
 using RevitDataValidator.Classes;
 using RevitDataValidator.Forms;
@@ -18,9 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -258,12 +255,33 @@ namespace RevitDataValidator
                 if (double.IsInfinity(d) ||
                     double.IsNaN(d))
                 {
-                    p.Set(0);
+                    LogNanInifinity(p, d, null);
                 }
                 else
                 {
                     p.Set(d);
                 }
+            }
+        }
+
+        private static void LogNanInifinity(Parameter parameter, double result, ParameterRule rule)
+        {
+            var formulaText = "";
+            if (rule != null)
+            {
+                formulaText = $"for formula {rule.Formula}";
+            }
+            if (double.IsNaN(result))
+            {
+                Log($"Cannot set {parameter.Definition.Name} to 'not-a-number' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
+            }
+            else if (double.IsPositiveInfinity(result))
+            {
+                Log($"Cannot set {parameter.Definition.Name} to 'positive infinity' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
+            }
+            else if (double.IsNegativeInfinity(result))
+            {
+                Log($"Cannot set {parameter.Definition.Name} to 'negative infinity' {formulaText} for element {ElementIdExtension.GetValue(id)}", LogLevel.Warn);
             }
         }
 
@@ -850,7 +868,11 @@ namespace RevitDataValidator
                     {
                         LogException($"Cannot evaluate rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
                     }
-                    if (!double.IsNaN(result))
+                    if (double.IsNaN(result) || double.IsInfinity(result))
+                    {
+                        LogNanInifinity(parameter, result, rule);
+                    }
+                    else
                     {
                         Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
                         parametersToSet.Add(new ParameterString(parameter, result.ToString()));
