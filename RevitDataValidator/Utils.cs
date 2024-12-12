@@ -17,7 +17,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
