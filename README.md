@@ -148,7 +148,7 @@ Unless otherwise noted, the parameter must be an Instance Parameter.
 ```
 
 #### List Rules
-This type of rule restricts a Parameter to only values defined in a list. The list of allowed values be enumerated in the rule file like in this example that restricts the Comments parameter on Walls to only the values "a", "b", or "c".
+This type of rule restricts a Parameter to only values defined in a list. The list of allowed values can be enumerated in the rule file like in this example that restricts the Comments parameter on Walls to only the values "a", "b", or "c".
 
 ```json
 {
