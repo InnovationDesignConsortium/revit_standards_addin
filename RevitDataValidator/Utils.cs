@@ -574,9 +574,8 @@ namespace RevitDataValidator
                         pass = false;
                         break;
                     }
-
                     var paramValue = GetParamAsString(parameter);
-                    if (paramValue != p.Value)
+                    if (paramValue == null || !Regex.IsMatch(paramValue, p.Value))
                     {
                         pass = false;
                         break;
