@@ -94,10 +94,10 @@ Workset rules all follow the same, simple structure.
 
 1. A list of Revit Categories or Element Classes
 2. The name of a Workset
-3. A list of Parameter names and values
+3. A list of Parameter names and Regular Expression (regex) expressions
 4. An optional "When Run" property
 
-If all the parameters match the corresponding value, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped. Parameters MAY be either Instance or Type.
+If all the parameters match the corresponding regex expressions, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped. Parameters MAY be either Instance or Type.
 
 Categories are Revit Categories as displayed in the Revit user interface. Element Classes are Revit API classes. The class names need to include the full namespace of the class which can be found in the API CHM at https://github.com/ADN-DevTech/revit-api-chms or https://www.revitapidocs.com/
 
