@@ -392,14 +392,14 @@ namespace RevitDataValidator
                 }
 
                 var ruleFileInfo = new RuleFileInfo();
-                string ruleFileContents = null;
                 if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
                 {
-                    ruleFileContents = cachedRuleFileInfo.Contents;
+                    ruleFileInfo = cachedRuleFileInfo;
                 }
                 else
                 {
                     var ruleFile = Directory.GetFiles(Utils.dllPath).FirstOrDefault(q => Path.GetFileName(q) == RULE_FILE_NAME);
+                    var ruleFileContents = "";
                     if (Utils.Debugging && ruleFile != null)
                     {
                         using (var reader = new StreamReader(new FileStream(ruleFile, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
@@ -442,7 +442,7 @@ namespace RevitDataValidator
                 var parameterRules = new List<ParameterRule>();
                 var worksetRules = new List<WorksetRule>();
 
-                MarkdownDocument document = Markdown.Parse(ruleFileContents);
+                MarkdownDocument document = Markdown.Parse(ruleFileInfo.Contents);
                 var descendents = document.Descendants();
                 var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
                 foreach (var block in codeblocks)
