@@ -8,16 +8,21 @@ The Revit Standards Addin is a project that enables firms to control, deploy, an
 
 ## Prerequisites
 There are four components required to use this application.
-1. A **Github repository**
-2. The **Revit Standards Github App** installed on your repository
-3. A couple of custom **Environment Variables** on each workstation
-4. The **Revit Standards Addin**
+1. A **Github repository** and the **Revit Standards Github App** installed on your repository
+    
+    OR
+
+    A set of local files and an associated Environment Variable
+
+1. A couple of custom **Environment Variables** on each workstation
+1. The **Revit Standards Addin**
 
 ## Setup and Deployment
 Below are instructions to set up and deploy each component across an organization.
 1. Create an empty Github repository. It can be Public, but the application was designed to work with a Private repository. This repository is where you will store your rules and configuration files and any other referenced files. You can start with a set of sample files by cloning [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main). Alternatively, you can create the folder structure and files from scratch using the samples as a guide. There are very few files required to get this up and running.
-2. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The RevitStandardsGithubApp needs read access so it can read the rules and configuration files.
-3. Each workstation using this application MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
+1. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The RevitStandardsGithubApp needs read access so it can read the rules and configuration files.
+1. As an alternative to steps 1 & 2 you can store the configuration and files locally. To do this, set the environment variable `RevitStandardsAddinFilePath` with the full path to the folder where the files will be stored.
+1. Each workstation using this application MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
 
     `RevitStandardsAddinGitOwner`: owner of the repo where the rules and JSON are saved, such as InnovationDesignConsortium  
     `RevitStandardsAddinGitRepo`: name of the repo where the rules and JSON are stored, such as PrivateRepoTest which is the test repo at https://github.com/InnovationDesignConsortium/PrivateRepoTest
@@ -32,7 +37,7 @@ Below are instructions to set up and deploy each component across an organizatio
     `RevitStandardsAddinGitServerUrl`: the URL for a Github Enterprise server account, if it exists.  
     `RevitStandardsAddinGitPat`: the Personal Access Token that can be used instead of installing the Github App.
 
-5. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin on each user's workstation using the provided MSI. 
+1. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin on each user's workstation using the provided MSI. 
 
 ### Software Updates
 The Revit addin is designed to notify a user of updates and prompt to update itself when Revit is closed. 
@@ -255,6 +260,11 @@ NYC-BLD-68,Assembly _Waiting NY,60,Assembly NY,Waiting NY
 NYC-BLD-68,Business NY,510,Business NY,
 NYC-BLD-68,Storage NY,410,Storage NY,
 NYC-BLD-68,Assembly_Excercise_without_Equip NY,160,Assembly NY,Excercise_without_Equip NY
+```
+
+To include a comma in the value for a field, enclose the value in double quotes like
+```csv
+foo,"100,000",a1
 ```
 
 #### Format Rules

@@ -1,6 +1,5 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using org.mariuszgromada.math.mxparser.mathcollection;
 using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
@@ -54,7 +53,7 @@ namespace RevitDataValidator
 
                 PackSets = new ObservableCollection<string>(
                     Utils.parameterUIData.PackSets
-                    .Where(q => q.Category == catName).Select(q => q.Name));
+                    .Where(q => q.Category == catName || q.Category == Utils.ALL).Select(q => q.Name));
             }
             return element;
         }
@@ -126,13 +125,15 @@ namespace RevitDataValidator
                 var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
                 {
-                    var parameters = GetParameter(pname);
+                    var parameters = GetParameter(pname).Where(q => q != null).ToList();
                     bool foundRule = false;
                     if (parameters.Any())
                     {
                         foreach (var rule in Utils.allParameterRules)
                         {
-                            if (rule.Categories?.Contains(parameterPack.Category) == true &&
+                            if (
+                                rule.Categories != null && 
+                                (rule.Categories.Contains(element.Category.Name) || rule.Categories.Contains(Utils.ALL)) &&
                                 (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
                                 rule.ParameterName == pname)
                             {
@@ -143,7 +144,7 @@ namespace RevitDataValidator
                                         .ConvertAll(q => new StringInt(q.Name, 0));
                                     if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
                                     {
-                                        foreach (var parameter in parameters)
+                                        foreach (var parameter in parameters.Where(q => q != null))
                                         {
                                             if (parameter.AsValueString() != "")
                                             {
@@ -517,6 +518,7 @@ namespace RevitDataValidator
             if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
             {
                 return new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                    .Where(q => q != null)
                     .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
             }
             else

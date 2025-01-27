@@ -63,6 +63,8 @@
     <ROW Component="CreateJsonWebToken.exe_1" ComponentId="{67863DA8-4F2F-41F1-9E1B-390BD23EF622}" Directory_="CreateJsonWebToken_1_Dir" Attributes="256" KeyPath="CreateJsonWebToken.exe_1"/>
     <ROW Component="CreateJsonWebToken.exe_2" ComponentId="{3222B644-8012-4CE0-B741-872D242191BF}" Directory_="CreateJsonWebToken_Dir" Attributes="256" KeyPath="CreateJsonWebToken.exe_2"/>
     <ROW Component="CreateJsonWebToken.runtimeconfig.json" ComponentId="{9474BD30-6876-45EF-94D4-EC765670AABC}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="CreateJsonWebToken.runtimeconfig.json_2" Type="0"/>
+    <ROW Component="CsvHelper.dll" ComponentId="{0B493008-57C5-48DC-A3F8-AAAD13D66753}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="CsvHelper.dll"/>
+    <ROW Component="CsvHelper.dll_1" ComponentId="{01232FE8-F78D-45FD-B543-378C0EBC7F0A}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="CsvHelper.dll_1"/>
     <ROW Component="Flee.dll" ComponentId="{223676A3-B457-419D-ACC7-4A9E18807E4D}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="Flee.dll"/>
     <ROW Component="Flee.dll_1" ComponentId="{9AF925FD-3CE4-4597-A0F6-17DA4A84CA20}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="Flee.dll_1"/>
     <ROW Component="Flee.dll_2" ComponentId="{73254BB9-618D-40AF-837D-42715A29F82E}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="Flee.dll_2"/>
@@ -2017,6 +2019,8 @@
     <ROW File="Revit.Async.dll" Component_="Revit.Async.dll" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2025\Revit.Async.dll" SelfReg="false"/>
     <ROW File="Revit.Async.dll_1" Component_="Revit.Async.dll_1" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2024\Revit.Async.dll" SelfReg="false"/>
     <ROW File="Revit.Async.dll_2" Component_="Revit.Async.dll_2" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="install\2023\Revit.Async.dll" SelfReg="false"/>
+    <ROW File="CsvHelper.dll" Component_="CsvHelper.dll" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\CsvHelper.dll" SelfReg="false"/>
+    <ROW File="CsvHelper.dll_1" Component_="CsvHelper.dll_1" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\CsvHelper.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -2193,6 +2197,8 @@
     <ROW Feature_="MainFeature" Component_="Revit.Async.dll"/>
     <ROW Feature_="MainFeature" Component_="Revit.Async.dll_1"/>
     <ROW Feature_="MainFeature" Component_="Revit.Async.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="CsvHelper.dll"/>
+    <ROW Feature_="MainFeature" Component_="CsvHelper.dll_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>

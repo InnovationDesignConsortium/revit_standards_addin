@@ -5,6 +5,7 @@ using Autodesk.Revit.UI;
 using Flee.PublicTypes;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nice3point.Revit.Extensions;
 using NLog;
 using Octokit;
@@ -66,6 +67,7 @@ namespace RevitDataValidator
         public static string GIT_OWNER = "";
         public static string GIT_REPO = "";
         public static string GIT_ENTERPRISE_SERVER_URL = "";
+        public static string LOCAL_FILE_PATH = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
         public static bool Debugging = false;
@@ -82,6 +84,12 @@ namespace RevitDataValidator
         public static Dictionary<string, BuiltInCategory> catMap = new Dictionary<string, BuiltInCategory>();
         public const string GIT_CODE_REPO_OWNER = "InnovationDesignConsortium";
         public const string GIT_CODE_REPO_NAME = "revit_standards_addin";
+
+        private const string LOCALPATH_ENV = "RevitStandardsAddinFilePath";
+        private const string SERVER_ENV = "RevitStandardsAddinGitServerUrl";
+        private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
+        private const string REPO_ENV = "RevitStandardsAddinGitRepo";
+        private const string PAT_ENV = "RevitStandardsAddinGitPat";
 
         public static List<ListOption> GetChoicesFromList(Element element, ParameterRule rule)
         {
@@ -359,6 +367,8 @@ namespace RevitDataValidator
         {
             try
             {
+                GetEnvironmentVariableData();
+
                 const string name = "revit-datavalidator";
                 GitHubClient client;
                 if (string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
@@ -1366,6 +1376,7 @@ namespace RevitDataValidator
 
         public static void Log(string message, LogLevel level)
         {
+            var messageWithoutFileName = message;
             message = Path.GetFileName(GetFileName()) + "|" + message;
             if (level == LogLevel.Info)
             {
@@ -1373,7 +1384,9 @@ namespace RevitDataValidator
             }
             else if (level == LogLevel.Error)
             {
-                TaskDialog.Show("Error", message);
+                TaskDialog.Show("Error", messageWithoutFileName
+                    .Replace("\\", "\\" + Environment.NewLine)
+                    .Replace("/", "/" + Environment.NewLine));
                 Logger.Error(message);
             }
             else if (level == LogLevel.Warn)
@@ -1417,6 +1430,135 @@ namespace RevitDataValidator
                     builtInCats.AddRange(hostCats);
                 }
                 return builtInCats;
+            }
+        }
+
+        public static void GetEnvironmentVariableData()
+        {
+            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+
+            {
+                Debugging = true;
+            }
+            else
+            {
+                Debugging = false;
+            }
+
+            LOCAL_FILE_PATH = Environment.GetEnvironmentVariable(LOCALPATH_ENV, EnvironmentVariableTarget.Machine);
+            if (LOCAL_FILE_PATH != null)
+            {
+                Log($"LOCALPATH_ENV = {LOCALPATH_ENV}", LogLevel.Trace);
+                if (!Directory.Exists(LOCAL_FILE_PATH))
+                {
+                    Log($"{LOCALPATH_ENV} does not exist{Environment.NewLine}{LOCAL_FILE_PATH}", LogLevel.Error);
+                }
+            }
+
+            GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
+            if (GIT_ENTERPRISE_SERVER_URL != null)
+            {
+                Log($"SERVER_ENV = {SERVER_ENV}", LogLevel.Trace);
+            }
+
+            GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
+            if (GIT_OWNER == null)
+            {
+                Log($"Environment variable {OWNER_ENV} is empty", LogLevel.Error);
+            }
+            else
+            {
+                Log($"OWNER_ENV = {GIT_OWNER}", LogLevel.Trace);
+            }
+
+            GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
+            if (GIT_REPO == null)
+            {
+                Log($"Environment variable {REPO_ENV} is empty", LogLevel.Error);
+            }
+            else
+            {
+                Log($"REPO_ENV = {GIT_REPO}", LogLevel.Trace);
+            }
+
+            var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
+            if (string.IsNullOrEmpty(git_pat))
+            {
+                tokenFromGithubApp = GetGithubTokenFromApp(GIT_OWNER);
+            }
+            else
+            {
+                tokenFromGithubApp = new TokenInfo { token = git_pat };
+                Log($"Github: Using personal access token {git_pat}", LogLevel.Trace);
+            }
+        }
+
+        public static TokenInfo GetGithubTokenFromApp(string owner)
+        {
+            // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
+
+            // 1 - Generate a JSON web token (JWT) for your app
+
+            var jsonWebToken = GenerateJwtToken();
+            if (string.IsNullOrEmpty(jsonWebToken))
+            {
+                Utils.Log("JwtToken is empty", LogLevel.Error);
+                return null;
+            }
+
+            // 2 - Get the ID of the installation that you want to authenticate as
+            var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
+            var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
+            var installation = installations?.FirstOrDefault(q => q.account.login == owner);
+            if (installation == null)
+            {
+                var td = new TaskDialog("Error")
+                {
+                    MainInstruction = $"Github app must be installed for {owner}",
+                    MainContent = "<a href=\"https://github.com/apps/revitstandardsgithubapp/installations/new\">https://github.com/apps/revitstandardsgithubapp/installations/new</a>"
+                };
+                td.Show();
+
+                Utils.Log($"Installation does not exist for {owner}", LogLevel.Error);
+                return null;
+            }
+            var instalationId = installation?.id;
+
+            // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
+            var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
+            var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
+            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Trace);
+            return tokenInfo;
+        }
+
+        private static string GenerateJwtToken()
+        {
+            try
+            {
+                var pathtoexe = Path.Combine(Utils.dllPath, "CreateJsonWebToken", "CreateJsonWebToken.exe");
+                if (File.Exists(pathtoexe))
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = pathtoexe,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                    };
+                    var pp = Process.Start(startInfo);
+                    var output = pp.StandardOutput.ReadToEnd();
+                    pp.WaitForExit();
+                    return output;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException("Failed to generate JwtToken", ex);
+                return null;
             }
         }
     }

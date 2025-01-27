@@ -313,10 +313,10 @@ namespace RevitDataValidator.Forms
                         return;
                     }
 
-                    parameterStrings.Add(new ParameterString(element.LookupParameter(thisColumnParameterName), value.ToString()));
+                    parameterStrings.Add(new ParameterString(element.LookupParameter(thisColumnParameterName), value?.ToString()));
 
                     var parameters = new List<Parameter> { Utils.GetParameter(element, thisColumnParameterName) };
-                    var item = new ParameterObject(parameters, value.ToString());
+                    var item = new ParameterObject(parameters, value?.ToString());
                     parameterObjects.Add(item);
                 }
                 var failuresForThisId = Utils.GetFailures(id, parameterStrings, WhenToRun.Realtime, out _).Where(q => q.Rule.ParameterName == parameter).ToList();

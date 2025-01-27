@@ -252,7 +252,7 @@ namespace RevitDataValidator
             if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
             {
                 var ids = await RevitTask.RaiseGlobal<CustomRuleExternalEventHandler, ParameterRule, IEnumerable<ElementId>>(rule);
-                
+
                 if (ids != null && ids.Any())
                 {
                     var td = new TaskDialog("Error")
@@ -275,20 +275,35 @@ namespace RevitDataValidator
                     var cats = new List<BuiltInCategory>();
                     foreach (var cat in rule.Categories)
                     {
-                        var thisbic = Utils.catMap[cat];
-                        cats.Add(thisbic);
+                        if (Utils.catMap.TryGetValue(cat, out BuiltInCategory thisbic))
+                        {
+                            cats.Add(thisbic);
+                        }
                     }
-                    filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticategoryFilter(cats));
+                    if (cats.Count > 0)
+                    {
+                        filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticategoryFilter(cats));
+                    }
                 }
                 if (rule.ElementClasses != null)
                 {
                     var types = new List<Type>();
                     foreach (var className in rule.ElementClasses)
                     {
-                        var type = Type.GetType(className);
-                        types.Add(type);
+                        var type = Type.GetType($"{className},RevitAPI");
+                        if (type == null)
+                        {
+                            Utils.Log($"Cannot find class: {className}", LogLevel.Error);
+                        }
+                        else
+                        {
+                            types.Add(type);
+                        }
                     }
-                    filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticlassFilter(types));
+                    if (types.Count > 0)
+                    {
+                        filteredElementCollector = filteredElementCollector.WherePasses(new ElementMulticlassFilter(types));
+                    }
                 }
 
                 var ids = filteredElementCollector.ToElementIds();
@@ -357,7 +372,14 @@ namespace RevitDataValidator
             }
             if (fileToOpen != null)
             {
-                Utils.StartShell(fileToOpen, true);
+                if (System.IO.File.Exists(fileToOpen))
+                {
+                    Utils.StartShell(fileToOpen, true);
+                }
+                else
+                {
+                    Utils.Log($"File does not exist: {fileToOpen}", LogLevel.Error);
+                }
             }
         }
     }
