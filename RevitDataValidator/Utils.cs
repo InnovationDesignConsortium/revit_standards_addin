@@ -204,7 +204,7 @@ namespace RevitDataValidator
             var types = new List<Type>();
             foreach (string className in rule.ElementClasses)
             {
-                var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.CodeBase.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
+                var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(q => q.Location.IndexOf("revitapi.dll", StringComparison.OrdinalIgnoreCase) >= 0);
                 var type = asm.GetType(className);
                 if (type != null)
                     types.Add(type);
@@ -339,7 +339,7 @@ namespace RevitDataValidator
             {
                 releases = JsonConvert.DeserializeObject<List<GithubResponse>>(releasesJson);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -1435,7 +1435,7 @@ namespace RevitDataValidator
 
         public static void GetEnvironmentVariableData()
         {
-            if (Environment.GetEnvironmentVariable("RevitDataValidatorDebug", EnvironmentVariableTarget.Machine) == "1")
+            if (GetEnvironmentVariable("RevitDataValidatorDebug") == "1")
 
             {
                 Debugging = true;
@@ -1445,52 +1445,65 @@ namespace RevitDataValidator
                 Debugging = false;
             }
 
-            LOCAL_FILE_PATH = Environment.GetEnvironmentVariable(LOCALPATH_ENV, EnvironmentVariableTarget.Machine);
-            if (LOCAL_FILE_PATH != null)
+            LOCAL_FILE_PATH = GetEnvironmentVariable(LOCALPATH_ENV);
+            if (!string.IsNullOrEmpty(LOCAL_FILE_PATH))
             {
-                Log($"LOCALPATH_ENV = {LOCALPATH_ENV}", LogLevel.Trace);
+                Log($"{LOCALPATH_ENV} = {LOCAL_FILE_PATH}", LogLevel.Trace);
                 if (!Directory.Exists(LOCAL_FILE_PATH))
                 {
                     Log($"{LOCALPATH_ENV} does not exist{Environment.NewLine}{LOCAL_FILE_PATH}", LogLevel.Error);
                 }
             }
-
-            GIT_ENTERPRISE_SERVER_URL = Environment.GetEnvironmentVariable(SERVER_ENV, EnvironmentVariableTarget.Machine);
-            if (GIT_ENTERPRISE_SERVER_URL != null)
-            {
-                Log($"SERVER_ENV = {SERVER_ENV}", LogLevel.Trace);
-            }
-
-            GIT_OWNER = Environment.GetEnvironmentVariable(OWNER_ENV, EnvironmentVariableTarget.Machine);
-            if (GIT_OWNER == null)
-            {
-                Log($"Environment variable {OWNER_ENV} is empty", LogLevel.Error);
-            }
             else
             {
-                Log($"OWNER_ENV = {GIT_OWNER}", LogLevel.Trace);
-            }
+                GIT_ENTERPRISE_SERVER_URL = GetEnvironmentVariable(SERVER_ENV);
+                if (!string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
+                {
+                    Log($"{SERVER_ENV} = {GIT_ENTERPRISE_SERVER_URL}", LogLevel.Trace);
+                }
 
-            GIT_REPO = Environment.GetEnvironmentVariable(REPO_ENV, EnvironmentVariableTarget.Machine);
-            if (GIT_REPO == null)
-            {
-                Log($"Environment variable {REPO_ENV} is empty", LogLevel.Error);
-            }
-            else
-            {
-                Log($"REPO_ENV = {GIT_REPO}", LogLevel.Trace);
-            }
+                GIT_OWNER = GetEnvironmentVariable(OWNER_ENV);
+                if (GIT_OWNER == null)
+                {
+                    Log($"Environment variable {OWNER_ENV} is empty", LogLevel.Error);
+                }
+                else
+                {
+                    Log($"{OWNER_ENV} = {GIT_OWNER}", LogLevel.Trace);
+                }
 
-            var git_pat = Environment.GetEnvironmentVariable(PAT_ENV, EnvironmentVariableTarget.Machine);
-            if (string.IsNullOrEmpty(git_pat))
-            {
-                tokenFromGithubApp = GetGithubTokenFromApp(GIT_OWNER);
+                GIT_REPO = GetEnvironmentVariable(REPO_ENV);
+                if (string.IsNullOrEmpty(GIT_REPO))
+                {
+                    Log($"Environment variable {REPO_ENV} is empty", LogLevel.Error);
+                }
+                else
+                {
+                    Log($"{REPO_ENV} = {GIT_REPO}", LogLevel.Trace);
+                }
+
+                var git_pat = GetEnvironmentVariable(PAT_ENV);
+                if (string.IsNullOrEmpty(git_pat))
+                {
+                    tokenFromGithubApp = GetGithubTokenFromApp(GIT_OWNER);
+                }
+                else
+                {
+                    tokenFromGithubApp = new TokenInfo { token = git_pat };
+                    Log($"Github: Using personal access token {git_pat}", LogLevel.Trace);
+                }
             }
-            else
+        }
+
+        private static string GetEnvironmentVariable(string name)
+        {
+            var ret = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine);
+            if (ret != null)
             {
-                tokenFromGithubApp = new TokenInfo { token = git_pat };
-                Log($"Github: Using personal access token {git_pat}", LogLevel.Trace);
+                return ret;
             }
+            ret = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
+            return ret == null ? "" : ret.ToString();
         }
 
         public static TokenInfo GetGithubTokenFromApp(string owner)

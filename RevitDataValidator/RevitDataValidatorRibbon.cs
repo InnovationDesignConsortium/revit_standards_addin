@@ -195,7 +195,7 @@ namespace RevitDataValidator
         private void Application_ViewActivated(object sender, ViewActivatedEventArgs e)
         {
             var currentFilename = Utils.GetFileName(e.Document);
-            if (Utils.doc == null || currentFilename != Utils.doc.PathName)
+            if (Utils.doc == null || !Utils.doc.IsValidObject || currentFilename != Utils.doc.PathName)
             {
                 Utils.doc = e.Document;
                 var newFilename = Utils.GetFileName(e.Document);
@@ -259,7 +259,14 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        Utils.ruleDatas.Add(newFilename, ruleFileInfo);
+                        if (Utils.ruleDatas.ContainsKey(newFilename))
+                        {
+                            Utils.ruleDatas[newFilename] = ruleFileInfo;
+                        }
+                        else
+                        {
+                            Utils.ruleDatas.Add(newFilename, ruleFileInfo);
+                        }
                     }
                 }
 
@@ -304,23 +311,25 @@ namespace RevitDataValidator
                     foreach (var parameterRule in parameterRules)
                     {
                         ParameterRule conflictingRule = null;
-                        RegisterParameterRule(parameterRule, ruleFileInfo);
-                        foreach (var existingRule in Utils.allParameterRules)
+                        if (RegisterParameterRule(parameterRule, ruleFileInfo))
                         {
-                            if (DoParameterRulesConflict(parameterRule, existingRule))
+                            foreach (var existingRule in Utils.allParameterRules)
                             {
-                                conflictingRule = existingRule;
-                                break;
+                                if (DoParameterRulesConflict(parameterRule, existingRule))
+                                {
+                                    conflictingRule = existingRule;
+                                    break;
+                                }
                             }
-                        }
-                        if (conflictingRule == null)
-                        {
-                            parameterRule.Guid = Guid.NewGuid();
-                            Utils.allParameterRules.Add(parameterRule);
-                        }
-                        else
-                        {
-                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
+                            if (conflictingRule == null)
+                            {
+                                parameterRule.Guid = Guid.NewGuid();
+                                Utils.allParameterRules.Add(parameterRule);
+                            }
+                            else
+                            {
+                                Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
+                            }
                         }
                     }
                 }
@@ -399,7 +408,7 @@ namespace RevitDataValidator
             var path = "Standards/RevitStandardsPanel/Config.json";
 
             var json = "";
-            if (Utils.LOCAL_FILE_PATH != null)
+            if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
             {
                 var localpath = Path.Combine(Utils.LOCAL_FILE_PATH, path);
                 if (File.Exists(localpath))
@@ -554,7 +563,7 @@ namespace RevitDataValidator
             }
         }
 
-        private void RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
+        private bool RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
         {
             Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
             try
@@ -562,7 +571,11 @@ namespace RevitDataValidator
                 if (rule.CustomCode != null)
                 {
                     string code = GetFileContents($"{rule.CustomCode}.cs", gitRuleFilePath).Contents;
-                    if (code != null)
+                    if (code == null)
+                    {
+                        return false;
+                    }
+                    else
                     {
                         var service = new ValidationService();
                         var result = service.Execute(code, out MemoryStream ms);
@@ -578,6 +591,7 @@ namespace RevitDataValidator
                             foreach (var error in result)
                             {
                                 Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", LogLevel.Error);
+                                return false;
                             }
                         }
                     }
@@ -614,11 +628,16 @@ namespace RevitDataValidator
                     if (rule.KeyValues != null)
                     {
                         Utils.Log($"Rule should not have both KeyValuePath {rule.KeyValuePath} and KeyValues {rule.KeyValues}", LogLevel.Error);
+                        return false;
                     }
 
                     var fileContents = GetFileContents(rule.KeyValuePath, ruleFileInfo.FilePath);
 
-                    if (fileContents?.Contents != null)
+                    if (fileContents?.Contents == null)
+                    {
+                        return false;
+                    }
+                    else
                     {
                         using (var csv = new CsvReader(new StringReader(fileContents.Contents), new CsvConfiguration(CultureInfo.InvariantCulture)
                         {
@@ -669,6 +688,7 @@ namespace RevitDataValidator
                     if (rule.ListOptions != null)
                     {
                         Utils.Log($"Rule should not have both ListOptions {rule.ListOptions} and ListSource {rule.ListSource}", LogLevel.Error);
+                        return false;
                     }
 
                     var fileContents = GetFileContents(rule.ListSource, ruleFileInfo.FilePath);
@@ -704,6 +724,7 @@ namespace RevitDataValidator
             catch (Exception ex)
             {
                 Utils.LogException($"Cannot add trigger for rule: {rule}", ex);
+                return false;
             }
 
             if (Utils.doc == null)
@@ -723,6 +744,7 @@ namespace RevitDataValidator
                 }
                 catch
                 {
+                    return false;
                 }
                 rule.FailureId = failureId;
             }
@@ -730,12 +752,13 @@ namespace RevitDataValidator
             {
                 rule.FailureId = genericFailureId;
             }
+            return true;
         }
 
         private static RuleFileInfo GetFileContents(string fileName, string ruleInfoFilePath)
         {
             var ret = new RuleFileInfo();
-            if (Utils.LOCAL_FILE_PATH != null)
+            if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
             {
                 if (ruleInfoFilePath.StartsWith("/"))
                 {
@@ -748,6 +771,7 @@ namespace RevitDataValidator
                 if (File.Exists(fullpath))
                 {
                     ret.Filename = fullpath;
+                    Utils.Log($"Reading contents of {fullpath}", LogLevel.Trace);
                     using (var v = new StreamReader(new FileStream(fullpath, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                     {
                         ret.Contents = v.ReadToEnd();
