@@ -372,7 +372,7 @@ namespace RevitDataValidator
             }
             if (fileToOpen != null)
             {
-                if (System.IO.File.Exists(fileToOpen))
+                if (fileToOpen.ToLower().StartsWith("http") || System.IO.File.Exists(fileToOpen))
                 {
                     Utils.StartShell(fileToOpen, true);
                 }
