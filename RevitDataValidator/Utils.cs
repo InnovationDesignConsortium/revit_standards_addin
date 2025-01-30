@@ -1384,9 +1384,24 @@ namespace RevitDataValidator
             }
             else if (level == LogLevel.Error)
             {
-                TaskDialog.Show("Error", messageWithoutFileName
+                var messageForTaskDialog = messageWithoutFileName
                     .Replace("\\", "\\" + Environment.NewLine)
-                    .Replace("/", "/" + Environment.NewLine));
+                    .Replace("/", "/" + Environment.NewLine);
+                var td = new TaskDialog("Error");
+                td.MainInstruction = messageForTaskDialog;
+
+                var dir = Path.GetDirectoryName(messageWithoutFileName.Replace("File not found: ",""));
+                if (Directory.Exists(dir))
+                {
+                    td.AddCommandLink(TaskDialogCommandLinkId.CommandLink1,
+                             "Open containing folder");
+                }
+                var tdResult = td.Show();
+                if (tdResult == TaskDialogResult.CommandLink1)
+                {
+                    StartShell(dir, true);
+                }
+
                 Logger.Error(message);
             }
             else if (level == LogLevel.Warn)
