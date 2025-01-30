@@ -1340,7 +1340,7 @@ namespace RevitDataValidator
             {
                 doc = Utils.doc;
             }
-            if (doc == null)
+            if (doc == null || !doc.IsValidObject)
             {
                 return "";
             }
@@ -1384,7 +1384,8 @@ namespace RevitDataValidator
             {
                 Logger.Info(message);
             }
-            else if (level == LogLevel.Error)
+            else if (level == LogLevel.Error ||
+                level == LogLevel.Exception)
             {
                 var messageForTaskDialog = messageWithoutFileName
                     .Replace("\\", "\\" + Environment.NewLine)
@@ -1409,10 +1410,6 @@ namespace RevitDataValidator
             else if (level == LogLevel.Warn)
             {
                 Logger.Warn(message);
-            }
-            else if (level == LogLevel.Exception)
-            {
-                Logger.Error(message);
             }
             else if (level == LogLevel.Trace)
             {
