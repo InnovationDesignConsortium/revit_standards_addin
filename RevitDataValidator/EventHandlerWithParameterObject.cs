@@ -58,7 +58,7 @@ namespace RevitDataValidator
                                 {
                                     parameter.Set(stringInt.String);
                                 }
-                                else if (args.Value is string s)
+                                else if (args.Value is string s && parameter.AsString() != s)
                                 {
                                     parameter.Set(s);
                                 }
@@ -68,7 +68,8 @@ namespace RevitDataValidator
                                 var dataType = parameter.Definition.GetDataType();
                                 if (dataType == SpecTypeId.Int.Integer)
                                 {
-                                    if (int.TryParse(args.Value.ToString(), out int i))
+                                    if (int.TryParse(args.Value.ToString(), out int i) &&
+                                        i != parameter.AsInteger())
                                     {
                                         parameter.Set(i);
                                     }
@@ -92,7 +93,8 @@ namespace RevitDataValidator
                                 else
                                 {
                                     if (args.Value is StringInt si &&
-                                        int.TryParse(si.Long.ToString(), out int i))
+                                        int.TryParse(si.Long.ToString(), out int i) &&
+                                        i != parameter.AsInteger())
                                     {
                                         parameter.Set(i);
                                     }
@@ -102,7 +104,10 @@ namespace RevitDataValidator
                             {
                                 if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed, out string parseFailureMessage))
                                 {
-                                    parameter.Set(dparsed);
+                                    if (Math.Abs(parameter.AsDouble() - dparsed) > Utils.eps)
+                                    {
+                                        parameter.Set(dparsed);
+                                    }
                                 }
                                 else
                                 {

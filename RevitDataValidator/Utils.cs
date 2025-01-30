@@ -73,6 +73,7 @@ namespace RevitDataValidator
         public static bool Debugging = false;
         public static List<ElementId> idsTriggered = new List<ElementId>();
         public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
+        public const double eps = 1.0e-5;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
