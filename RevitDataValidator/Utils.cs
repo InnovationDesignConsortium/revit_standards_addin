@@ -1393,7 +1393,7 @@ namespace RevitDataValidator
                 var td = new TaskDialog("Error");
                 td.MainInstruction = messageForTaskDialog;
 
-                var dir = Path.GetDirectoryName(messageWithoutFileName.Replace("File not found: ",""));
+                var dir = Path.GetDirectoryName(messageWithoutFileName.Replace("File not found: ", ""));
                 if (Directory.Exists(dir))
                 {
                     td.AddCommandLink(TaskDialogCommandLinkId.CommandLink1,
@@ -1553,9 +1553,20 @@ namespace RevitDataValidator
 
             // 3 - Send a REST API POST request to /app/installations/INSTALLATION_ID/access_tokens
             var accessTokenResponse = Utils.GetRepoData($"https://api.github.com/app/installations/{instalationId}/access_tokens", HttpMethod.Post, jsonWebToken, "application/vnd.github+json", "Bearer");
-            var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse);
+            var tokenInfo = JsonConvert.DeserializeObject<TokenInfo>(accessTokenResponse, new JsonSerializerSettings
+            {
+                Error = Utils.HandleDeserializationError,
+                MissingMemberHandling = MissingMemberHandling.Error
+            });
             Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Trace);
             return tokenInfo;
+        }
+
+        public static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            var currentError = e.ErrorContext.Error.Message;
+            Utils.Log($"Error deserializing JSON: {currentError}", LogLevel.Error);
+            e.ErrorContext.Handled = true;
         }
 
         private static string GenerateJwtToken()

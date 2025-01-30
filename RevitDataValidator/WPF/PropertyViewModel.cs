@@ -132,7 +132,7 @@ namespace RevitDataValidator
                         foreach (var rule in Utils.allParameterRules)
                         {
                             if (
-                                rule.Categories != null && 
+                                rule.Categories != null &&
                                 (rule.Categories.Contains(element.Category.Name) || rule.Categories.Contains(Utils.ALL)) &&
                                 (rule.ListOptions != null || rule.KeyValues != null || rule.DictKeyValues != null) &&
                                 rule.ParameterName == pname)
@@ -221,7 +221,11 @@ namespace RevitDataValidator
                                     using (var sr = new StreamReader(new FileStream(enumFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                                     {
                                         var contents = sr.ReadToEnd();
-                                        var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents);
+                                        var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents, new JsonSerializerSettings
+                                        {
+                                            Error = Utils.HandleDeserializationError,
+                                            MissingMemberHandling = MissingMemberHandling.Error
+                                        });
                                         choices = enumData.Properties.ConvertAll(q => new StringInt(q.Id, q.Value));
                                     }
                                 }

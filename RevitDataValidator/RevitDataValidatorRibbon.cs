@@ -224,6 +224,7 @@ namespace RevitDataValidator
                     var parameterPackFilePath = GetGitFileNamesFromConfig();
                     if (parameterPackFilePath == null)
                     {
+                        Utils.Log("parameterPackFilePath == null", LogLevel.Warn);
                         return;
                     }
                     parameterPackFileContents = GetFileContents(PARAMETER_PACK_FILE_NAME, parameterPackFilePath).Contents;
@@ -236,11 +237,11 @@ namespace RevitDataValidator
                 {
                     Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(parameterPackFileContents, new JsonSerializerSettings
                     {
-                        Error = HandleDeserializationError,
+                        Error = Utils.HandleDeserializationError,
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
                 }
-
+                Utils.Log($"Loaded {Utils.parameterUIData.PackSets?.Count} Packsets and {Utils.parameterUIData.ParameterPacks?.Count} ParameterPacks", LogLevel.Trace);
                 var ruleFileInfo = new RuleFileInfo();
                 if (Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
                 {
@@ -253,12 +254,14 @@ namespace RevitDataValidator
 
                     if (ruleFileInfo == null)
                     {
+                        Utils.Log("ruleFileInfo == null", LogLevel.Trace);
                         Utils.ruleDatas.Add(newFilename, new RuleFileInfo());
                         Utils.propertiesPanel.Refresh();
                         return;
                     }
                     else
                     {
+                        Utils.Log($"newFilename = {newFilename}", LogLevel.Trace);
                         if (Utils.ruleDatas.ContainsKey(newFilename))
                         {
                             Utils.ruleDatas[newFilename] = ruleFileInfo;
@@ -274,8 +277,10 @@ namespace RevitDataValidator
                 var worksetRules = new List<WorksetRule>();
 
                 MarkdownDocument document = Markdown.Parse(ruleFileInfo.Contents);
+                Utils.Log($"Parsed markdown with {document.Count} sections", LogLevel.Trace);
                 var descendents = document.Descendants();
                 var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+                Utils.Log($"Markdown file has {codeblocks.Count} codeblocks", LogLevel.Trace);
                 foreach (var block in codeblocks)
                 {
                     var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
@@ -285,29 +290,32 @@ namespace RevitDataValidator
                     {
                         rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
                         {
-                            Error = HandleDeserializationError,
+                            Error = Utils.HandleDeserializationError,
                             MissingMemberHandling = MissingMemberHandling.Error
                         });
                     }
                     catch (Exception ex)
                     {
-                        Utils.LogException("JsonConvert.DeserializeObject", ex);
+                        Utils.LogException("RuleData JsonConvert.DeserializeObject", ex);
                     }
                     if (rules != null)
                     {
                         if (rules.ParameterRules != null)
                         {
                             parameterRules.AddRange(rules.ParameterRules);
+                            Utils.Log($"Found {rules.ParameterRules.Count} parameter rules in this code block", LogLevel.Trace);
                         }
                         if (rules.WorksetRules != null)
                         {
                             worksetRules.AddRange(rules.WorksetRules);
+                            Utils.Log($"Found {rules.WorksetRules.Count} workset rules in this code block", LogLevel.Trace);
                         }
                     }
                 }
 
                 if (parameterRules != null)
                 {
+                    Utils.Log($"Total of {parameterRules.Count} parameter rules", LogLevel.Trace);
                     foreach (var parameterRule in parameterRules)
                     {
                         ParameterRule conflictingRule = null;
@@ -335,6 +343,7 @@ namespace RevitDataValidator
                 }
                 if (worksetRules != null)
                 {
+                    Utils.Log($"Total of {worksetRules.Count} workset rules", LogLevel.Trace);
                     foreach (var worksetRule in worksetRules)
                     {
                         WorksetRule conflictingRule = null;
@@ -433,7 +442,7 @@ namespace RevitDataValidator
             }
             var configs = JsonConvert.DeserializeObject<GitRuleConfigRoot>(json, new JsonSerializerSettings
             {
-                Error = HandleDeserializationError,
+                Error = Utils.HandleDeserializationError,
                 MissingMemberHandling = MissingMemberHandling.Error
             });
 
@@ -797,14 +806,8 @@ namespace RevitDataValidator
                     ret.Contents = data.Content;
                 }
             }
+            Utils.Log($"FilePath={ret.FilePath}{Environment.NewLine}Url={ret.Url}{Environment.NewLine}{ret.Contents}", LogLevel.Trace);
             return ret;
-        }
-
-        private static void HandleDeserializationError(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
-        {
-            var currentError = e.ErrorContext.Error.Message;
-            Utils.Log($"Error deserializing JSON: {currentError}", LogLevel.Error);
-            e.ErrorContext.Handled = true;
         }
     }
 }
