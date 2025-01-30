@@ -887,6 +887,7 @@ namespace RevitDataValidator
                     else
                     {
                         Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
+                        result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
                         parametersToSet.Add(new ParameterString(parameter, result.ToString()));
                     }
                 }
