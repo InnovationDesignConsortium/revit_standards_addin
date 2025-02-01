@@ -3,6 +3,9 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 using Flee.PublicTypes;
+using Markdig.Helpers;
+using Markdig.Syntax;
+using Markdig;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,6 +26,10 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CsvHelper.Configuration;
+using CsvHelper;
+using static Autodesk.Revit.DB.BuiltInFailures;
+using System.Globalization;
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -91,6 +98,615 @@ namespace RevitDataValidator
         private const string OWNER_ENV = "RevitStandardsAddinGitOwner";
         private const string REPO_ENV = "RevitStandardsAddinGitRepo";
         private const string PAT_ENV = "RevitStandardsAddinGitPat";
+
+        private const string RULE_FILE_NAME = "rules.md";
+        private const string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
+        public const string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
+
+        public static FailureDefinitionId genericFailureId;
+        public static UpdaterId DataValidationUpdaterId;
+        public static string gitRuleFilePath;
+
+        public static void ReloadRules(bool forceReload)
+        {
+            var newFilename = Utils.GetFileName(Utils.doc);
+            Utils.userName = doc.Application.Username;
+            Utils.allParameterRules.Clear();
+            Utils.allWorksetRules.Clear();
+
+            if (Utils.doc != null)
+            {
+                try
+                {
+                    UpdaterRegistry.RemoveDocumentTriggers(DataValidationUpdaterId, Utils.doc);
+                }
+                catch
+                {
+                }
+            }
+
+            string parameterPackFileContents = null;
+            if (Utils.parameterPackDatas.TryGetValue(newFilename, out RuleFileInfo cachedParameterFileInfo))
+            {
+                parameterPackFileContents = cachedParameterFileInfo.Contents;
+            }
+            else
+            {
+                var parameterPackFilePath = GetGitFileNamesFromConfig();
+                if (parameterPackFilePath == null)
+                {
+                    Utils.Log("parameterPackFilePath == null", LogLevel.Warn);
+                    return;
+                }
+                parameterPackFileContents = GetFileContents(PARAMETER_PACK_FILE_NAME, parameterPackFilePath).Contents;
+            }
+            if (parameterPackFileContents == null)
+            {
+                Utils.parameterUIData = new ParameterUIData();
+            }
+            else
+            {
+                Utils.parameterUIData = JsonConvert.DeserializeObject<ParameterUIData>(parameterPackFileContents, new JsonSerializerSettings
+                {
+                    Error = Utils.HandleDeserializationError,
+                    MissingMemberHandling = MissingMemberHandling.Error
+                });
+            }
+            Utils.Log($"Loaded {Utils.parameterUIData.PackSets?.Count} Packsets and {Utils.parameterUIData.ParameterPacks?.Count} ParameterPacks", LogLevel.Trace);
+            var ruleFileInfo = new RuleFileInfo();
+            if (!forceReload && Utils.ruleDatas.TryGetValue(newFilename, out RuleFileInfo cachedRuleFileInfo))
+            {
+                ruleFileInfo = cachedRuleFileInfo;
+            }
+            else
+            {
+                gitRuleFilePath = GetGitFileNamesFromConfig();
+                ruleFileInfo = GetFileContents(RULE_FILE_NAME, gitRuleFilePath);
+
+                if (ruleFileInfo == null)
+                {
+                    Utils.Log("ruleFileInfo == null", LogLevel.Trace);
+                    Utils.ruleDatas.Add(newFilename, new RuleFileInfo());
+                    Utils.propertiesPanel.Refresh();
+                    return;
+                }
+                else
+                {
+                    Utils.Log($"newFilename = {newFilename}", LogLevel.Trace);
+                    if (Utils.ruleDatas.ContainsKey(newFilename))
+                    {
+                        Utils.ruleDatas[newFilename] = ruleFileInfo;
+                    }
+                    else
+                    {
+                        Utils.ruleDatas.Add(newFilename, ruleFileInfo);
+                    }
+                }
+            }
+
+            var parameterRules = new List<ParameterRule>();
+            var worksetRules = new List<WorksetRule>();
+
+            MarkdownDocument document = Markdown.Parse(ruleFileInfo.Contents);
+            Utils.Log($"Parsed markdown with {document.Count} sections", LogLevel.Trace);
+            var descendents = document.Descendants();
+            var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+            Utils.Log($"Markdown file has {codeblocks.Count} codeblocks", LogLevel.Trace);
+            foreach (var block in codeblocks)
+            {
+                var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
+                var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
+                RuleData rules = null;
+                try
+                {
+                    rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
+                    {
+                        Error = Utils.HandleDeserializationError,
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Utils.LogException("RuleData JsonConvert.DeserializeObject", ex);
+                }
+                if (rules != null)
+                {
+                    if (rules.ParameterRules != null)
+                    {
+                        parameterRules.AddRange(rules.ParameterRules);
+                        Utils.Log($"Found {rules.ParameterRules.Count} parameter rules in this code block", LogLevel.Trace);
+                    }
+                    if (rules.WorksetRules != null)
+                    {
+                        worksetRules.AddRange(rules.WorksetRules);
+                        Utils.Log($"Found {rules.WorksetRules.Count} workset rules in this code block", LogLevel.Trace);
+                    }
+                }
+            }
+
+            if (parameterRules != null)
+            {
+                Utils.Log($"Total of {parameterRules.Count} parameter rules", LogLevel.Trace);
+                foreach (var parameterRule in parameterRules)
+                {
+                    ParameterRule conflictingRule = null;
+                    if (RegisterParameterRule(parameterRule, ruleFileInfo))
+                    {
+                        foreach (var existingRule in Utils.allParameterRules)
+                        {
+                            if (DoParameterRulesConflict(parameterRule, existingRule))
+                            {
+                                conflictingRule = existingRule;
+                                break;
+                            }
+                        }
+                        if (conflictingRule == null)
+                        {
+                            parameterRule.Guid = Guid.NewGuid();
+                            Utils.allParameterRules.Add(parameterRule);
+                        }
+                        else
+                        {
+                            Utils.Log($"Ignoring parameter rule '{parameterRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
+                        }
+                    }
+                }
+            }
+            if (worksetRules != null)
+            {
+                Utils.Log($"Total of {worksetRules.Count} workset rules", LogLevel.Trace);
+                foreach (var worksetRule in worksetRules)
+                {
+                    WorksetRule conflictingRule = null;
+
+                    foreach (var existingRule in Utils.allWorksetRules)
+                    {
+                        if (DoWorksetRulesConflict(worksetRule, existingRule))
+                        {
+                            conflictingRule = existingRule;
+                            break;
+                        }
+                    }
+
+                    if (conflictingRule == null)
+                    {
+                        worksetRule.Guid = Guid.NewGuid();
+                        RegisterWorksetRule(worksetRule);
+                        Utils.allWorksetRules.Add(worksetRule);
+                    }
+                    else
+                    {
+                        Utils.Log($"Ignoring workset rule '{worksetRule}' because it conflicts with the rule '{conflictingRule}'", LogLevel.Error);
+                    }
+                }
+            }
+            Utils.propertiesPanel.Refresh();
+            SetupPane();
+        }
+
+        public static void SetupPane()
+        {
+            var doc = Utils.doc;
+            if (doc == null)
+                return;
+
+            Utils.doc = doc;
+            var app = doc.Application;
+            var uiapp = new UIApplication(app);
+            var pane = uiapp.GetDockablePane(Utils.paneId);
+
+            Utils.propertiesPanel.SaveTextBoxValues();
+
+            Element element = null;
+            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
+            {
+                element = doc.ActiveView;
+            }
+            else
+            {
+                element = doc.GetElement(Utils.selectedIds[0]);
+            }
+
+            if (element?.Category == null)
+                return;
+
+            var catName = element.Category.Name;
+
+            if (Utils.parameterUIData == null)
+            {
+                return;
+            }
+
+            if (Utils.parameterUIData.PackSets != null)
+            {
+                var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName || q.Category == Utils.ALL).ToList();
+                if (validPacks.Count == 0)
+                {
+                    Utils.propertiesPanel.Refresh(null);
+                }
+                else if (Utils.dictFileActivePackSet.TryGetValue(Utils.GetFileName(), out string selectedPackSet) &&
+                    validPacks.Find(q => q.Name == selectedPackSet) != null)
+                {
+                    Utils.propertiesPanel.cboParameterPack.SelectedItem = selectedPackSet;
+                    Utils.propertiesPanel.Refresh(selectedPackSet);
+                }
+                else if (validPacks?.Count > 0)
+                {
+                    PackSet packSet = null;
+                    if (Utils.dictCategoryPackSet.TryGetValue(catName, out string value))
+                    {
+                        packSet = validPacks.Find(q => q.Name == value);
+                    }
+                    if (packSet == null)
+                    {
+                        packSet = validPacks[0];
+                    }
+
+                    if (packSet != null)
+                    {
+                        var packSetName = packSet.Name;
+                        Utils.propertiesPanel.cboParameterPack.SelectedItem = packSetName;
+                        Utils.propertiesPanel.Refresh(packSetName);
+                    }
+                }
+            }
+        }
+
+        private static void RegisterWorksetRule(WorksetRule worksetRule)
+        {
+            Utils.Log("Registering workset rule " + worksetRule, LogLevel.Trace);
+            if (worksetRule.Categories != null)
+            {
+                var builtInCats = Utils.GetBuiltInCats(worksetRule);
+                var filter = new LogicalAndFilter(
+                    new List<ElementFilter>
+                    {
+                        new ElementMulticategoryFilter(builtInCats),
+                        new ElementIsElementTypeFilter(true)
+                    });
+                UpdaterRegistry.AddTrigger(
+                    DataValidationUpdaterId,
+                    Utils.doc,
+                    filter,
+                    Element.GetChangeTypeAny());
+                UpdaterRegistry.AddTrigger(
+                    DataValidationUpdaterId,
+                    Utils.doc,
+                    filter,
+                    Element.GetChangeTypeElementAddition());
+            }
+        }
+
+        private static bool RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
+        {
+            Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
+            try
+            {
+                if (rule.CustomCode != null)
+                {
+                    string code = GetFileContents($"{rule.CustomCode}.cs", gitRuleFilePath).Contents;
+                    if (code == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        var service = new ValidationService();
+                        var result = service.Execute(code, out MemoryStream ms);
+                        if (result == null)
+                        {
+                            ms.Seek(0, SeekOrigin.Begin);
+                            Assembly assembly = Assembly.Load(ms.ToArray());
+                            var type = assembly.GetType(rule.CustomCode);
+                            Utils.dictCustomCode[rule.CustomCode] = type;
+                        }
+                        else
+                        {
+                            foreach (var error in result)
+                            {
+                                Utils.Log($"{rule.CustomCode} compilation error: {error.GetMessage()}", LogLevel.Error);
+                                return false;
+                            }
+                        }
+                    }
+                }
+                if (rule.Categories != null)
+                {
+                    var builtInCats = Utils.GetBuiltInCats(rule);
+                    UpdaterRegistry.AddTrigger(
+                        DataValidationUpdaterId,
+                        Utils.doc,
+                        new ElementMulticategoryFilter(builtInCats),
+                        Element.GetChangeTypeAny());
+                }
+                else if (rule.ElementClasses != null)
+                {
+                    var types = Utils.GetRuleTypes(rule);
+                    if (types.Count > 0)
+                    {
+                        UpdaterRegistry.AddTrigger(
+                            DataValidationUpdaterId,
+                            Utils.doc,
+                            new ElementMulticlassFilter(types),
+                            Element.GetChangeTypeAny());
+                        UpdaterRegistry.AddTrigger(
+                            DataValidationUpdaterId,
+                            Utils.doc,
+                            new ElementMulticlassFilter(types),
+                            Element.GetChangeTypeElementAddition());
+                    }
+                }
+
+                if (rule.KeyValuePath != null)
+                {
+                    if (rule.KeyValues != null)
+                    {
+                        Utils.Log($"Rule should not have both KeyValuePath {rule.KeyValuePath} and KeyValues {rule.KeyValues}", LogLevel.Error);
+                        return false;
+                    }
+
+                    var fileContents = GetFileContents(rule.KeyValuePath, ruleFileInfo.FilePath);
+
+                    if (fileContents?.Contents == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        using (var csv = new CsvReader(new StringReader(fileContents.Contents), new CsvConfiguration(CultureInfo.InvariantCulture)
+                        {
+                            HasHeaderRecord = false,
+                            MissingFieldFound = null
+                        }))
+                        {
+                            var i = 0;
+                            rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                            var listData = new List<List<string>>();
+                            while (csv.Read())
+                            {
+                                if (i == 0)
+                                {
+                                    rule.FilterParameter = csv[0];
+                                    rule.ParameterName = csv[1];
+                                    rule.DrivenParameters = csv.Parser.Record.ToList().Skip(2).ToList();
+                                }
+                                else
+                                {
+                                    listData.Add(csv.Parser.Record.ToList());
+                                }
+                                i++;
+                            }
+                            var keys = listData.Select(q => q[0]).Distinct();
+                            rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                            foreach (var key in keys)
+                            {
+                                var allForThisKey = listData.Where(q => q[0] == key);
+                                var valuesForThisKey = allForThisKey.Select(q => q.Skip(1).ToList()).ToList();
+                                rule.DictKeyValues.Add(key, valuesForThisKey);
+                            }
+                        }
+                    }
+                }
+
+                if (rule.KeyValues != null)
+                {
+                    if (rule.DictKeyValues == null)
+                    {
+                        rule.DictKeyValues = new Dictionary<string, List<List<string>>>();
+                    }
+                    rule.DictKeyValues.Add("", rule.KeyValues);
+                }
+
+                if (rule.ListSource != null)
+                {
+                    if (rule.ListOptions != null)
+                    {
+                        Utils.Log($"Rule should not have both ListOptions {rule.ListOptions} and ListSource {rule.ListSource}", LogLevel.Error);
+                        return false;
+                    }
+
+                    var fileContents = GetFileContents(rule.ListSource, ruleFileInfo.FilePath);
+                    if (fileContents != null)
+                    {
+                        using (var csv = new CsvReader(new StringReader(fileContents.Contents), new CsvConfiguration(CultureInfo.InvariantCulture)
+                        {
+                            HasHeaderRecord = false,
+                            MissingFieldFound = null
+                        }))
+                        {
+                            rule.ListOptions = csv.GetRecords<ListOption>().ToList();
+                        }
+                    }
+                }
+
+                if (rule.FilterParameter != null)
+                {
+                    var paramId = GlobalParametersManager.FindByName(Utils.doc, rule.FilterParameter);
+                    if (paramId != null)
+                    {
+                        if (Utils.doc.GetElement(paramId) is GlobalParameter param)
+                        {
+                            UpdaterRegistry.AddTrigger(
+                                DataValidationUpdaterId,
+                                Utils.doc,
+                                new List<ElementId> { paramId },
+                                Element.GetChangeTypeAny());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException($"Cannot add trigger for rule: {rule}", ex);
+                return false;
+            }
+
+            if (Utils.doc == null)
+            {
+                var failureId = new FailureDefinitionId(Guid.NewGuid());
+                var message = rule.UserMessage;
+                if (string.IsNullOrEmpty(message))
+                {
+                    message = RULE_DEFAULT_MESSAGE;
+                }
+                try
+                {
+                    FailureDefinition.CreateFailureDefinition(
+                        failureId,
+                        FailureSeverity.Error,
+                        message);
+                }
+                catch
+                {
+                    return false;
+                }
+                rule.FailureId = failureId;
+            }
+            else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
+            {
+                rule.FailureId = genericFailureId;
+            }
+            return true;
+        }
+
+        private static RuleFileInfo GetFileContents(string fileName, string ruleInfoFilePath)
+        {
+            var ret = new RuleFileInfo();
+            if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
+            {
+                if (ruleInfoFilePath.StartsWith("/"))
+                {
+                    ruleInfoFilePath = ruleInfoFilePath.Substring(1);
+                }
+
+                var path = Path.Combine(Utils.LOCAL_FILE_PATH, ruleInfoFilePath);
+                var fullpath = Path.Combine(path, fileName);
+                ret.FilePath = path;
+                if (File.Exists(fullpath))
+                {
+                    ret.Filename = fullpath;
+                    Utils.Log($"Reading contents of {fullpath}", LogLevel.Trace);
+                    using (var v = new StreamReader(new FileStream(fullpath, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                    {
+                        ret.Contents = v.ReadToEnd();
+                    }
+                }
+                else
+                {
+                    Utils.Log($"File not found: {fullpath}", LogLevel.Error);
+                }
+            }
+            else
+            {
+                var data = Utils.GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
+                if (data == null)
+                {
+                    Utils.Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Error);
+                }
+                else
+                {
+                    Utils.Log($"Found {ruleInfoFilePath}", LogLevel.Trace);
+                    ret.FilePath = ruleInfoFilePath;
+                    ret.Url = data.HtmlUrl;
+                    ret.Contents = data.Content;
+                }
+            }
+            Utils.Log($"FilePath={ret.FilePath}{Environment.NewLine}Url={ret.Url}{Environment.NewLine}{ret.Contents}", LogLevel.Trace);
+            return ret;
+        }
+
+        private static bool DoParameterRulesConflict(ParameterRule r1, ParameterRule r2)
+        {
+            if (r1.ParameterName != r2.ParameterName)
+            {
+                return false;
+            }
+            if (r1.CustomCode != null || r2.CustomCode != null)
+            {
+                return false;
+            }
+            if ((r1.Categories != null && (r1.Categories.Contains(Utils.ALL) || r2.Categories.Contains(Utils.ALL) || r1.Categories.Intersect(r2.Categories).Any())) ||
+                (r1.ElementClasses != null && r1.ElementClasses.Intersect(r2.ElementClasses).Any()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool DoWorksetRulesConflict(WorksetRule r1, WorksetRule other)
+        {
+            if (r1.Workset == other.Workset)
+            {
+                return false;
+            }
+            if (!r1.Categories.Intersect(other.Categories).Any())
+            {
+                return false;
+            }
+            if (r1.Parameters.Intersect(other.Parameters).Count() == r1.Parameters.Count)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static string GetGitFileNamesFromConfig()
+        {
+            Utils.GetEnvironmentVariableData();
+            var projectName = Utils.GetFileName();
+
+            var path = "Standards/RevitStandardsPanel/Config.json";
+
+            var json = "";
+            if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
+            {
+                var localpath = Path.Combine(Utils.LOCAL_FILE_PATH, path);
+                if (File.Exists(localpath))
+                {
+                    json = File.ReadAllText(localpath);
+                }
+            }
+            else
+            {
+                var data = Utils.GetGitData(ContentType.File, path);
+                if (data == null)
+                {
+                    Utils.Log($"No git data at {path}", LogLevel.Warn);
+                    return null;
+                }
+                json = data.Content;
+            }
+            if (json == "")
+            {
+                Utils.Log($"File does not exist: {path}", LogLevel.Error);
+                return null;
+            }
+            var configs = JsonConvert.DeserializeObject<GitRuleConfigRoot>(json, new JsonSerializerSettings
+            {
+                Error = Utils.HandleDeserializationError,
+                MissingMemberHandling = MissingMemberHandling.Error
+            });
+
+            foreach (var config in configs.StandardsConfig)
+            {
+                foreach (var regex in config.RvtFullPathRegex)
+                {
+                    try
+                    {
+                        var matches = Regex.Matches(projectName, regex);
+                        if (matches?.Count > 0)
+                        {
+                            return config.PathToStandardsFiles;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.LogException("Regex failed", ex);
+                    }
+                }
+            }
+            return null;
+        }
 
         public static List<ListOption> GetChoicesFromList(Element element, ParameterRule rule)
         {
