@@ -2,10 +2,12 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
+using CsvHelper;
+using CsvHelper.Configuration;
 using Flee.PublicTypes;
+using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
-using Markdig;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -26,10 +29,6 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CsvHelper.Configuration;
-using CsvHelper;
-using static Autodesk.Revit.DB.BuiltInFailures;
-using System.Globalization;
 
 #if !PRE_NET_8
 [assembly: SupportedOSPlatform("windows")]
@@ -1300,6 +1299,7 @@ namespace RevitDataValidator
             {
                 var elementsOfThisType = new FilteredElementCollector(doc)
                     .WhereElementIsNotElementType()
+                    .OfCategoryId(element.Category.Id)
                     .Where(q => q.GetTypeId() == element.Id).ToList();
                 parameters = elementsOfThisType.Select(q => GetParameter(q, rule.ParameterName)).Where(q => q != null).ToList();
             }
