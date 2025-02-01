@@ -1294,65 +1294,60 @@ namespace RevitDataValidator
                 return null;
             }
 
-            var parameter = GetParameter(element, rule.ParameterName);
-            if (parameter == null)
+            var parameters = new List<Parameter>();
+            var parameterFromElement = GetParameter(element, rule.ParameterName);
+            if (parameterFromElement == null)
+            {
+                var elementsOfThisType = new FilteredElementCollector(doc)
+                    .WhereElementIsNotElementType()
+                    .Where(q => q.GetTypeId() == element.Id).ToList();
+                parameters = elementsOfThisType.Select(q => GetParameter(q, rule.ParameterName)).Where(q => q != null).ToList();
+            }
+            else
+            {
+                parameters.Add(parameterFromElement);
+            }
+            if (parameters.Count() == 0)
             {
                 return null;
             }
-            var parameterValueAsString = GetParamAsString(parameter);
-            if (inputParameterValues?.FirstOrDefault(q => q.Parameter.Definition.Name == rule.ParameterName) != null)
-            {
-                var parameterStringMatch = inputParameterValues.Find(q => q.Parameter.Definition.Name == rule.ParameterName);
-                parameter = parameterStringMatch.Parameter;
-                parameterValueAsString = parameterStringMatch.NewValue;
-            }
 
-            // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
-            // rule should run if target paramater has no value
-            if (!rule.IsValueRequired && parameterValueAsString.IsNullOrEmpty())
+            foreach (var p in parameters)
             {
-                return null;
-            }
-
-            if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
-            {
-                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}'. It is allowed because '{reasonAllowed}'", LogLevel.Trace);
-                return null;
-            }
-
-            Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
-
-            if (rule.KeyValues != null ||
-                rule.ListOptions != null ||
-                rule.DictKeyValues != null)
-            {
-                if (rule.ListOptions != null && (parameterValueAsString == null ||
-                    !rule.ListOptions.Select(q => q.Name).Contains(parameterValueAsString)))
+                var parameter = p;
+                element = parameter.Element;
+                id = element.Id;
+                var parameterValueAsString = GetParamAsString(parameter);
+                if (inputParameterValues?.FirstOrDefault(q => q.Parameter.Definition.Name == rule.ParameterName) != null)
                 {
-                    Log($"{rule.RuleName}|{GetElementInfo(element)}|'{parameter.Definition.Name}' value '{parameterValueAsString}' is not a valid value. Valid values are [{string.Join(", ", rule.ListOptions)}]", LogLevel.Warn);
-                    return new RuleFailure
-                    {
-                        Rule = rule,
-                        ElementId = id,
-                        FailureType = FailureType.List
-                    };
+                    var parameterStringMatch = inputParameterValues.Find(q => q.Parameter.Definition.Name == rule.ParameterName);
+                    parameter = parameterStringMatch.Parameter;
+                    parameterValueAsString = parameterStringMatch.NewValue;
                 }
-                else if (rule.DictKeyValues != null)
-                {
-                    var keyValues = new List<List<string>>();
-                    if (rule.FilterParameter != null)
-                    {
-                        keyValues = GetKeyValuesFromFilterParameter(rule);
-                    }
-                    else
-                    {
-                        keyValues = rule.DictKeyValues[""];
-                    }
 
-                    var keys = keyValues.Find(q => q[0] == parameterValueAsString);
-                    if (keyValues.Count > 0 && keys == null)
+                // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
+                // rule should run if target paramater has no value
+                if (!rule.IsValueRequired && parameterValueAsString.IsNullOrEmpty())
+                {
+                    return null;
+                }
+
+                if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
+                {
+                    Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}'. It is allowed because '{reasonAllowed}'", LogLevel.Trace);
+                    return null;
+                }
+
+                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
+
+                if (rule.KeyValues != null ||
+                    rule.ListOptions != null ||
+                    rule.DictKeyValues != null)
+                {
+                    if (rule.ListOptions != null && (parameterValueAsString == null ||
+                        !rule.ListOptions.Select(q => q.Name).Contains(parameterValueAsString)))
                     {
-                        Log($"{rule.RuleName}|{GetElementInfo(element)}|{parameterValueAsString} is not a valid key value. Valid values are [{string.Join(", ", keyValues)}]", LogLevel.Warn);
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|'{parameter.Definition.Name}' value '{parameterValueAsString}' is not a valid value. Valid values are [{string.Join(", ", rule.ListOptions)}]", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -1360,109 +1355,183 @@ namespace RevitDataValidator
                             FailureType = FailureType.List
                         };
                     }
-                    if (keys != null)
+                    else if (rule.DictKeyValues != null)
                     {
-                        for (var i = 0; i < rule.DrivenParameters.Count; i++)
+                        var keyValues = new List<List<string>>();
+                        if (rule.FilterParameter != null)
                         {
-                            var drivenParam = GetParameter(element, rule.DrivenParameters[i]);
-                            if (drivenParam == null)
-                            {
-                                Log($"{rule.RuleName}|{GetElementInfo(element)}|Cannot set the driven parameter {rule.DrivenParameters[i]} which does not exist", LogLevel.Warn);
-                                continue;
-                            }
-                            parametersToSet.Add(new ParameterString(drivenParam, keys[i + 1]));
-                        }
-                    }
-                }
-            }
-            else if (rule.Format != null)
-            {
-                var formattedString = BuildFormattedString(element, rule.Format, true);
-                if (formattedString != null)
-                {
-                    if (parameter.Definition.Name == "Type Name")
-                    {
-                        if (parameterValueAsString?.StartsWith(formattedString) == false)
-                        {
-                            Type t = element.GetType();
-                            var i = 0;
-                            var suffix = string.Empty;
-
-                            while (new FilteredElementCollector(doc)
-                                .OfClass(t).Any(q => q.Name == formattedString + suffix))
-                            {
-                                i++;
-                                suffix = " " + i.ToString();
-                            }
-                            var formattedWithSuffix = formattedString + suffix;
-                            parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedWithSuffix, parameterValueAsString));
-                            Log($"Renaming type '{element.Name}' to '{formattedString + suffix}' to match format '{rule.Format}'", LogLevel.Info);
-                        }
-                    }
-                    else
-                    {
-                        Log($"Renaming '{GetElementInfo(element)}' '{parameter.Definition.Name}' to '{formattedString}' to match format '{rule.Format}'", LogLevel.Info);
-                        parametersToSet.Add(new ParameterString(parameter, formattedString));
-                    }
-                }
-            }
-            else if (rule.Requirement != null)
-            {
-                if (rule.Requirement.StartsWith("IF "))
-                {
-                    var thenIdx = rule.Requirement.IndexOf("THEN ");
-
-                    var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
-                    var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
-                    Log($"Evaluating IF {ifClause} THEN {thenClause}", LogLevel.Trace);
-                    var ifExp = BuildExpressionString(element, ifClause, inputParameterValues);
-                    var ifExpIsTrue = CSharpScript.EvaluateAsync<bool>(ifExp,
-                         Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
-                         .WithImports("System")
-                         ).Result;
-
-                    if (ifExpIsTrue)
-                    {
-                        Log("IF clause is True: " + ifExp, LogLevel.Trace);
-                        var thenExp = BuildExpressionString(element, thenClause, inputParameterValues);
-                        var thenExpIsTrue = CSharpScript.EvaluateAsync<bool>(thenExp,
-                         Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
-                         .WithImports("System")
-                         ).Result;
-                        if (thenExpIsTrue)
-                        {
-                            Log("THEN clause is True: " + thenExp, LogLevel.Trace);
+                            keyValues = GetKeyValuesFromFilterParameter(rule);
                         }
                         else
                         {
-                            Log($"{rule.RuleName}|{GetElementInfo(element)}|THEN clause '{thenClause}' is False: {thenExp}", LogLevel.Warn);
+                            keyValues = rule.DictKeyValues[""];
+                        }
+
+                        var keys = keyValues.Find(q => q[0] == parameterValueAsString);
+                        if (keyValues.Count > 0 && keys == null)
+                        {
+                            Log($"{rule.RuleName}|{GetElementInfo(element)}|{parameterValueAsString} is not a valid key value. Valid values are [{string.Join(", ", keyValues)}]", LogLevel.Warn);
                             return new RuleFailure
                             {
                                 Rule = rule,
                                 ElementId = id,
-                                FailureType = FailureType.IfThen
+                                FailureType = FailureType.List
                             };
+                        }
+                        if (keys != null)
+                        {
+                            for (var i = 0; i < rule.DrivenParameters.Count; i++)
+                            {
+                                var drivenParam = GetParameter(element, rule.DrivenParameters[i]);
+                                if (drivenParam == null)
+                                {
+                                    Log($"{rule.RuleName}|{GetElementInfo(element)}|Cannot set the driven parameter {rule.DrivenParameters[i]} which does not exist", LogLevel.Warn);
+                                    continue;
+                                }
+                                parametersToSet.Add(new ParameterString(drivenParam, keys[i + 1]));
+                            }
+                        }
+                    }
+                }
+                else if (rule.Format != null)
+                {
+                    var formattedString = BuildFormattedString(element, rule.Format, true);
+                    if (formattedString != null)
+                    {
+                        if (parameter.Definition.Name == "Type Name")
+                        {
+                            if (parameterValueAsString?.StartsWith(formattedString) == false)
+                            {
+                                Type t = element.GetType();
+                                var i = 0;
+                                var suffix = string.Empty;
+
+                                while (new FilteredElementCollector(doc)
+                                    .OfClass(t).Any(q => q.Name == formattedString + suffix))
+                                {
+                                    i++;
+                                    suffix = " " + i.ToString();
+                                }
+                                var formattedWithSuffix = formattedString + suffix;
+                                parametersToSetForFormatRules.Add(new ParameterString(parameter, formattedWithSuffix, parameterValueAsString));
+                                Log($"Renaming type '{element.Name}' to '{formattedString + suffix}' to match format '{rule.Format}'", LogLevel.Info);
+                            }
+                        }
+                        else
+                        {
+                            Log($"Renaming '{GetElementInfo(element)}' '{parameter.Definition.Name}' to '{formattedString}' to match format '{rule.Format}'", LogLevel.Info);
+                            parametersToSet.Add(new ParameterString(parameter, formattedString));
+                        }
+                    }
+                }
+                else if (rule.Requirement != null)
+                {
+                    if (rule.Requirement.StartsWith("IF "))
+                    {
+                        var thenIdx = rule.Requirement.IndexOf("THEN ");
+
+                        var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
+                        var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
+                        Log($"Evaluating IF {ifClause} THEN {thenClause}", LogLevel.Trace);
+                        var ifExp = BuildExpressionString(element, ifClause, inputParameterValues);
+                        var ifExpIsTrue = CSharpScript.EvaluateAsync<bool>(ifExp,
+                             Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+                             .WithImports("System")
+                             ).Result;
+
+                        if (ifExpIsTrue)
+                        {
+                            Log("IF clause is True: " + ifExp, LogLevel.Trace);
+                            var thenExp = BuildExpressionString(element, thenClause, inputParameterValues);
+                            var thenExpIsTrue = CSharpScript.EvaluateAsync<bool>(thenExp,
+                             Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+                             .WithImports("System")
+                             ).Result;
+                            if (thenExpIsTrue)
+                            {
+                                Log("THEN clause is True: " + thenExp, LogLevel.Trace);
+                            }
+                            else
+                            {
+                                Log($"{rule.RuleName}|{GetElementInfo(element)}|THEN clause '{thenClause}' is False: {thenExp}", LogLevel.Warn);
+                                return new RuleFailure
+                                {
+                                    Rule = rule,
+                                    ElementId = id,
+                                    FailureType = FailureType.IfThen
+                                };
+                            }
+                        }
+                        else
+                        {
+                            Log("IF clause is False: " + ifExp, LogLevel.Trace);
                         }
                     }
                     else
                     {
-                        Log("IF clause is False: " + ifExp, LogLevel.Trace);
+                        var expressionString = BuildExpressionString(element, rule.Requirement);
+                        string exp = parameterValueAsString + " " + expressionString;
+                        var context = new ExpressionContext();
+                        var e = context.CompileGeneric<bool>(exp);
+                        var result = e.Evaluate();
+                        if (result)
+                        {
+                            Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule passed", LogLevel.Trace);
+                        }
+                        else
+                        {
+                            Log($"{rule.RuleName}|{GetElementInfo(element)}|Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule failed!", LogLevel.Warn);
+                            return new RuleFailure
+                            {
+                                Rule = rule,
+                                ElementId = id,
+                                FailureType = FailureType.Regex
+                            };
+                        }
                     }
                 }
-                else
+                else if (rule.Formula != null)
                 {
-                    var expressionString = BuildExpressionString(element, rule.Requirement);
-                    string exp = parameterValueAsString + " " + expressionString;
+                    var exp = BuildExpressionString(element, rule.Formula);
                     var context = new ExpressionContext();
-                    var e = context.CompileGeneric<bool>(exp);
-                    var result = e.Evaluate();
-                    if (result)
+                    IGenericExpression<double> e = null;
+                    try
                     {
-                        Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule passed", LogLevel.Trace);
+                        e = context.CompileGeneric<double>(exp);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Log($"{rule.RuleName}|{GetElementInfo(element)}|Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule failed!", LogLevel.Warn);
+                        LogException($"Cannot compile rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
+                    }
+                    if (e != null)
+                    {
+                        double result = double.NaN;
+                        try
+                        {
+                            result = e.Evaluate();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogException($"Cannot evaluate rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
+                        }
+                        if (double.IsNaN(result) || double.IsInfinity(result))
+                        {
+                            LogNanInifinity(parameter, result, rule);
+                        }
+                        else
+                        {
+                            Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
+                            result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
+                            parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                        }
+                    }
+                }
+                else if (rule.Regex != null)
+                {
+                    if (parameterValueAsString == null ||
+                        !Regex.IsMatch(parameterValueAsString, rule.Regex))
+                    {
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|'{rule.ParameterName}' value '{parameterValueAsString}' does not match regex {rule.Regex}", LogLevel.Warn);
                         return new RuleFailure
                         {
                             Rule = rule,
@@ -1470,115 +1539,65 @@ namespace RevitDataValidator
                             FailureType = FailureType.Regex
                         };
                     }
-                }
-            }
-            else if (rule.Formula != null)
-            {
-                var exp = BuildExpressionString(element, rule.Formula);
-                var context = new ExpressionContext();
-                IGenericExpression<double> e = null;
-                try
-                {
-                    e = context.CompileGeneric<double>(exp);
-                }
-                catch (Exception ex)
-                {
-                    LogException($"Cannot compile rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
-                }
-                if (e != null)
-                {
-                    double result = double.NaN;
-                    try
-                    {
-                        result = e.Evaluate();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogException($"Cannot evaluate rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
-                    }
-                    if (double.IsNaN(result) || double.IsInfinity(result))
-                    {
-                        LogNanInifinity(parameter, result, rule);
-                    }
                     else
                     {
-                        Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
-                        result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
-                        parametersToSet.Add(new ParameterString(parameter, result.ToString()));
+                        Log($"{rule.ParameterName} value {parameterValueAsString} matches regex {rule.Regex}", LogLevel.Trace);
                     }
                 }
-            }
-            else if (rule.Regex != null)
-            {
-                if (parameterValueAsString == null ||
-                    !Regex.IsMatch(parameterValueAsString, rule.Regex))
+                else if (rule.PreventDuplicates != null)
                 {
-                    Log($"{rule.RuleName}|{GetElementInfo(element)}|'{rule.ParameterName}' value '{parameterValueAsString}' does not match regex {rule.Regex}", LogLevel.Warn);
-                    return new RuleFailure
+                    var bic = (BuiltInCategory)(ElementIdExtension.GetValue(element.Category.Id));
+                    var others = new FilteredElementCollector(doc)
+                        .OfCategory(bic)
+                        .WhereElementIsNotElementType()
+                        .Where(q => q.Id != element.Id);
+                    List<string> othersParams =
+                        others.Select(q => GetParamAsString(GetParameter(q, rule.ParameterName))).ToList();
+                    if (othersParams.Contains(parameterValueAsString))
                     {
-                        Rule = rule,
-                        ElementId = id,
-                        FailureType = FailureType.Regex
-                    };
+                        Log($"{rule.RuleName}|{GetElementInfo(element)}|Found duplicates of {parameterValueAsString} for {rule.ParameterName}", LogLevel.Warn);
+                        return new RuleFailure
+                        {
+                            Rule = rule,
+                            ElementId = id,
+                            FailureType = FailureType.PreventDuplicates
+                        };
+                    }
+                }
+                else if (rule.FromHostInstance != null)
+                {
+                    if (element is FamilyInstance fi)
+                    {
+                        var host = fi.Host;
+                        if (host != null)
+                        {
+                            var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
+                            if ((value ?? string.Empty) != (parameterValueAsString ?? string.Empty))
+                            {
+                                parametersToSet.Add(new ParameterString(parameter, value));
+                                Autodesk.Revit.UI.TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
+                            }
+                            Log($"Using value '{value}' from insert {GetElementInfo(fi)} to set value of {parameter.Definition.Name} for host {GetElementInfo(host)}", LogLevel.Info);
+                        }
+                    }
+                    else if (element is HostObject host)
+                    {
+                        var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
+                        var inserts = new FilteredElementCollector(doc)
+                            .OfClass(typeof(FamilyInstance))
+                            .Cast<FamilyInstance>()
+                            .Where(q => q.Host != null && q.Host.Id == host.Id).ToList();
+                        Log($"Using value '{value}' from host {GetElementInfo(host)} to set values for {rule.FromHostInstance} for inserts {string.Join(", ", inserts.Select(q => GetElementInfo(q)))}", LogLevel.Info);
+                        foreach (var insert in inserts)
+                        {
+                            parametersToSet.Add(new ParameterString(GetParameter(insert, rule.FromHostInstance), value));
+                        }
+                    }
                 }
                 else
                 {
-                    Log($"{rule.ParameterName} value {parameterValueAsString} matches regex {rule.Regex}", LogLevel.Trace);
+                    Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
                 }
-            }
-            else if (rule.PreventDuplicates != null)
-            {
-                var bic = (BuiltInCategory)(ElementIdExtension.GetValue(element.Category.Id));
-                var others = new FilteredElementCollector(doc)
-                    .OfCategory(bic)
-                    .WhereElementIsNotElementType()
-                    .Where(q => q.Id != element.Id);
-                List<string> othersParams =
-                    others.Select(q => GetParamAsString(GetParameter(q, rule.ParameterName))).ToList();
-                if (othersParams.Contains(parameterValueAsString))
-                {
-                    Log($"{rule.RuleName}|{GetElementInfo(element)}|Found duplicates of {parameterValueAsString} for {rule.ParameterName}", LogLevel.Warn);
-                    return new RuleFailure
-                    {
-                        Rule = rule,
-                        ElementId = id,
-                        FailureType = FailureType.PreventDuplicates
-                    };
-                }
-            }
-            else if (rule.FromHostInstance != null)
-            {
-                if (element is FamilyInstance fi)
-                {
-                    var host = fi.Host;
-                    if (host != null)
-                    {
-                        var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
-                        if ((value ?? string.Empty) != (parameterValueAsString ?? string.Empty))
-                        {
-                            parametersToSet.Add(new ParameterString(parameter, value));
-                            Autodesk.Revit.UI.TaskDialog.Show("ParameterRule", $"{rule.UserMessage}");
-                        }
-                        Log($"Using value '{value}' from insert {GetElementInfo(fi)} to set value of {parameter.Definition.Name} for host {GetElementInfo(host)}", LogLevel.Info);
-                    }
-                }
-                else if (element is HostObject host)
-                {
-                    var value = GetParamAsValueString(GetParameter(host, rule.FromHostInstance));
-                    var inserts = new FilteredElementCollector(doc)
-                        .OfClass(typeof(FamilyInstance))
-                        .Cast<FamilyInstance>()
-                        .Where(q => q.Host != null && q.Host.Id == host.Id).ToList();
-                    Log($"Using value '{value}' from host {GetElementInfo(host)} to set values for {rule.FromHostInstance} for inserts {string.Join(", ", inserts.Select(q => GetElementInfo(q)))}", LogLevel.Info);
-                    foreach (var insert in inserts)
-                    {
-                        parametersToSet.Add(new ParameterString(GetParameter(insert, rule.FromHostInstance), value));
-                    }
-                }
-            }
-            else
-            {
-                Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
             }
             return null;
         }
