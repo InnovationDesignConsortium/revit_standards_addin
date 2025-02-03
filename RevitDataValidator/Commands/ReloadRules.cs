@@ -7,7 +7,8 @@ namespace RevitDataValidator
     {
         public override void Execute()
         {
-          Utils.ReloadRules(true);
+            Utils.GetEnvironmentVariableData();
+            Utils.ReloadRules(true);
         }
     }
 }
