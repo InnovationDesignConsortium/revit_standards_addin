@@ -1,28 +1,14 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
-using CsvHelper;
-using CsvHelper.Configuration;
-using Markdig;
-using Markdig.Helpers;
-using Markdig.Syntax;
-using Microsoft.CodeAnalysis;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
-using Octokit;
 using Revit.Async;
-using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 
 namespace RevitDataValidator
@@ -161,7 +147,7 @@ namespace RevitDataValidator
                 Utils.Log($"Installing new version {Utils.MsiToRunOnExit}", LogLevel.Trace);
                 try
                 {
-                    Utils.StartShell(Utils.MsiToRunOnExit, true);
+                    Utils.StartShell(Path.Combine(Utils.dllPath, "RunInstaller.exe"), false, Utils.MsiToRunOnExit);
                 }
                 catch (Exception ex)
                 {
