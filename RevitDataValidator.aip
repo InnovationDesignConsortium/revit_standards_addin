@@ -122,6 +122,9 @@
     <ROW Component="RevitDataValidator.dll" ComponentId="{AD93D057-42CD-4788-B947-7F1E33FDF84A}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitDataValidator.dll"/>
     <ROW Component="RevitDataValidator.dll_1" ComponentId="{076FEE16-221D-46CA-B310-1703D70A68E8}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_1"/>
     <ROW Component="RevitDataValidator.dll_2" ComponentId="{392711B2-10F2-4251-A0F6-BC154463C2A6}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_2"/>
+    <ROW Component="RunInstaller.exe" ComponentId="{7D0CBBEF-C639-455F-94DA-EF757700CC7B}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="RunInstaller.exe"/>
+    <ROW Component="RunInstaller.exe_1" ComponentId="{33468B80-DEDB-457A-8334-B5A7829E8215}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="RunInstaller.exe_1"/>
+    <ROW Component="RunInstaller.exe_2" ComponentId="{02214925-FDEC-496C-89F2-936073F7F7D8}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="RunInstaller.exe_2"/>
     <ROW Component="System.Collections.Immutable.dll" ComponentId="{5870434D-871E-49A2-BCC4-6BAA6FE946AE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll"/>
     <ROW Component="System.Collections.Immutable.dll_1" ComponentId="{10B45995-977C-4CB9-859E-B1C8A6BD5CE8}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll_1"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll" ComponentId="{73469280-EE7F-453D-8A46-D2224EB45EF6}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll"/>
@@ -2023,6 +2026,9 @@
     <ROW File="CsvHelper.dll" Component_="CsvHelper.dll" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\CsvHelper.dll" SelfReg="false"/>
     <ROW File="CsvHelper.dll_1" Component_="CsvHelper.dll_1" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\CsvHelper.dll" SelfReg="false"/>
     <ROW File="CsvHelper.dll_2" Component_="CsvHelper.dll_2" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\CsvHelper.dll" SelfReg="false"/>
+    <ROW File="RunInstaller.exe" Component_="RunInstaller.exe" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="RunInstaller.exe_1" Component_="RunInstaller.exe_1" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="RunInstaller.exe_2" Component_="RunInstaller.exe_2" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -2202,6 +2208,9 @@
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll"/>
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll_1"/>
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="RunInstaller.exe"/>
+    <ROW Feature_="MainFeature" Component_="RunInstaller.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="RunInstaller.exe_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
