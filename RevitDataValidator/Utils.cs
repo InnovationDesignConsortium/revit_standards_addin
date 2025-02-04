@@ -911,11 +911,16 @@ namespace RevitDataValidator
             }
         }
 
+        public static string GetTrueTempPath()
+        {
+            return Environment.GetEnvironmentVariable("TMP", EnvironmentVariableTarget.User);
+        }
+
         public static void DownloadAsset(string tag, Asset asset)
         {
             try
             {
-                var fileName = Path.Combine(dllPath, asset.name);
+                var fileName = Path.Combine(GetTrueTempPath(), asset.name);
                 if (File.Exists(fileName))
                 {
                     File.Delete(fileName);
