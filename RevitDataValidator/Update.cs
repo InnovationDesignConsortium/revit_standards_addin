@@ -27,10 +27,12 @@ namespace RevitDataValidator
                     if (td.Show() == Autodesk.Revit.UI.TaskDialogResult.Yes)
                     {
                         var asset = latestRelease.assets.First();
+                        Utils.Log($"Chose to install update to {webVersion}", LogLevel.Info);
                         Utils.DownloadAsset(latestRelease.tag_name, asset);
                     }
                     else
                     {
+                        Utils.Log($"Chose to NOT install update to {webVersion}", LogLevel.Info);
                         Utils.MsiToRunOnExit = null;
                     }
                 }

@@ -28,6 +28,7 @@ internal class Program
             if (target is FileTarget ft)
             {
                 ft.FileName = 
+
                     string.Concat(ft.FileName.ToString()
                         .Substring(0, ft.FileName.ToString().Length - 4),
                         " INSTALL ", 
@@ -36,16 +37,30 @@ internal class Program
             }
         }
         LogManager.Configuration = logConfig;
-        const string processName = "revit";
+        const string INSTALLER_NAME = "RevitValidatorInstaller";
+        var currentProcess = Process.GetCurrentProcess();
 
-        var processes = Process.GetProcessesByName(processName).ToList();
+        var otherInstallerProcesses = Process.GetProcessesByName(INSTALLER_NAME)
+            .ToList().Where(q => q.Id != currentProcess.Id).ToList();
 
-        Logger.Info($"Found {processes.Count} running {processName} processes");
-
-        foreach (var process in processes)
+        if (otherInstallerProcesses.Count > 0)
         {
-            process.WaitForExit();
-            Logger.Info($"Process {process.ProcessName} exited");
+            Logger.Info($"Exiting because {otherInstallerProcesses.Count} running {INSTALLER_NAME} processes found (ids {string.Join(",", otherInstallerProcesses.Select(q => q.Id))})");
+            return;
+        }
+
+        const string REVIT_PROCESS_NAME = "revit";
+
+        var revitProcesses = Process.GetProcessesByName(REVIT_PROCESS_NAME).ToList();
+        if (revitProcesses?.Count > 0)
+        {
+            Logger.Info($"Found {revitProcesses.Count} running {REVIT_PROCESS_NAME} processes with ids {string.Join(",", revitProcesses.Select(q => q.Id))}");
+
+            foreach (var process in revitProcesses)
+            {
+                process.WaitForExit();
+                Logger.Info($"Process {process.ProcessName} {process.Id} exited");
+            }
         }
         var startInfo = new ProcessStartInfo
         {

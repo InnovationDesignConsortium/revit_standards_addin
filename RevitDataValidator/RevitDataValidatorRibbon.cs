@@ -149,7 +149,8 @@ namespace RevitDataValidator
                     Utils.Log($"{Utils.MsiToRunOnExit} does not exist", LogLevel.Warn);
                     return;
                 }
-                var runinstaller = Path.Combine(Utils.dllPath, "RunInstaller.exe");
+                const string INSTALLER_EXE = "RevitValidatorInstaller.exe";
+                var runinstaller = Path.Combine(Utils.dllPath, INSTALLER_EXE);
                 if (!File.Exists(runinstaller))
                 {
                     Utils.Log($"{runinstaller} does not exist", LogLevel.Warn);

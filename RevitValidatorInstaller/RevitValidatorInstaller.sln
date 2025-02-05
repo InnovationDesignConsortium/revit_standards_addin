@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunInstaller", "RunInstaller.csproj", "{D63FB744-3C9B-4179-8874-44D7647040B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitValidatorInstaller", "RevitValidatorInstaller.csproj", "{D63FB744-3C9B-4179-8874-44D7647040B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -122,12 +122,12 @@
     <ROW Component="RevitDataValidator.dll" ComponentId="{AD93D057-42CD-4788-B947-7F1E33FDF84A}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitDataValidator.dll"/>
     <ROW Component="RevitDataValidator.dll_1" ComponentId="{076FEE16-221D-46CA-B310-1703D70A68E8}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_1"/>
     <ROW Component="RevitDataValidator.dll_2" ComponentId="{392711B2-10F2-4251-A0F6-BC154463C2A6}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RevitDataValidator.dll_2"/>
-    <ROW Component="RunInstaller.dll" ComponentId="{DE8F3514-3202-49B0-A4C1-9B2EC0528204}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="RunInstaller.dll"/>
-    <ROW Component="RunInstaller.dll_1" ComponentId="{DA71FEA3-09D2-4F0A-B707-96076C9C13C7}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RunInstaller.dll_1"/>
-    <ROW Component="RunInstaller.dll_2" ComponentId="{F8710427-608B-4CE2-971E-D799AD468A77}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RunInstaller.dll_2"/>
-    <ROW Component="RunInstaller.exe" ComponentId="{7D0CBBEF-C639-455F-94DA-EF757700CC7B}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="RunInstaller.exe"/>
-    <ROW Component="RunInstaller.exe_1" ComponentId="{33468B80-DEDB-457A-8334-B5A7829E8215}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="RunInstaller.exe_1"/>
-    <ROW Component="RunInstaller.exe_2" ComponentId="{02214925-FDEC-496C-89F2-936073F7F7D8}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="RunInstaller.exe_2"/>
+    <ROW Component="RevitValidatorInstaller.dll" ComponentId="{538A7CFD-8195-44B0-808A-FCCE9C4D9436}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="RevitValidatorInstaller.dll"/>
+    <ROW Component="RevitValidatorInstaller.dll_1" ComponentId="{8341EAAC-BEED-44A1-9D38-B091AB1D9AAC}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="RevitValidatorInstaller.dll_1"/>
+    <ROW Component="RevitValidatorInstaller.dll_2" ComponentId="{05286B5A-0770-4DDE-B566-C511047458F2}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="RevitValidatorInstaller.dll_2"/>
+    <ROW Component="RevitValidatorInstaller.exe" ComponentId="{571284B2-F702-414B-A593-866DC4597A4A}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="RevitValidatorInstaller.exe"/>
+    <ROW Component="RevitValidatorInstaller.exe_1" ComponentId="{66DDB6A0-84AF-4F27-BC5A-2C9F5D88A4F4}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="RevitValidatorInstaller.exe_1"/>
+    <ROW Component="RevitValidatorInstaller.exe_2" ComponentId="{BCFAE111-7E81-45D3-AA55-8A29AD05D01D}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="RevitValidatorInstaller.exe_2"/>
     <ROW Component="System.Collections.Immutable.dll" ComponentId="{5870434D-871E-49A2-BCC4-6BAA6FE946AE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll"/>
     <ROW Component="System.Collections.Immutable.dll_1" ComponentId="{10B45995-977C-4CB9-859E-B1C8A6BD5CE8}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll_1"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll" ComponentId="{73469280-EE7F-453D-8A46-D2224EB45EF6}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll"/>
@@ -2029,15 +2029,15 @@
     <ROW File="CsvHelper.dll" Component_="CsvHelper.dll" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\CsvHelper.dll" SelfReg="false"/>
     <ROW File="CsvHelper.dll_1" Component_="CsvHelper.dll_1" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\CsvHelper.dll" SelfReg="false"/>
     <ROW File="CsvHelper.dll_2" Component_="CsvHelper.dll_2" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\CsvHelper.dll" SelfReg="false"/>
-    <ROW File="RunInstaller.exe" Component_="RunInstaller.exe" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="RunInstaller.exe_1" Component_="RunInstaller.exe_1" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="RunInstaller.exe_2" Component_="RunInstaller.exe_2" FileName="RUNINS~1.EXE|RunInstaller.exe" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="RunInstaller.dll" Component_="RunInstaller.dll" FileName="RUNINS~1.DLL|RunInstaller.dll" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.dll" SelfReg="false"/>
-    <ROW File="RunInstaller.runtimeconfig.json" Component_="InPlaceFamilyCheck.cs_2" FileName="RUNINS~1.JSO|RunInstaller.runtimeconfig.json" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.runtimeconfig.json" SelfReg="false"/>
-    <ROW File="RunInstaller.dll_1" Component_="RunInstaller.dll_1" FileName="RUNINS~1.DLL|RunInstaller.dll" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.dll" SelfReg="false"/>
-    <ROW File="RunInstaller.runtimeconfig.json_1" Component_="InPlaceFamilyCheck.cs_1" FileName="RUNINS~1.JSO|RunInstaller.runtimeconfig.json" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.runtimeconfig.json" SelfReg="false"/>
-    <ROW File="RunInstaller.dll_2" Component_="RunInstaller.dll_2" FileName="RUNINS~1.DLL|RunInstaller.dll" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.dll" SelfReg="false"/>
-    <ROW File="RunInstaller.runtimeconfig.json_2" Component_="InPlaceFamilyCheck.cs" FileName="RUNINS~1.JSO|RunInstaller.runtimeconfig.json" Attributes="0" SourcePath="RunInstaller\RunInstaller\bin\Debug\net8.0\RunInstaller.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.dll" Component_="RevitValidatorInstaller.dll" FileName="REVITV~1.DLL|RevitValidatorInstaller.dll" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.dll" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.exe" Component_="RevitValidatorInstaller.exe" FileName="REVITV~1.EXE|RevitValidatorInstaller.exe" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="RevitValidatorInstaller.runtimeconfig.json" Component_="InPlaceFamilyCheck.cs_2" FileName="REVITV~1.JSO|RevitValidatorInstaller.runtimeconfig.json" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.exe_1" Component_="RevitValidatorInstaller.exe_1" FileName="REVITV~1.EXE|RevitValidatorInstaller.exe" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="RevitValidatorInstaller.runtimecon_1_fig.json" Component_="InPlaceFamilyCheck.cs_1" FileName="REVITV~1.JSO|RevitValidatorInstaller.runtimeconfig.json" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.dll_1" Component_="RevitValidatorInstaller.dll_1" FileName="REVITV~1.DLL|RevitValidatorInstaller.dll" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.dll" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.dll_2" Component_="RevitValidatorInstaller.dll_2" FileName="REVITV~1.DLL|RevitValidatorInstaller.dll" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.dll" SelfReg="false"/>
+    <ROW File="RevitValidatorInstaller.exe_2" Component_="RevitValidatorInstaller.exe_2" FileName="REVITV~1.EXE|RevitValidatorInstaller.exe" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="RevitValidatorInstaller.runtimecon_2_fig.json" Component_="InPlaceFamilyCheck.cs" FileName="REVITV~1.JSO|RevitValidatorInstaller.runtimeconfig.json" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.runtimeconfig.json" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -2217,12 +2217,12 @@
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll"/>
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll_1"/>
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll_2"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.exe"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.exe_2"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.dll"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.dll_1"/>
-    <ROW Feature_="MainFeature" Component_="RunInstaller.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.dll"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.exe"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="RevitValidatorInstaller.exe_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>

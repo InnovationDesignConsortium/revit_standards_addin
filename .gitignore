@@ -405,3 +405,7 @@ RevitDataValidator/InPlaceFamilyCheck.cs
 RevitDataValidator/SheetGroup.cs
 CreateJsonWebToken/CreateJsonWebToken/ProgramBak.cs
 /RunInstaller/RunInstaller/obj
+/RevitValidatorInstaller/obj
+RevitValidatorInstaller/bin/Debug/net8.0/NLog.config
+RevitValidatorInstaller/bin/Debug/net8.0/NLog.dll
+RevitValidatorInstaller/bin/Debug/net8.0/RevitValidatorInstaller.pdb
