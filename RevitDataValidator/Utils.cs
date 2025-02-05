@@ -2051,7 +2051,7 @@ namespace RevitDataValidator
             {
                 Logger.Warn(message);
             }
-            else if (level == LogLevel.Info)
+            else if (level == LogLevel.Trace)
             {
                 Logger.Trace(message);
             }
