@@ -164,14 +164,14 @@ namespace RevitDataValidator
 
                 if (ruleFileInfo == null)
                 {
-                    Utils.Log("ruleFileInfo == null", LogLevel.Trace);
+                    Utils.Log("ruleFileInfo == null", LogLevel.Info);
                     Utils.ruleDatas.Add(newFilename, new RuleFileInfo());
                     Utils.propertiesPanel.Refresh();
                     return;
                 }
                 else
                 {
-                    Utils.Log($"newFilename = {newFilename}", LogLevel.Trace);
+                    Utils.Log($"newFilename = {newFilename}", LogLevel.Info);
                     if (Utils.ruleDatas.ContainsKey(newFilename))
                     {
                         Utils.ruleDatas[newFilename] = ruleFileInfo;
@@ -353,7 +353,7 @@ namespace RevitDataValidator
 
         private static void RegisterWorksetRule(WorksetRule worksetRule)
         {
-            Utils.Log("Registering workset rule " + worksetRule, LogLevel.Trace);
+            Utils.Log("Registering workset rule " + worksetRule, LogLevel.Info);
             if (worksetRule.Categories != null)
             {
                 var builtInCats = Utils.GetBuiltInCats(worksetRule);
@@ -378,7 +378,7 @@ namespace RevitDataValidator
 
         private static bool RegisterParameterRule(ParameterRule rule, RuleFileInfo ruleFileInfo)
         {
-            Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Trace);
+            Utils.Log($"Registering parameter rule '{rule}'", LogLevel.Info);
             try
             {
                 if (rule.CustomCode != null)
@@ -584,7 +584,7 @@ namespace RevitDataValidator
                 if (File.Exists(fullpath))
                 {
                     ret.Filename = fullpath;
-                    Utils.Log($"Reading contents of {fullpath}", LogLevel.Trace);
+                    Utils.Log($"Reading contents of {fullpath}", LogLevel.Info);
                     using (var v = new StreamReader(new FileStream(fullpath, System.IO.FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                     {
                         ret.Contents = v.ReadToEnd();
@@ -604,7 +604,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    Utils.Log($"Found {ruleInfoFilePath}", LogLevel.Trace);
+                    Utils.Log($"Found {ruleInfoFilePath}", LogLevel.Info);
                     ret.FilePath = ruleInfoFilePath;
                     ret.Url = data.HtmlUrl;
                     ret.Contents = data.Content;
@@ -927,9 +927,9 @@ namespace RevitDataValidator
                 }
 
                 // https://github.com/gruntwork-io/fetch
-                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {token_for_GIT_CODE_REPO_OWNER.token} {dllPath}";
+                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {token_for_GIT_CODE_REPO_OWNER.token} {Path.GetDirectoryName(fileName)}";
 
-                StartShell(
+                var didStart = StartShell(
                     $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
 
                 MsiToRunOnExit = fileName;
@@ -1002,7 +1002,7 @@ namespace RevitDataValidator
                 }
                 client.Credentials = new Credentials(tokenFromGithubApp.token);
 
-                Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Trace);
+                Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Info);
 
                 var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
 
@@ -1012,7 +1012,7 @@ namespace RevitDataValidator
                     return null;
                 }
 
-                Log($"Github: content status before checking Result = {content.Status} ", LogLevel.Trace);
+                Log($"Github: content status before checking Result = {content.Status} ", LogLevel.Info);
 
                 if (content.Status == TaskStatus.Faulted)
                 {
@@ -1021,7 +1021,7 @@ namespace RevitDataValidator
 
                 var result = content.Result.Where(q => q.Type == contentType);
 
-                Log($"Github: content status after checking Result = {content.Status} ", LogLevel.Trace);
+                Log($"Github: content status after checking Result = {content.Status} ", LogLevel.Info);
 
                 if (result == null)
                 {
@@ -1154,7 +1154,7 @@ namespace RevitDataValidator
                 var ruleFromElement = fiEntity.Get<string>(schema.GetField(FIELD_RULENAME));
                 stopwatch.Stop();
                 var elapsed = stopwatch.Elapsed;
-                Log($"{e.Id} Time for entity get {elapsed}", LogLevel.Trace);
+                Log($"{e.Id} Time for entity get {elapsed}", LogLevel.Info);
                 var parameterFromElement = fiEntity.Get<string>(schema.GetField(FIELD_PARAMETERNAME));
                 exception = fiEntity.Get<string>(schema.GetField(FIELD_EXCEPTION));
                 if (ruleFromElement == ruleName &&
@@ -1167,7 +1167,7 @@ namespace RevitDataValidator
             {
                 stopwatch.Stop();
                 var elapsed = stopwatch.Elapsed;
-                Log($"{e.Id} Time for entity get {elapsed} after exception thrown", LogLevel.Trace);
+                Log($"{e.Id} Time for entity get {elapsed} after exception thrown", LogLevel.Info);
                 return false;
             }
 
@@ -1242,7 +1242,7 @@ namespace RevitDataValidator
             {
                 return new List<ElementId>();
             }
-            Log($"RunCustomRule '{rule.CustomCode}'", LogLevel.Trace);
+            Log($"RunCustomRule '{rule.CustomCode}'", LogLevel.Info);
             CustomCodeRunning.Add(rule.CustomCode);
             var type = dictCustomCode[rule.CustomCode];
             var obj = Activator.CreateInstance(type);
@@ -1339,11 +1339,11 @@ namespace RevitDataValidator
 
                 if (ElementHasReasonAllowedForRule(element, rule.RuleName, rule.ParameterName, out string reasonAllowed))
                 {
-                    Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}'. It is allowed because '{reasonAllowed}'", LogLevel.Trace);
+                    Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Not running rule for parameter '{parameter.Definition.Name}'. It is allowed because '{reasonAllowed}'", LogLevel.Info);
                     return null;
                 }
 
-                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Trace);
+                Log($"{rule.RuleName}|'{GetElementInfo(element)}'|Running rule for parameter '{parameter.Definition.Name}'", LogLevel.Info);
 
                 if (rule.KeyValues != null ||
                     rule.ListOptions != null ||
@@ -1437,7 +1437,7 @@ namespace RevitDataValidator
 
                         var ifClause = rule.Requirement.Substring("IF ".Length, thenIdx - "IF ".Length - 1);
                         var thenClause = rule.Requirement.Substring(thenIdx + "THEN ".Length);
-                        Log($"Evaluating IF {ifClause} THEN {thenClause}", LogLevel.Trace);
+                        Log($"Evaluating IF {ifClause} THEN {thenClause}", LogLevel.Info);
                         var ifExp = BuildExpressionString(element, ifClause, inputParameterValues);
                         var ifExpIsTrue = CSharpScript.EvaluateAsync<bool>(ifExp,
                              Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
@@ -1446,7 +1446,7 @@ namespace RevitDataValidator
 
                         if (ifExpIsTrue)
                         {
-                            Log("IF clause is True: " + ifExp, LogLevel.Trace);
+                            Log("IF clause is True: " + ifExp, LogLevel.Info);
                             var thenExp = BuildExpressionString(element, thenClause, inputParameterValues);
                             var thenExpIsTrue = CSharpScript.EvaluateAsync<bool>(thenExp,
                              Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
@@ -1454,7 +1454,7 @@ namespace RevitDataValidator
                              ).Result;
                             if (thenExpIsTrue)
                             {
-                                Log("THEN clause is True: " + thenExp, LogLevel.Trace);
+                                Log("THEN clause is True: " + thenExp, LogLevel.Info);
                             }
                             else
                             {
@@ -1469,7 +1469,7 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            Log("IF clause is False: " + ifExp, LogLevel.Trace);
+                            Log("IF clause is False: " + ifExp, LogLevel.Info);
                         }
                     }
                     else
@@ -1481,7 +1481,7 @@ namespace RevitDataValidator
                         var result = e.Evaluate();
                         if (result)
                         {
-                            Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule passed", LogLevel.Trace);
+                            Log($"Evaluated '{exp}' for '{rule.ParameterName} {rule.Requirement}'. IRule passed", LogLevel.Info);
                         }
                         else
                         {
@@ -1546,7 +1546,7 @@ namespace RevitDataValidator
                     }
                     else
                     {
-                        Log($"{rule.ParameterName} value {parameterValueAsString} matches regex {rule.Regex}", LogLevel.Trace);
+                        Log($"{rule.ParameterName} value {parameterValueAsString} matches regex {rule.Regex}", LogLevel.Info);
                     }
                 }
                 else if (rule.PreventDuplicates != null)
@@ -2051,7 +2051,7 @@ namespace RevitDataValidator
             {
                 Logger.Warn(message);
             }
-            else if (level == LogLevel.Trace)
+            else if (level == LogLevel.Info)
             {
                 Logger.Trace(message);
             }
@@ -2102,7 +2102,7 @@ namespace RevitDataValidator
             LOCAL_FILE_PATH = GetEnvironmentVariable(LOCALPATH_ENV);
             if (!string.IsNullOrEmpty(LOCAL_FILE_PATH))
             {
-                Log($"{LOCALPATH_ENV} = {LOCAL_FILE_PATH}", LogLevel.Trace);
+                Log($"{LOCALPATH_ENV} = {LOCAL_FILE_PATH}", LogLevel.Info);
                 if (!Directory.Exists(LOCAL_FILE_PATH))
                 {
                     Log($"{LOCALPATH_ENV} does not exist{Environment.NewLine}{LOCAL_FILE_PATH}", LogLevel.Error);
@@ -2113,7 +2113,7 @@ namespace RevitDataValidator
                 GIT_ENTERPRISE_SERVER_URL = GetEnvironmentVariable(SERVER_ENV);
                 if (!string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
                 {
-                    Log($"{SERVER_ENV} = {GIT_ENTERPRISE_SERVER_URL}", LogLevel.Trace);
+                    Log($"{SERVER_ENV} = {GIT_ENTERPRISE_SERVER_URL}", LogLevel.Info);
                 }
 
                 GIT_OWNER = GetEnvironmentVariable(OWNER_ENV);
@@ -2123,7 +2123,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    Log($"{OWNER_ENV} = {GIT_OWNER}", LogLevel.Trace);
+                    Log($"{OWNER_ENV} = {GIT_OWNER}", LogLevel.Info);
                 }
 
                 GIT_REPO = GetEnvironmentVariable(REPO_ENV);
@@ -2133,7 +2133,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    Log($"{REPO_ENV} = {GIT_REPO}", LogLevel.Trace);
+                    Log($"{REPO_ENV} = {GIT_REPO}", LogLevel.Info);
                 }
 
                 var git_pat = GetEnvironmentVariable(PAT_ENV);
@@ -2144,7 +2144,7 @@ namespace RevitDataValidator
                 else
                 {
                     tokenFromGithubApp = new TokenInfo { token = git_pat };
-                    Log($"Github: Using personal access token {git_pat}", LogLevel.Trace);
+                    Log($"Github: Using personal access token {git_pat}", LogLevel.Info);
                 }
             }
         }
@@ -2198,7 +2198,7 @@ namespace RevitDataValidator
                 Error = Utils.HandleDeserializationError,
                 MissingMemberHandling = MissingMemberHandling.Error
             });
-            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Trace);
+            Utils.Log($"Github: content permissions = {tokenInfo.permissions.contents}", LogLevel.Info);
             return tokenInfo;
         }
 

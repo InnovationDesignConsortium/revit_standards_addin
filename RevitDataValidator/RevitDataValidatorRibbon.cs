@@ -35,7 +35,7 @@ namespace RevitDataValidator
             }
             LogManager.Configuration = logConfig;
 
-            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Trace);
+            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
 
             Utils.token_for_GIT_CODE_REPO_OWNER = Utils.GetGithubTokenFromApp(Utils.GIT_CODE_REPO_OWNER);
 
@@ -144,10 +144,21 @@ namespace RevitDataValidator
         {
             if (Utils.MsiToRunOnExit != null)
             {
-                Utils.Log($"Installing new version {Utils.MsiToRunOnExit}", LogLevel.Trace);
+                if (!File.Exists(Utils.MsiToRunOnExit))
+                {
+                    Utils.Log($"{Utils.MsiToRunOnExit} does not exist", LogLevel.Warn);
+                    return;
+                }
+                var runinstaller = Path.Combine(Utils.dllPath, "RunInstaller.exe");
+                if (!File.Exists(runinstaller))
+                {
+                    Utils.Log($"{runinstaller} does not exist", LogLevel.Warn);
+                    return;
+                }
+                Utils.Log($"Calling RunInstaller.exe to install {Utils.MsiToRunOnExit}", LogLevel.Info);
                 try
                 {
-                    Utils.StartShell(Path.Combine(Utils.dllPath, "RunInstaller.exe"), false, Utils.MsiToRunOnExit);
+                    Utils.StartShell(runinstaller, false, Utils.MsiToRunOnExit);
                 }
                 catch (Exception ex)
                 {
