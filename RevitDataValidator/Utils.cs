@@ -592,7 +592,14 @@ namespace RevitDataValidator
                 }
                 else
                 {
-                    Utils.Log($"File not found: {fullpath}", LogLevel.Error);
+                    if (fileName == PARAMETER_PACK_FILE_NAME)
+                    {
+                        Log($"File not found: {fullpath}", LogLevel.Warn);
+                    }
+                    else
+                    {
+                        Log($"File not found: {fullpath}", LogLevel.Error);
+                    }
                 }
             }
             else
