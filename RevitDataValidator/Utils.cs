@@ -190,6 +190,11 @@ namespace RevitDataValidator
             Utils.Log($"Parsed markdown with {document.Count} sections", LogLevel.Trace);
             var descendents = document.Descendants();
             var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+            if (codeblocks.Count == 0)
+            {
+                Log($"Zero codeblocks found in {ruleFileInfo.Filename}", LogLevel.Warn);
+            }
+
             Utils.Log($"Markdown file has {codeblocks.Count} codeblocks", LogLevel.Trace);
             foreach (var block in codeblocks)
             {
