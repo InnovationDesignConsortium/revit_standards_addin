@@ -38,6 +38,8 @@ Below are instructions to set up and deploy each component across an organizatio
     `RevitStandardsAddinGitPat`: the Personal Access Token that can be used instead of installing the Github App.
 
 1. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin on each user's workstation using the provided MSI. 
+1. Registry keys are used for some settings of the tool. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked first. If no data is found, then `Computer\HKEY_CURRENT_USER\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked. The currently implemented options are:
+    1. `ShowPropertiesPanelOnStartup` if this is set to "1" then the Properties Panel will be shown at startup. If the value is missing or has any other value, the Panel will not be shown on startup.
 
 NOTE: The environment variables can be System or User variables. System variables are checked first, if they do not exist then User variables will be used.
 

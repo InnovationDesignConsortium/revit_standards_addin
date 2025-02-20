@@ -16,7 +16,7 @@ namespace RevitDataValidator
 {
     internal class Ribbon : Nice3point.Revit.Toolkit.External.ExternalApplication
     {
-        private static bool ShowPropertiesPanelOnStartup = false;
+        private static bool ShowPropertiesPanelOnStartup = true;
 
         public override void OnStartup()
         {
@@ -38,7 +38,8 @@ namespace RevitDataValidator
             }
             LogManager.Configuration = logConfig;
 
-            ShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup") == "1";
+            var registryShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup");
+            ShowPropertiesPanelOnStartup = registryShowPropertiesPanelOnStartup == null || registryShowPropertiesPanelOnStartup == "1";
 
             Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
 

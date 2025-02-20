@@ -109,7 +109,7 @@
                                     </DataGrid.Columns>
                                 </DataGrid>
                                 <Grid
-                            Grid.Row="3">
+                            Grid.Row="3" Margin="5,4,0,2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition></ColumnDefinition>
                                         <ColumnDefinition></ColumnDefinition>
