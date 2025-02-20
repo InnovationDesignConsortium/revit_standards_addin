@@ -49,6 +49,7 @@ namespace RevitDataValidator
             Application.ControlledApplication.DocumentSavedAs += ControlledApplication_DocumentSavedAs;
             Application.ControlledApplication.DocumentSynchronizingWithCentral += ControlledApplication_DocumentSynchronizingWithCentral;
             Application.ViewActivated += Application_ViewActivated;
+            Application.ViewActivated += SetPaneVisibilityOnStartup;
             Application.DialogBoxShowing += Application_DialogBoxShowing;
             Application.Idling += Application_Idling;
             Utils.eventHandlerWithParameterObject = new EventHandlerWithParameterObject();
@@ -112,6 +113,21 @@ namespace RevitDataValidator
             panel.AddItem(new PushButtonData("ReloadRulesCommand", "Reload\nRules", dll, "RevitDataValidator.ReloadRulesCommand"));
 
             Update.CheckForUpdates();
+        }
+
+        private void SetPaneVisibilityOnStartup(object sender, ViewActivatedEventArgs e)
+        {
+            var uiapp = new UIApplication(e.Document.Application);
+            var pane = uiapp.GetDockablePane(Utils.paneId);
+            if (true)
+            {
+                pane.Show();
+            }
+            else
+            {
+                pane.Hide();
+            }
+            uiapp.ViewActivated -= SetPaneVisibilityOnStartup;
         }
 
         private void ControlledApplication_DocumentSavedAs(object sender, Autodesk.Revit.DB.Events.DocumentSavedAsEventArgs e)
