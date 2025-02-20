@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
+using Microsoft.Win32;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -15,6 +16,8 @@ namespace RevitDataValidator
 {
     internal class Ribbon : Nice3point.Revit.Toolkit.External.ExternalApplication
     {
+        private static bool ShowPropertiesPanelOnStartup = false;
+
         public override void OnStartup()
         {
             RevitTask.Initialize(Application);
@@ -34,6 +37,8 @@ namespace RevitDataValidator
                 }
             }
             LogManager.Configuration = logConfig;
+
+            ShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup") == "1";
 
             Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
 
@@ -115,11 +120,48 @@ namespace RevitDataValidator
             Update.CheckForUpdates();
         }
 
+        private const string REGISTRY_PATH = "Software\\Innovation Design Consortium\\Revit Data Validator";
+
+        private string GetRegistryValue(string name)
+        {
+            var machine = GetRegistryValueByKey(Registry.LocalMachine, name);
+            if (machine != null)
+            {
+                return machine;
+            }
+            var currentUser = GetRegistryValueByKey(Registry.CurrentUser, name);
+            if (currentUser != null)
+            {
+                return currentUser;
+            }
+            return null;
+        }
+
+        private string GetRegistryValueByKey(RegistryKey keyType, string name)
+        {
+            using (var key = keyType.OpenSubKey(REGISTRY_PATH))
+            {
+                if (key == null)
+                {
+                    return null;
+                }
+
+                var o = key.GetValue(name);
+                if (o == null)
+                {
+                    return null;
+                }
+
+                Utils.Log($"GetRegistryValueByKey {keyType} {name} {o}", LogLevel.Info);
+                return o.ToString();
+            }
+        }
+
         private void SetPaneVisibilityOnStartup(object sender, ViewActivatedEventArgs e)
         {
             var uiapp = new UIApplication(e.Document.Application);
             var pane = uiapp.GetDockablePane(Utils.paneId);
-            if (true)
+            if (ShowPropertiesPanelOnStartup)
             {
                 pane.Show();
             }

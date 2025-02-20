@@ -8,11 +8,10 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1" MultiBuildValue="DefaultBuild:"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPCONTACT" Value="boostyourbim@gmail.com"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="LIMITUI" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:7"/>
-    <ROW Property="Manufacturer" Value="Boost Your BIM"/>
+    <ROW Property="Manufacturer" Value="Innovation Design Consortium"/>
     <ROW Property="ProductCode" Value="1033:{91B2E8DC-4052-4AE2-95F1-C04AC1EA5C89} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Revit Data Validator"/>
