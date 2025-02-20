@@ -2024,8 +2024,13 @@ namespace RevitDataValidator
                 CreateNoWindow = true,
                 UseShellExecute = useShell
             };
-
-            return Process.Start(startInfo);
+            Process ret = null;
+            try
+            {
+                ret = Process.Start(startInfo);
+            }
+            catch{}
+            return ret;
         }
 
         public static void Log(string message, LogLevel level)

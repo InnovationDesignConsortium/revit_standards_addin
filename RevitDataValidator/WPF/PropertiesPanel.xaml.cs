@@ -164,12 +164,12 @@ namespace RevitDataValidator
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            Utils.StartShell(e.Uri.AbsoluteUri, false);
+            Utils.StartShell(e.Uri.AbsoluteUri, true);
         }
 
         private void Hyperlink_RequestNavigate_Pdf(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            Utils.StartShell(e.Uri.AbsoluteUri, false);
+            Utils.StartShell(e.Uri.AbsoluteUri, true);
         }
 
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
