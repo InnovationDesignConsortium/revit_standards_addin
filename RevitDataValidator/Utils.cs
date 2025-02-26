@@ -611,7 +611,14 @@ namespace RevitDataValidator
                 var data = Utils.GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
                 if (data == null)
                 {
-                    Utils.Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Error);
+                    if (fileName == PARAMETER_PACK_FILE_NAME)
+                    {
+                        Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Warn);
+                    }
+                    else
+                    {
+                        Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Error);
+                    }
                 }
                 else
                 {
@@ -1043,7 +1050,10 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                LogException("GetGitData", ex);
+                if (!path.EndsWith(PARAMETER_PACK_FILE_NAME))
+                {
+                    LogException("GetGitData", ex);
+                }                
                 return null;
             }
         }
