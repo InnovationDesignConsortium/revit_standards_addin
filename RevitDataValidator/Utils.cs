@@ -874,7 +874,7 @@ namespace RevitDataValidator
                     }
                     catch
                     {
-                        Log($"Cannot convert {d} to an integer when trying to set {p.Definition.Name} for {GetElementInfo(p.Element)}", LogLevel.Error);
+                        Log($"Cannot convert {d} to an integer when trying to set '{p.Definition.Name}' for {GetElementInfo(p.Element)}", LogLevel.Error);
                     }
                 }
                 else if (s == "No")
@@ -1536,8 +1536,8 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            Log($"Setting {parameter.Definition.Name} to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
                             result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
+                            Log($"Setting '{parameter.Definition.Name}' to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
                             parametersToSet.Add(new ParameterString(parameter, result.ToString()));
                         }
                     }
