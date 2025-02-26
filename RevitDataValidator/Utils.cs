@@ -1536,8 +1536,11 @@ namespace RevitDataValidator
                         }
                         else
                         {
-                            result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
                             Log($"Setting '{parameter.Definition.Name}' to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
+                            if (UnitUtils.IsMeasurableSpec(p.Definition.GetDataType()))
+                            {
+                                result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
+                            }
                             parametersToSet.Add(new ParameterString(parameter, result.ToString()));
                         }
                     }
