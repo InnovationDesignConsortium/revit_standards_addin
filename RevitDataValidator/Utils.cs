@@ -76,7 +76,6 @@ namespace RevitDataValidator
         public static string LOCAL_FILE_PATH = "";
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
-        public static bool Debugging = false;
         public static List<ElementId> idsTriggered = new List<ElementId>();
         public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
         public const double eps = 1.0e-5;
@@ -2125,16 +2124,6 @@ namespace RevitDataValidator
 
         public static void GetEnvironmentVariableData()
         {
-            if (GetEnvironmentVariable("RevitDataValidatorDebug") == "1")
-
-            {
-                Debugging = true;
-            }
-            else
-            {
-                Debugging = false;
-            }
-
             LOCAL_FILE_PATH = GetEnvironmentVariable(LOCALPATH_ENV);
             if (!string.IsNullOrEmpty(LOCAL_FILE_PATH))
             {

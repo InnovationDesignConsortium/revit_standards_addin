@@ -33,7 +33,6 @@ Below are instructions to set up and deploy each component across an organizatio
 
    Additional Environment Variables that MAY be used are:
 
-   `RevitDataValidatorDebug`: when set to 1 you can put JSON and rule files in the same folder as the DLL and those will be used instead of the files on Github  
     `RevitStandardsAddinGitServerUrl`: the URL for a Github Enterprise server account, if it exists.  
     `RevitStandardsAddinGitPat`: the Personal Access Token that can be used instead of installing the Github App.
 
