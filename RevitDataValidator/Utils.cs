@@ -1966,22 +1966,43 @@ namespace RevitDataValidator
 
         public static void LogException(string s, Exception ex)
         {
-            if (Debugging)
+            var td = new TaskDialog("Error")
             {
-                var td = new TaskDialog("Error")
-                {
-                    MainInstruction = s + Environment.NewLine + Environment.NewLine + ex.Message
-                    .Replace(@"\", Environment.NewLine)
-                    .Replace(@"/", Environment.NewLine),
-                    MainContent = ex.StackTrace.Replace(@"\", Environment.NewLine)
-                };
-                td.Show();
-            }
-            Log($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
+                MainInstruction = s + Environment.NewLine +ex.Message,
+                MainContent = string.Join(Environment.NewLine, SplitAfterSlash(ex.StackTrace))
+            };
+            td.Show();
+            
+            Logger.Error($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
             if (ex.InnerException != null)
             {
                 LogException("Inner Exception", ex.InnerException);
             }
+        }
+
+        public static string[] SplitAfterSlash(string input)
+        {
+            var result = new List<string>();
+            var startIndex = 0;
+            var length = 0;
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                length++;
+                if ((input[i] == '/' || input[i] == '\\') && length >= 60)
+                {
+                    result.Add(input.Substring(startIndex, length));
+                    startIndex = i + 1;
+                    length = 0;
+                }
+            }
+
+            if (length > 0)
+            {
+                result.Add(input.Substring(startIndex));
+            }
+
+            return result.ToArray();
         }
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -2041,14 +2062,12 @@ namespace RevitDataValidator
             {
                 Logger.Info(message);
             }
-            else if (level == LogLevel.Error ||
-                level == LogLevel.Exception)
+            else if (level == LogLevel.Error)
             {
-                var messageForTaskDialog = messageWithoutFileName
-                    .Replace("\\", "\\" + Environment.NewLine)
-                    .Replace("/", "/" + Environment.NewLine);
-                var td = new TaskDialog("Error");
-                td.MainInstruction = messageForTaskDialog;
+                var td = new TaskDialog("Error")
+                {
+                    MainInstruction = string.Join(Environment.NewLine, SplitAfterSlash(messageWithoutFileName))
+                };
 
                 var dir = Path.GetDirectoryName(messageWithoutFileName.Replace("File not found: ", ""));
                 if (Directory.Exists(dir))
