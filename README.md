@@ -317,8 +317,15 @@ Check that a parameter value matches a [regular expression](https://regexr.com/)
 ```
 
 #### Formula Rules
-Perform mathematical operations on parameter values of the specified element and write the results to another parameter. For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter. Note that referenced parameters are surrounded by curly braces. Allowable operators include addition `+`, subtraction `-`, multiplication `*`, and division `/`, exponents using the `^2` format, and trigonometric functions such as `sin(x)`. Order of operations can be controlled using parenthesis. This feature uses [Flee library](https://github.com/mparlak/Flee/).
+Perform mathematical operations on parameter values of the specified element and write the results to another parameter. Note that referenced parameters are surrounded by curly braces. Order of operations can be controlled using parenthesis. Allowable operators include addition `+`, subtraction `-`, multiplication `*`, and division `/`, exponents using the `^2` format, and [math](https://learn.microsoft.com/en-us/dotnet/api/system.math) functions such as
+* `sin(x)`
+* [`round(x)`](https://learn.microsoft.com/en-us/dotnet/api/system.math.round) (with the option to specify the number of fractional digits in the return value, though the MidpointRounding option is not supported)
+* [`floor(x)`](https://learn.microsoft.com/en-us/dotnet/api/system.math.floor)
+* [`ceiling(x)`](https://learn.microsoft.com/en-us/dotnet/api/system.math.ceiling)
 
+This feature uses [Flee library](https://github.com/mparlak/Flee/).
+
+For example, multiply the Occupancy Count of a Room by its Area and write that value to the Occupancy Load parameter. 
 ```json
 {
     "Rule Name": "Room Occupancy",

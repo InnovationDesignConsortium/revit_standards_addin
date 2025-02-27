@@ -1520,39 +1520,40 @@ namespace RevitDataValidator
                 {
                     var exp = BuildExpressionString(element, rule.Formula);
                     var context = new ExpressionContext();
-                    IGenericExpression<double> e = null;
+                    context.Imports.AddType(typeof(Math));
+                    var result = double.NaN;
                     try
                     {
-                        e = context.CompileGeneric<double>(exp);
+                        IGenericExpression<decimal> eDecimal = null;
+                        eDecimal = context.CompileGeneric<decimal>(exp);
+                        result = (double)eDecimal.Evaluate();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogException($"Cannot compile rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
-                    }
-                    if (e != null)
-                    {
-                        double result = double.NaN;
                         try
                         {
-                            result = e.Evaluate();
+                            IGenericExpression<double> eDouble = null;
+                            eDouble = context.CompileGeneric<double>(exp);
+                            result = eDouble.Evaluate();
                         }
                         catch (Exception ex)
                         {
                             LogException($"Cannot evaluate rule {rule.Formula} for element {ElementIdExtension.GetValue(id)}", ex);
                         }
-                        if (double.IsNaN(result) || double.IsInfinity(result))
+                    }
+
+                    if (double.IsNaN(result) || double.IsInfinity(result))
+                    {
+                        LogNanInifinity(parameter, result, rule);
+                    }
+                    else
+                    {
+                        Log($"Setting '{parameter.Definition.Name}' to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
+                        if (UnitUtils.IsMeasurableSpec(p.Definition.GetDataType()))
                         {
-                            LogNanInifinity(parameter, result, rule);
+                            result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
                         }
-                        else
-                        {
-                            Log($"Setting '{parameter.Definition.Name}' to {result} to match formula {rule.Formula} for element {ElementIdExtension.GetValue(id)}", LogLevel.Info);
-                            if (UnitUtils.IsMeasurableSpec(p.Definition.GetDataType()))
-                            {
-                                result = UnitUtils.ConvertToInternalUnits(result, parameter.GetUnitTypeId());
-                            }
-                            parametersToSet.Add(new ParameterString(parameter, result.ToString()));
-                        }
+                        parametersToSet.Add(new ParameterString(parameter, result.ToString()));
                     }
                 }
                 else if (rule.Regex != null)
