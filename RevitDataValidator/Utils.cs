@@ -77,7 +77,7 @@ namespace RevitDataValidator
         public static List<string> CustomCodeRunning;
         public static TokenInfo tokenFromGithubApp = null;
         public static List<ElementId> idsTriggered = new List<ElementId>();
-        public static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
+        private static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
         public const double eps = 1.0e-5;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
@@ -945,7 +945,7 @@ namespace RevitDataValidator
                 }
 
                 // https://github.com/gruntwork-io/fetch
-                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {token_for_GIT_CODE_REPO_OWNER.token} {Path.GetDirectoryName(fileName)}";
+                var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {GetGithubTokenFromApp(GIT_CODE_REPO_OWNER).token} {Path.GetDirectoryName(fileName)}";
 
                 var didStart = StartShell(
                     $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
@@ -967,7 +967,7 @@ namespace RevitDataValidator
         {
             var url = $"https://api.github.com/repos/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME}/releases";
 
-            var releasesJson = GetRepoData(url, HttpMethod.Get, token_for_GIT_CODE_REPO_OWNER.token, "application/vnd.github.v3.raw", "token");
+            var releasesJson = GetRepoData(url, HttpMethod.Get, GetGithubTokenFromApp(GIT_CODE_REPO_OWNER)?.token, "application/vnd.github.v3.raw", "token");
 
             if (releasesJson == null)
             {
@@ -1065,6 +1065,12 @@ namespace RevitDataValidator
 
         public static string GetRepoData(string url, HttpMethod method, string githubToken, string accept, string authenticationHeader)
         {
+            if (string.IsNullOrEmpty(githubToken))
+            {
+                Log("GetRepoData: githubToken is null", LogLevel.Warn);
+                return null;
+            }
+
             Stream stream = null;
             try
             {
@@ -1100,7 +1106,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                LogException("GetPrivateRepoStream", ex);
+                Log($"GetRepoData fails with {ex.Message}, perhaps because your computer cannot connect to the internet", LogLevel.Error);
             }
             if (stream == null)
             {
@@ -2201,6 +2207,11 @@ namespace RevitDataValidator
 
         public static TokenInfo GetGithubTokenFromApp(string owner)
         {
+            if (token_for_GIT_CODE_REPO_OWNER != null)
+            {
+                return token_for_GIT_CODE_REPO_OWNER;
+            }
+
             // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation
 
             // 1 - Generate a JSON web token (JWT) for your app
@@ -2214,6 +2225,11 @@ namespace RevitDataValidator
 
             // 2 - Get the ID of the installation that you want to authenticate as
             var installationResponse = Utils.GetRepoData("https://api.github.com/app/installations", HttpMethod.Get, jsonWebToken, "application/vnd.github+json", "Bearer");
+            if (installationResponse == null)
+            {
+                Log($"Cannot connect to https://api.github.com/app/installations", LogLevel.Warn);
+                return null;
+            }
             var installations = ((JArray)JsonConvert.DeserializeObject(installationResponse)).ToObject<List<GitHubAppInstallation>>();
             var installation = installations?.FirstOrDefault(q => q.account.login == owner);
             if (installation == null)

@@ -41,9 +41,7 @@ namespace RevitDataValidator
             var registryShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup");
             ShowPropertiesPanelOnStartup = registryShowPropertiesPanelOnStartup == null || registryShowPropertiesPanelOnStartup == "1";
 
-            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
-
-            Utils.token_for_GIT_CODE_REPO_OWNER = Utils.GetGithubTokenFromApp(Utils.GIT_CODE_REPO_OWNER);
+            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);            
 
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
@@ -118,7 +116,10 @@ namespace RevitDataValidator
 
             panel.AddItem(new PushButtonData("ReloadRulesCommand", "Reload\nRules", dll, "RevitDataValidator.ReloadRulesCommand"));
 
-            Update.CheckForUpdates();
+            if (GetRegistryValue("SkipUpdateCheck") != "1")
+            {
+                Update.CheckForUpdates();
+            }
         }
 
         private const string REGISTRY_PATH = "Software\\Innovation Design Consortium\\Revit Data Validator";
