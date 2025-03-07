@@ -41,7 +41,7 @@ namespace RevitDataValidator
             var registryShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup");
             ShowPropertiesPanelOnStartup = registryShowPropertiesPanelOnStartup == null || registryShowPropertiesPanelOnStartup == "1";
 
-            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);            
+            Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
 
             Utils.dictCategoryPackSet = new Dictionary<string, string>();
             Utils.dictCustomCode = new Dictionary<string, Type>();
@@ -105,14 +105,16 @@ namespace RevitDataValidator
                 Image = NewBitmapImage(GetType().Namespace, "log16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "log.png")
             };
-            panel.AddItem(showLogsCommand);
+            var showLogButton = panel.AddItem(showLogsCommand) as PushButton;
+            showLogButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
 
             var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "about16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "about.png")
             };
-            panel.AddItem(aboutCommand);
+            var aboutButton = panel.AddItem(aboutCommand) as PushButton;
+            aboutButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
 
             panel.AddItem(new PushButtonData("ReloadRulesCommand", "Reload\nRules", dll, "RevitDataValidator.ReloadRulesCommand"));
 
@@ -265,6 +267,16 @@ namespace RevitDataValidator
         {
             Utils.doc = e.Document;
             Utils.RunAllRules(null, WhenToRun.Open);
+        }
+    }
+
+    public class CommandIsAlwaysAvailable : IExternalCommandAvailability
+    {
+        public bool IsCommandAvailable(
+          UIApplication a,
+          CategorySet b)
+        {
+            return true;
         }
     }
 }
