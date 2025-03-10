@@ -13,6 +13,11 @@ namespace RevitDataValidator
         {
             try
             {
+                if (Utils.CustomCodeRunning.Contains(rule.RuleName))
+                {
+                    Utils.CustomCodeRunning.Remove(rule.RuleName);
+                }
+
                 IEnumerable<ElementId> ids = new List<ElementId>();
                 using (Transaction t = new Transaction(Utils.doc, rule.CustomCode))
                 {

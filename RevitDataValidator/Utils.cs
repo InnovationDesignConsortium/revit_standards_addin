@@ -427,11 +427,19 @@ namespace RevitDataValidator
                     var types = Utils.GetRuleTypes(rule);
                     if (types.Count > 0)
                     {
-                        UpdaterRegistry.AddTrigger(
-                            DataValidationUpdaterId,
-                            Utils.doc,
-                            new ElementMulticlassFilter(types),
-                            Element.GetChangeTypeAny());
+                        try
+                        {
+                            UpdaterRegistry.AddTrigger(
+                                DataValidationUpdaterId,
+                                Utils.doc,
+                                new ElementMulticlassFilter(types),
+                                Element.GetChangeTypeAny());
+                        }
+                        catch (Exception ex)
+                        {
+                            Log($"Parameter rule '{rule.RuleName}' cannot be used because it includes a type that cannot be used for a Revit API filter: {string.Join(",", types.Select(q => q.FullName))}", LogLevel.Error);
+                            return false;
+                        }
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
                             Utils.doc,
