@@ -74,6 +74,8 @@
                                         Tag="{Binding Parameters}"
                                         Text="{Binding Value}"
                                         IsEnabled="{Binding IsEnabled}"
+                                        ToolTip="{Binding ToolTipText}"
+                                        ToolTipService.ShowOnDisabled="true"
                                         GotKeyboardFocus="TextBox_GotKeyboardFocus"
                                         LostFocus="TextBox_LostFocus" />
                                         </DataTemplate>

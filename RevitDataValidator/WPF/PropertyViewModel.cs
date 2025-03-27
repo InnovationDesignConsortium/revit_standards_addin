@@ -424,15 +424,19 @@ namespace RevitDataValidator
                             }
                             else if (parameter.GetTypeId() != ParameterTypeId.SymbolNameParam)
                             {
-                                packParameters.Add(
-                                    new TextStateParameter
-                                    {
-                                        Name = pname,
-                                        Parameters = parameters,
-                                        IsEnabled = !parameters[0].IsReadOnly,
-                                        Value = value
-                                    }
-                                    );
+                                var isElementType = parameters[0].Element is ElementType;
+                                var textParameter = new TextStateParameter
+                                {
+                                    Name = pname,
+                                    Parameters = parameters,
+                                    IsEnabled = !parameters[0].IsReadOnly && !isElementType,
+                                    Value = value
+                                };
+                                if (isElementType)
+                                {
+                                    textParameter.ToolTipText = "Type Parameters are read only";
+                                }
+                                packParameters.Add(textParameter);
                             }
                         }
                     }
@@ -519,20 +523,30 @@ namespace RevitDataValidator
                 return null;
             }
 
+            var parameters = new List<Parameter>();
+            var instanceParameters = new List<Parameter>();
+            var typeParameters = new List<Parameter>();
             if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
             {
-                return new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                instanceParameters = new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
+                    .Where(q => q != null)
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
+                typeParameters = new List<Parameter> { Utils.doc.GetElement(Utils.doc.ActiveView.GetTypeId()).Parameters.Cast<Parameter>()
                     .Where(q => q != null)
                     .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
             }
             else
             {
-                var parameters = Utils.selectedIds.ConvertAll(w =>
+                instanceParameters = Utils.selectedIds.ConvertAll(w =>
                 Utils.doc.GetElement(w).Parameters.
                     Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
-
-                return parameters.Where(q => q != null).ToList();
+                typeParameters = Utils.selectedIds.ConvertAll(w =>
+                    Utils.doc.GetElement(Utils.doc.GetElement(w).GetTypeId()).Parameters.
+                        Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
             }
+            parameters.AddRange(instanceParameters);
+            parameters.AddRange(typeParameters);
+            return parameters;
         }
 
         private bool IsParameterValid(Parameter p)

@@ -1061,7 +1061,7 @@ namespace RevitDataValidator
                 if (!path.EndsWith(PARAMETER_PACK_FILE_NAME))
                 {
                     LogException("GetGitData", ex);
-                }                
+                }
                 return null;
             }
         }
@@ -1950,7 +1950,8 @@ namespace RevitDataValidator
         {
             if (e == null) return null;
 
-            var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name);
+            var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name).ToList();
+            parameters.AddRange(e.Document.GetElement(e.GetTypeId()).Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
             if (parameters.Any())
             {
                 var internalDuplicates = new List<string> { "Level", "Design Option", "View Template" };
@@ -1995,11 +1996,11 @@ namespace RevitDataValidator
         {
             var td = new TaskDialog("Error")
             {
-                MainInstruction = s + Environment.NewLine +ex.Message,
+                MainInstruction = s + Environment.NewLine + ex.Message,
                 MainContent = string.Join(Environment.NewLine, SplitAfterSlash(ex.StackTrace))
             };
             td.Show();
-            
+
             Logger.Error($"Exception: {s}: {ex.Message} {ex.StackTrace}", LogLevel.Exception);
             if (ex.InnerException != null)
             {
@@ -2077,7 +2078,7 @@ namespace RevitDataValidator
             {
                 ret = Process.Start(startInfo);
             }
-            catch{}
+            catch { }
             return ret;
         }
 
