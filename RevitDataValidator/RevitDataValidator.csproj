@@ -52,6 +52,8 @@
   <None Remove="ImageFiles\about16.png" />
   <None Remove="ImageFiles\log.png" />
   <None Remove="ImageFiles\log16.png" />
+  <None Remove="ImageFiles\reload.png" />
+  <None Remove="ImageFiles\reload16.png" />
   <None Remove="ImageFiles\show.png" />
   <None Remove="ImageFiles\show16.png" />
 </ItemGroup>
@@ -60,6 +62,8 @@
   <EmbeddedResource Include="ImageFiles\about16.png" />
   <EmbeddedResource Include="ImageFiles\log.png" />
   <EmbeddedResource Include="ImageFiles\log16.png" />
+  <EmbeddedResource Include="ImageFiles\reload.png" />
+  <EmbeddedResource Include="ImageFiles\reload16.png" />
   <EmbeddedResource Include="ImageFiles\show.png" />
   <EmbeddedResource Include="ImageFiles\show16.png" />
 </ItemGroup>

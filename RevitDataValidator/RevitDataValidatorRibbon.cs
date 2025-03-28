@@ -93,30 +93,33 @@ namespace RevitDataValidator
 
             var panel = Application.GetRibbonPanels().Find(q => q.Name == Utils.panelName) ?? Application.CreateRibbonPanel(Utils.panelName);
 
-            var showPaneCommand = new PushButtonData("ShowPaneCommand", "Show\nPane", dll, "RevitDataValidator.ShowPaneCommand")
+            var aboutButton = panel.AddItem(new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "about16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "about.png")
+            }) as PushButton;
+            aboutButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
+
+            var showPaneCommand = new PushButtonData("ShowPaneCommand", "Toggle\nPanel", dll, "RevitDataValidator.ShowPaneCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "show16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "show.png")
             };
             panel.AddItem(showPaneCommand);
 
-            var showLogsCommand = new PushButtonData("ShowLogCommand", "Show\nLog", dll, "RevitDataValidator.ShowLogCommand")
+            panel.AddItem(new PushButtonData("ReloadRulesCommand", "Reload\nRules", dll, "RevitDataValidator.ReloadRulesCommand")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "reload16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "reload.png")
+            });
+
+            var showLogButton = panel.AddItem(new PushButtonData("ShowLogCommand", "Show\nLog", dll, "RevitDataValidator.ShowLogCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "log16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "log.png")
-            };
-            var showLogButton = panel.AddItem(showLogsCommand) as PushButton;
+            }) as PushButton;
             showLogButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
 
-            var aboutCommand = new PushButtonData("AboutCommand", "About", dll, "RevitDataValidator.AboutCommand")
-            {
-                Image = NewBitmapImage(GetType().Namespace, "about16.png"),
-                LargeImage = NewBitmapImage(GetType().Namespace, "about.png")
-            };
-            var aboutButton = panel.AddItem(aboutCommand) as PushButton;
-            aboutButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
-
-            panel.AddItem(new PushButtonData("ReloadRulesCommand", "Reload\nRules", dll, "RevitDataValidator.ReloadRulesCommand"));
 
             if (GetRegistryValue("SkipUpdateCheck") != "1")
             {
