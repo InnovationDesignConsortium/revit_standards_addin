@@ -11,11 +11,15 @@ namespace RevitDataValidator
         public override void Execute()
         {
             var pane = ExternalCommandData.Application.GetDockablePane(Utils.paneId);
-            if (pane?.IsShown() != false)
-                return;
-
-            pane.Show();
-            Update.CheckForUpdates();
+            if (pane?.IsShown() == true)
+            {
+                pane.Hide();
+            }
+            else
+            {
+                pane.Show();
+                Update.CheckForUpdates();
+            }            
         }
     }
 }
