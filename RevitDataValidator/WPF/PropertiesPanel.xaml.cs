@@ -1,10 +1,13 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Markdig;
 using Revit.Async;
 using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -350,7 +353,45 @@ namespace RevitDataValidator
             }
         }
 
-        private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
+        private async void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
+        {
+            var fileToOpen = GetFileToOpen();
+            if (fileToOpen == null)
+            {
+                return;
+            }
+
+            string localFile = fileToOpen;
+
+            if (fileToOpen.ToLower().StartsWith("http"))
+            {
+                using (var client = new HttpClient()) // WebClient
+                {
+                    localFile = Path.GetTempFileName() + ".md";
+
+                    fileToOpen = fileToOpen
+                        .Replace("/github.com/", "/raw.githubusercontent.com/")
+                        .Replace("/blob/", "/refs/heads/");
+                    await client.DownloadFileTaskAsync(new Uri(fileToOpen), localFile);
+                }
+            }
+
+            string markdownContents = null;
+            using (var sr = new StreamReader(localFile))
+            {
+                markdownContents = sr.ReadToEnd();
+            }
+
+            var htmlContents = Markdown.ToHtml(markdownContents);
+            var htmlFile = Path.GetTempFileName() + ".html";
+            using (var sw = new StreamWriter(htmlFile))
+            {
+                sw.Write(htmlContents);
+            }
+            Utils.StartShell(htmlFile, true);
+        }
+
+        private string GetFileToOpen()
         {
             var filename = Utils.GetFileName();
             var ruleFileInfo = Utils.ruleDatas;
@@ -359,7 +400,7 @@ namespace RevitDataValidator
             {
                 if (ruleFile == null)
                 {
-                    return;
+                    return null;
                 }
                 if (!string.IsNullOrEmpty(ruleFile.Url))
                 {
@@ -370,6 +411,12 @@ namespace RevitDataValidator
                     fileToOpen = ruleFile.Filename;
                 }
             }
+            return fileToOpen;
+        }
+
+        private void Button_EditRuleFile_Click(object sender, RoutedEventArgs e)
+        {
+            var fileToOpen = GetFileToOpen();
             if (fileToOpen != null)
             {
                 if (fileToOpen.ToLower().StartsWith("http") || System.IO.File.Exists(fileToOpen))

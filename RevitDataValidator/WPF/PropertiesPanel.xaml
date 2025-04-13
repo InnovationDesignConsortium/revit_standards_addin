@@ -245,6 +245,12 @@
                 HorizontalAlignment="Left"
                 Width="150"
                 Click="Button_ViewRuleFile_Click" />
+            <Button
+                Content="Edit Rule File"
+                HorizontalAlignment="Left"
+                Width="150"
+                Margin="0,5,0,0"
+                Click="Button_EditRuleFile_Click" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>
