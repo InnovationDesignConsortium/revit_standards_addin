@@ -11,6 +11,7 @@ Global
 		2023|Any CPU = 2023|Any CPU
 		2024|Any CPU = 2024|Any CPU
 		2025|Any CPU = 2025|Any CPU
+		2026|Any CPU = 2026|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2022|Any CPU.ActiveCfg = 2022|Any CPU
@@ -21,6 +22,8 @@ Global
 		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2024|Any CPU.Build.0 = 2024|Any CPU
 		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2025|Any CPU.ActiveCfg = 2025|Any CPU
 		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2025|Any CPU.Build.0 = 2025|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2026|Any CPU.ActiveCfg = 2026|Any CPU
+		{0A202067-FCB2-4CB9-9DCA-8184CA5E2460}.2026|Any CPU.Build.0 = 2026|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

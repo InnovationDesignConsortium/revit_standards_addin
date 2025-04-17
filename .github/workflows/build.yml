@@ -1,4 +1,4 @@
-name: Build 2023 2024 2025
+name: Build 2023 2024 2025 2026
 on:
   push:
     branches:
@@ -32,12 +32,18 @@ jobs:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2024
       - name: Build 2024
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2024
-      - name: Restore Packages
+      - name: Restore Packages 2025
         run: nuget restore RevitDataValidator.sln
         env:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2025
       - name: Build 2025
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2025
+      - name: Restore Packages 2026
+        run: nuget restore RevitDataValidator.sln
+        env:
+          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2026
+      - name: Build 2026
+        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2026
       - name: Create Code Signing Certificate
         run: |
           mkdir certificate
@@ -52,6 +58,9 @@ jobs:
       - name: Code Sign 2025
         run: |
           & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate/certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2025\RevitDataValidator.dll
+      - name: Code Sign 2026
+        run: |
+          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22000.0/x86/signtool.exe' sign /f certificate/certificate.pfx /p '${{ secrets.PFX_PASSWORD }}' /fd SHA256 /t http://timestamp.comodoca.com/authenticode RevitDataValidator\bin\2026\RevitDataValidator.dll
       - name: Read AssemblyInfo.cs
         id: assemblyinfo
         uses: jaywcjlove/github-action-read-file@main
