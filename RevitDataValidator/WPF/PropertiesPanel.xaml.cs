@@ -2,6 +2,7 @@
 using Autodesk.Revit.UI;
 using Markdig;
 using Revit.Async;
+using RevitDataValidator.Classes;
 using RevitDataValidator.Forms;
 using System;
 using System.Collections.Generic;
@@ -353,36 +354,24 @@ namespace RevitDataValidator
             }
         }
 
-        private async void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
+        private void Button_ViewRuleFile_Click(object sender, RoutedEventArgs e)
         {
-            var fileToOpen = GetFileToOpen();
-            if (fileToOpen == null)
+            var filename = Utils.GetFileName();
+            var ruleFileInfo = Utils.ruleDatas;
+            string contents = null;
+            if (ruleFileInfo.TryGetValue(filename, out var ruleFile))
+            {
+                if (ruleFile == null)
+                {
+                    return;
+                }
+                contents = ruleFile.Contents;
+            }
+            if (contents == null)
             {
                 return;
             }
-
-            string localFile = fileToOpen;
-
-            if (fileToOpen.ToLower().StartsWith("http"))
-            {
-                using (var client = new HttpClient()) // WebClient
-                {
-                    localFile = Path.GetTempFileName() + ".md";
-
-                    fileToOpen = fileToOpen
-                        .Replace("/github.com/", "/raw.githubusercontent.com/")
-                        .Replace("/blob/", "/refs/heads/");
-                    await client.DownloadFileTaskAsync(new Uri(fileToOpen), localFile);
-                }
-            }
-
-            string markdownContents = null;
-            using (var sr = new StreamReader(localFile))
-            {
-                markdownContents = sr.ReadToEnd();
-            }
-
-            var htmlContents = Markdown.ToHtml(markdownContents);
+            var htmlContents = Markdown.ToHtml(contents);
             var htmlFile = Path.GetTempFileName() + ".html";
             using (var sw = new StreamWriter(htmlFile))
             {
