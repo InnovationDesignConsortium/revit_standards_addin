@@ -182,6 +182,11 @@ namespace RevitDataValidator
                 }
             }
 
+            if (ruleFileInfo?.Contents == null)
+            {
+                return;
+            }
+
             var parameterRules = new List<ParameterRule>();
             var worksetRules = new List<WorksetRule>();
 
@@ -616,7 +621,17 @@ namespace RevitDataValidator
             }
             else
             {
-                var data = Utils.GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
+                var submod = GetGitData(ContentType.Submodule, ruleInfoFilePath);
+                RepositoryContent data;
+                if (submod == null)
+                {
+                    data = GetGitData(ContentType.File, $"{ruleInfoFilePath}/{fileName}");
+                }
+                else
+                {
+                    data = GetGitData(ContentType.File, $"/{fileName}", submod.Name);
+                }
+
                 if (data == null)
                 {
                     if (fileName == PARAMETER_PACK_FILE_NAME)
@@ -1010,7 +1025,7 @@ namespace RevitDataValidator
             }
         }
 
-        public static RepositoryContent GetGitData(ContentType contentType, string path)
+        public static RepositoryContent GetGitData(ContentType contentType, string path, string subModuleName = null)
         {
             try
             {
@@ -1028,9 +1043,15 @@ namespace RevitDataValidator
                 }
                 client.Credentials = new Credentials(tokenFromGithubApp.token);
 
-                Log($"Github: About to call GetAllContents for {GIT_OWNER} {GIT_REPO} {path}", LogLevel.Info);
+                var gitRepoOrSubmodule = GIT_REPO;
+                if (subModuleName != null)
+                {
+                    gitRepoOrSubmodule = subModuleName;
+                }
 
-                var content = client.Repository.Content.GetAllContents(GIT_OWNER, GIT_REPO, path);
+                Log($"Github: About to call GetAllContents for {GIT_OWNER} {gitRepoOrSubmodule} {path}", LogLevel.Info);
+
+                var content = client.Repository.Content.GetAllContents(GIT_OWNER, gitRepoOrSubmodule, path);
 
                 if (content == null)
                 {
