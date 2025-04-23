@@ -5,7 +5,7 @@ namespace RevitDataValidator
 {
     public static class Update
     {
-        public static void CheckForUpdates()
+        public static void CheckForUpdates(bool updateWithoutPrompt = false)
         {
             try
             {
@@ -24,7 +24,8 @@ namespace RevitDataValidator
                         MainInstruction = $"An update for the {Utils.PRODUCT_NAME} has been found. Would you like to install this version after you exit Revit?",
                         MainContent = $"Installed Version: {Utils.GetInstalledVersion()}{Environment.NewLine}Newest Released Version: {webVersion}{Environment.NewLine}Release Date of Newest Version: {latestRelease.published_at}"
                     };
-                    if (td.Show() == Autodesk.Revit.UI.TaskDialogResult.Yes)
+                    if (updateWithoutPrompt ||
+                        td.Show() == Autodesk.Revit.UI.TaskDialogResult.Yes)
                     {
                         var asset = latestRelease.assets.First();
                         Utils.Log($"Chose to install update to {webVersion}", LogLevel.Info);

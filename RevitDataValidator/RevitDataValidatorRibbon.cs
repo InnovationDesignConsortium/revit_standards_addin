@@ -128,7 +128,12 @@ namespace RevitDataValidator
 
             if (GetRegistryValue("SkipUpdateCheck") != "1")
             {
-                Update.CheckForUpdates();
+                bool updateWithoutPrompt = false;
+                if (GetRegistryValue("UpdateWithoutPrompt") == "1")
+                {
+                    updateWithoutPrompt = true;
+                }
+                Update.CheckForUpdates(updateWithoutPrompt);
             }
         }
 
