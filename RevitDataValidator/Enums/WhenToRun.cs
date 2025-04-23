@@ -6,6 +6,7 @@
         Realtime,
         Open,
         Save,
-        SyncToCentral
+        SyncToCentral,
+        Manual
     }
 }

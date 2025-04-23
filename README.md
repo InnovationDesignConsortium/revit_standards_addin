@@ -156,7 +156,7 @@ Unless otherwise noted, the parameter must be an Instance Parameter.
 ### Properties common to Workset and Parameter Rules
 1. An optional "When Run" property
 
-The allowable values for "When Run" are `"Realtime"`, `"Open"`, `"Save"`, `"SyncToCentral"` and essentially define when the rule is evaluated. The default is Realtime if unspecified and you can specify more than one per rule as a list.
+The allowable values for "When Run" are `Realtime"`, `"Open"`, `"Save"`, `"SyncToCentral"`, `"Manual"` and essentially define when the rule is evaluated. The default is Realtime if unspecified and you can specify more than one per rule as a list. A manual run is only run when you push the "Run" button in the Properties Panel.
 
 2. An optional "Disable By Default" property
 

@@ -250,9 +250,6 @@ namespace RevitDataValidator
             if (rule == null)
                 return;
 
-            var ruleFailures = new List<RuleFailure>();
-            var parametersToSet = new List<ParameterString>();
-
             if (rule.CustomCode != null && Utils.dictCustomCode.ContainsKey(rule.CustomCode))
             {
                 var ids = await RevitTask.RaiseGlobal<CustomRuleExternalEventHandler, ParameterRule, IEnumerable<ElementId>>(rule);
@@ -313,6 +310,8 @@ namespace RevitDataValidator
                 var ids = filteredElementCollector.ToElementIds();
                 var parametersToSetForFormatRules = new List<ParameterString>();
 
+                var parametersToSet = new List<ParameterString>();
+                var ruleFailures = new List<RuleFailure>();
                 foreach (var id in ids)
                 {
                     var thisFailure = Utils.RunParameterRule(
@@ -324,7 +323,7 @@ namespace RevitDataValidator
                         );
                     parametersToSet.AddRange(thisElementParametersToSet);
                     parametersToSetForFormatRules.AddRange(thisElementparametersToSetForFormatRules);
-                    if (thisFailure != null)
+                    if (thisFailure != null && ruleFailures.FirstOrDefault(q => q.ElementId == thisFailure.ElementId) == null)
                     {
                         ruleFailures.Add(thisFailure);
                     }

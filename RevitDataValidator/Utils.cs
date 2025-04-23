@@ -1989,7 +1989,12 @@ namespace RevitDataValidator
             if (e == null) return null;
 
             var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name).ToList();
-            parameters.AddRange(e.Document.GetElement(e.GetTypeId()).Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
+            var element = e.Document.GetElement(e.GetTypeId());
+            if (element == null)
+            {
+                return null;
+            }
+            parameters.AddRange(element.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
             if (parameters.Any())
             {
                 var internalDuplicates = new List<string> { "Level", "Design Option", "View Template" };

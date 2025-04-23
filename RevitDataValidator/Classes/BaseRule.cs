@@ -17,9 +17,11 @@ namespace RevitDataValidator
         public bool DisableByDefault { get; set; }
 
         [JsonProperty("Categories")]
+        [JsonConverter(typeof(StringOrArrayConverter))]
         public List<string> Categories { get; set; }
 
         [JsonProperty("When Run")]
+        [JsonConverter(typeof(StringOrArrayConverter))]
         public List<string> WhenRun { get; set; }
 
         public IEnumerable<WhenToRun> WhenToRun
