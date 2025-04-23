@@ -104,7 +104,6 @@ Workset rules all follow the same, simple structure.
 1. A list of Revit Categories or Element Classes
 2. The name of a Workset
 3. A list of Parameter names and Regular Expression (regex) expressions
-4. An optional "When Run" property
 
 If all the parameters match the corresponding regex expressions, then the elements of those categories will be put on the workset. The named Parameters and Workset MUST exist in the model in order for the rule to work. If one of these are missing, the rule will be skipped. Parameters MAY be either Instance or Type.
 
@@ -114,8 +113,6 @@ For example:
 - Autodesk.Revit.DB.Architecture.Room
 - Autodesk.Revit.DB.Structure.AreaLoad
 - Autodesk.Revit.DB.Mechanical.Duct
-
-The allowable values for "When Run" are `"Realtime"`, `"Open"`, `"Save"`, `"SyncToCentral"` and essentially define when the rule is evaluated. The default is Realtime if unspecified and you can specify more than one per rule as a list.
 
 ```json
 "Workset Rules":
@@ -139,7 +136,7 @@ Note that elements in different Revit Categories may use different parameters to
 Additional description may be available in the Sample Rules File.
 
 ### Parameter Rules
-Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, a Parameter Name, and a Categories or Element Classes list. Each sub-type requires slightly different, additional information about how to execute the desired behavior. The optional "When Run" property also applies here.
+Parameter Rules are more varied and can be subdivided into nine sub-types which have various requirements. All of these rules have a Rule Name, a User Message, a Parameter Name, and a Categories or Element Classes list. Each sub-type requires slightly different, additional information about how to execute the desired behavior.
 
 Unless otherwise noted, the parameter must be an Instance Parameter.
 
@@ -155,6 +152,15 @@ Unless otherwise noted, the parameter must be an Instance Parameter.
     }
 ]
 ```
+
+### Properties common to Workset and Parameter Rules
+1. An optional "When Run" property
+
+The allowable values for "When Run" are `"Realtime"`, `"Open"`, `"Save"`, `"SyncToCentral"` and essentially define when the rule is evaluated. The default is Realtime if unspecified and you can specify more than one per rule as a list.
+
+2. An optional "Disable By Default" property
+
+If this property is set to True then the rule will not run unless the user invokes the Enable Rules command and selects the rule to turn it on. Enabling rules in this manner is a per-session setting. This feature can be used if you want users to be able to turn on a rule for testing or other purpoeses but otherwise you do not want the rule to be active. 
 
 #### List Rules
 This type of rule restricts a Parameter to only values defined in a list. The list of allowed values can be enumerated in the rule file like in this example that restricts the Comments parameter on Walls to only the values "a", "b", or "c".

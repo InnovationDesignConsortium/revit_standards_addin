@@ -113,13 +113,18 @@ namespace RevitDataValidator
                 LargeImage = NewBitmapImage(GetType().Namespace, "reload.png")
             });
 
+            panel.AddItem(new PushButtonData("EnableRulesCommand", "Enable\nRules", dll, "RevitDataValidator.EnableDisabledRules")
+            {
+                Image = NewBitmapImage(GetType().Namespace, "enable16.png"),
+                LargeImage = NewBitmapImage(GetType().Namespace, "enable.png")
+            });
+
             var showLogButton = panel.AddItem(new PushButtonData("ShowLogCommand", "Show\nLog", dll, "RevitDataValidator.ShowLogCommand")
             {
                 Image = NewBitmapImage(GetType().Namespace, "log16.png"),
                 LargeImage = NewBitmapImage(GetType().Namespace, "log.png")
             }) as PushButton;
             showLogButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
-
 
             if (GetRegistryValue("SkipUpdateCheck") != "1")
             {

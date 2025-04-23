@@ -129,7 +129,7 @@ namespace RevitDataValidator
                     bool foundRule = false;
                     if (parameters.Any())
                     {
-                        foreach (var rule in Utils.allParameterRules)
+                        foreach (var rule in Utils.allParameterRules.Where(q => !q.Disabled))
                         {
                             if (
                                 rule.Categories != null &&

@@ -10,9 +10,6 @@ namespace RevitDataValidator
     {
         public FailureDefinitionId FailureId { get; set; }
 
-        [JsonProperty("Rule Name")]
-        public string RuleName { get; set; }
-
         [JsonProperty("Parameter Name")]
         public string ParameterName { get; set; }
 

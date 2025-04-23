@@ -11,7 +11,6 @@ using Markdig.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Nice3point.Revit.Extensions;
 using NLog;
 using Octokit;
 using RevitDataValidator.Classes;
@@ -237,7 +236,13 @@ namespace RevitDataValidator
                 Utils.Log($"Total of {parameterRules.Count} parameter rules", LogLevel.Trace);
                 foreach (var parameterRule in parameterRules)
                 {
+                    if (parameterRule.DisableByDefault)
+                    {
+                        parameterRule.Disabled = true;
+                    }
+
                     ParameterRule conflictingRule = null;
+
                     if (RegisterParameterRule(parameterRule, ruleFileInfo))
                     {
                         foreach (var existingRule in Utils.allParameterRules)
@@ -265,6 +270,11 @@ namespace RevitDataValidator
                 Utils.Log($"Total of {worksetRules.Count} workset rules", LogLevel.Trace);
                 foreach (var worksetRule in worksetRules)
                 {
+                    if (worksetRule.DisableByDefault)
+                    {
+                        worksetRule.Disabled = true;
+                    }
+
                     WorksetRule conflictingRule = null;
 
                     foreach (var existingRule in Utils.allWorksetRules)
@@ -791,6 +801,7 @@ namespace RevitDataValidator
                 foreach (var rule in
                     allParameterRules
                     .Where(q =>
+                        !q.Disabled &&
                         q.WhenToRun.Contains(whenToRun) &&
                         q.CustomCode != null &&
                         !CustomCodeRunning.Contains(q.CustomCode) &&
@@ -1232,6 +1243,10 @@ namespace RevitDataValidator
 
         public static void RunWorksetRule(WorksetRule rule, List<ElementId> ids)
         {
+            if (rule.Disabled)
+            {
+                return;
+            }
             var workset = new FilteredWorksetCollector(doc).FirstOrDefault(q => q.Name == rule.Workset);
             if (workset == null)
             {
@@ -1388,7 +1403,7 @@ namespace RevitDataValidator
 
                 // https://github.com/InnovationDesignConsortium/revit_standards_addin/issues/17
                 // rule should run if target paramater has no value
-                if (!rule.IsValueRequired && parameterValueAsString.IsNullOrEmpty())
+                if (!rule.IsValueRequired && string.IsNullOrEmpty(parameterValueAsString))
                 {
                     return null;
                 }
@@ -1696,7 +1711,9 @@ namespace RevitDataValidator
         {
             var ret = new List<RuleFailure>();
             parametersToSet = new List<ParameterString>();
-            foreach (var rule in allParameterRules.Where(q => q.WhenToRun.Contains(whenToRun)))
+            foreach (var rule in allParameterRules.Where(q =>
+                !q.Disabled &&
+                q.WhenToRun.Contains(whenToRun)))
             {
                 var ruleFailure = RunParameterRule(
                     rule,

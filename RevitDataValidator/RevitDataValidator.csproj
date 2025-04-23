@@ -56,6 +56,8 @@
 <ItemGroup>
   <None Remove="ImageFiles\about.png" />
   <None Remove="ImageFiles\about16.png" />
+  <None Remove="ImageFiles\enable.png" />
+  <None Remove="ImageFiles\enable16.png" />
   <None Remove="ImageFiles\log.png" />
   <None Remove="ImageFiles\log16.png" />
   <None Remove="ImageFiles\reload.png" />
@@ -66,6 +68,8 @@
 <ItemGroup>
   <EmbeddedResource Include="ImageFiles\about.png" />
   <EmbeddedResource Include="ImageFiles\about16.png" />
+  <EmbeddedResource Include="ImageFiles\enable.png" />
+  <EmbeddedResource Include="ImageFiles\enable16.png" />
   <EmbeddedResource Include="ImageFiles\log.png" />
   <EmbeddedResource Include="ImageFiles\log16.png" />
   <EmbeddedResource Include="ImageFiles\reload.png" />
@@ -78,12 +82,8 @@
 	<PackageReference Include="CsvHelper" Version="33.0.1" />
 	  
 	<PackageReference Include="Nice3point.Revit.Toolkit" Version="$(RevitVersion).*" />
-	<PackageReference Include="Nice3point.Revit.Extensions" Version="$(RevitVersion).*" />
 	<PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" />
-	<PackageReference Include="Nice3point.Revit.Api.AdWindows" Version="$(RevitVersion).*" />
 	<PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" />
-	<PackageReference Include="Nice3point.Revit.Api.UIFramework" Version="$(RevitVersion).*" />
-	<PackageReference Include="Nice3point.Revit.Api.UIFrameworkServices" Version="$(RevitVersion).*" />
 
   <PackageReference Include="Revit.Async" Version="2.1.1" />
 	

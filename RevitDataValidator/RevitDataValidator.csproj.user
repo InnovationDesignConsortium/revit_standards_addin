@@ -5,6 +5,9 @@
     <Compile Update="Forms\FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormEnableDisabledRules.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormEnterValue.cs">
       <SubType>Form</SubType>
     </Compile>

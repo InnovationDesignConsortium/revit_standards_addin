@@ -8,6 +8,14 @@ namespace RevitDataValidator
     {
         public Guid Guid { get; set; }
 
+        [JsonProperty("Rule Name")]
+        public string RuleName { get; set; }
+
+        public bool Disabled {  get; set; }
+
+        [JsonProperty("Disable By Default")]
+        public bool DisableByDefault { get; set; }
+
         [JsonProperty("Categories")]
         public List<string> Categories { get; set; }
 
