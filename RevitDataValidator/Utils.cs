@@ -327,7 +327,7 @@ namespace RevitDataValidator
 
             if (Utils.parameterUIData.PackSets != null)
             {
-                var validPacks = Utils.parameterUIData.PackSets.Where(q => q.Category == catName || q.Category == Utils.ALL).ToList();
+                var validPacks = parameterUIData.PackSets.Where(q => q.Category.Contains(catName) || q.Category.Contains(ALL)).ToList();
                 if (validPacks.Count == 0)
                 {
                     Utils.propertiesPanel.Refresh(null);

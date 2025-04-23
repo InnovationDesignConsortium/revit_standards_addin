@@ -441,6 +441,8 @@ While most of the rules do not require much of a user interface, those that do a
 
 In addition to viewing the rules, the Properties Panel can be configured to show various subsets of parameters in a contextually aware manner based on what elements are selected. This can be useful for users needing to perform a specific task. For example, if someone was populating Rooms in a model, they might only be concerned with the Name, Number, Occupancy, Room Style, and Department. A Parameter Pack can be defined to only show those values in the Properties Panel when a Room is selected. A Parameter Pack is a collection of parameters applied to one or more Revit Categories. Multiple Packs can be created for a single Category, so in addition to the Room parameters above, we can create another group of important reference parameters to be shown below. These are called Pack Sets. The order within a Pack and the groupings of Pack Sets are customizable. In collaboration with a List Rule, the allowable values of a particular parameter, such as Room Style, can be displayed in a dropdown for easy selection. The Properties Panel is non-modal and dockable which means it can remain open (either docked to the side or floating) while you are working in the model. A Pack Set selection dropdown sits at the top of the Properties Panel. This provides a way for different Pack Sets to be chosen if there are multiple workflows set up for the same Revit Categories. 
 
+The categories can be specified with a property named either `Category` or `Categories` and it can contain either a single category or a list of categories.
+
 This example parameterpacks.json file only has two Packs and one Set. The Pack Set includes both Parameter Packs.
 
 ```json

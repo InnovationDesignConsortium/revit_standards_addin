@@ -53,7 +53,7 @@ namespace RevitDataValidator
 
                 PackSets = new ObservableCollection<string>(
                     Utils.parameterUIData.PackSets
-                    .Where(q => q.Category == catName || q.Category == Utils.ALL).Select(q => q.Name));
+                    .Where(q => q.Category.Contains(catName) || q.Category.Contains(Utils.ALL)).Select(q => q.Name));
             }
             return element;
         }

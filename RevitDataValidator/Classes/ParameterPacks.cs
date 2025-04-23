@@ -8,7 +8,13 @@ namespace RevitDataValidator
     public class PackSet
     {
         public string Name { get; set; }
-        public string Category { get; set; }
+
+        [JsonConverter(typeof(StringOrArrayConverter))]
+        public List<string> Category { get; set; }
+
+        [JsonProperty("Categories")]
+        [JsonConverter(typeof(StringOrArrayConverter))]
+        private List<string> Categories { set { Category = value; } }
 
         [JsonProperty("Parameter Packs")]
         public List<string> ParameterPacks { get; set; }
@@ -24,7 +30,9 @@ namespace RevitDataValidator
     public class ParameterPack
     {
         public string Name { get; set; }
-        public string Category { get; set; }
+
+        [JsonConverter(typeof(StringOrArrayConverter))]
+        public List<string> Category { get; set; }
         public List<string> Parameters { get; set; }
         public string URL { get; set; }
         public string PDF { get; set; }
