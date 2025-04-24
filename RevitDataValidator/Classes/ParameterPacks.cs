@@ -31,6 +31,10 @@ namespace RevitDataValidator
     {
         public string Name { get; set; }
 
+        [JsonProperty("Categories")]
+        [JsonConverter(typeof(StringOrArrayConverter))]
+        private List<string> Categories { set { Category = value; } }
+
         [JsonConverter(typeof(StringOrArrayConverter))]
         public List<string> Category { get; set; }
         public List<string> Parameters { get; set; }
