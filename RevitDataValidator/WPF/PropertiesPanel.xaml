@@ -204,43 +204,29 @@
                     ItemsSource="{Binding ParameterRuleDatas}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal">
+                            <WrapPanel Orientation="Horizontal">
 
                                     <Label
-                                        Margin="0,0,-5,0"
-                                        Content="{Binding RuleName}" />
-                                    <Label
-                                        Margin="0,0,-5,0"
-                                        Content=" (" />
-                                    <Label
-                                        Margin="-5,0,-5, 0"
-                                        Content="{Binding CategoryList}" />
-                                    <Label
-                                        Margin="-5,0,0,0"
-                                        Content=")" />
+                                        Margin="0,0,-2,0"
+                                        >
+                                    <TextBlock 
+                                        TextWrapping="WrapWithOverflow"
+                                        Text="{Binding RuleNameWithCategories}">
+                                    </TextBlock>
+                                </Label>
                                     <Button
                                         Content="Run"
                                         Tag="{Binding Guid}"
-                                        Width="50"
-                                        Height="20"
+                                        Width="35"
+                                        Height="18"
                                         Click="Button_Parameter_Click" />
-                                </StackPanel>
-                            </Grid>
+                            </WrapPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Grid>
             <Button
+                Margin="0,5,0,0"
                 Content="View Rule File"
                 HorizontalAlignment="Left"
                 Width="150"

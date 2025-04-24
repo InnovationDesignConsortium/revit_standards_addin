@@ -41,6 +41,7 @@ namespace RevitDataValidator
             var registryShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup");
             ShowPropertiesPanelOnStartup = registryShowPropertiesPanelOnStartup == null || registryShowPropertiesPanelOnStartup == "1";
 
+            Utils.Log($"Revit version: {Application.ControlledApplication.VersionNumber}", LogLevel.Info);
             Utils.Log($"Running version: {Utils.GetInstalledVersion()}", LogLevel.Info);
 
             Utils.dictCategoryPackSet = new Dictionary<string, string>();

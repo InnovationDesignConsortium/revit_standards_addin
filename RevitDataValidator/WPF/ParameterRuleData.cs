@@ -7,8 +7,12 @@ namespace RevitDataValidator
     {
         public string RuleName { get; set; }
         public ObservableCollection<string> ParameterRuleCategories { get; set; }
-        public string CategoryList
-        { get { return string.Join(", ", ParameterRuleCategories); } }
+
+        public string RuleNameWithCategories
+        {
+            get { return $"{RuleName} ({string.Join(", ", ParameterRuleCategories)})"; }
+        }
+
         public Guid Guid { get; set; }
     }
 }
