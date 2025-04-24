@@ -981,10 +981,19 @@ namespace RevitDataValidator
                 // https://github.com/gruntwork-io/fetch
                 var arguments = $"-repo https://github.com/{GIT_CODE_REPO_OWNER}/{GIT_CODE_REPO_NAME} --tag=\"{tag}\" --release-asset=\"{asset.name}\" --github-oauth-token {GetGithubTokenFromApp(GIT_CODE_REPO_OWNER).token} {Path.GetDirectoryName(fileName)}";
 
-                var didStart = StartShell(
-                    $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
+                var exe = $"{dllPath}\\fetch_windows_amd64.exe";
 
-                MsiToRunOnExit = fileName;
+                if (File.Exists(exe))
+                {
+                    var didStart = StartShell(
+                        $"{dllPath}\\fetch_windows_amd64.exe", false, arguments);
+
+                    MsiToRunOnExit = fileName;
+                }
+                else
+                {
+                    Log($"File missing {exe}", LogLevel.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -1040,6 +1049,11 @@ namespace RevitDataValidator
         {
             try
             {
+                if (tokenFromGithubApp == null)
+                {
+                    return null;
+                }
+
                 GetEnvironmentVariableData();
 
                 const string name = "revit-datavalidator";
@@ -2121,7 +2135,10 @@ namespace RevitDataValidator
             {
                 ret = Process.Start(startInfo);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                LogException("StartShell", ex);
+            }
             return ret;
         }
 
@@ -2337,6 +2354,7 @@ namespace RevitDataValidator
                 }
                 else
                 {
+                    Log($"File missing {pathtoexe}", LogLevel.Error);
                     return "";
                 }
             }
