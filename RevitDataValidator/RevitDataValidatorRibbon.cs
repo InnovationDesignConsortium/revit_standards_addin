@@ -127,14 +127,13 @@ namespace RevitDataValidator
             }) as PushButton;
             showLogButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
 
-            if (GetRegistryValue("SkipUpdateCheck") != "1")
+            if (GetRegistryValue("UpdateWithoutPrompt") == "1")
             {
-                bool updateWithoutPrompt = false;
-                if (GetRegistryValue("UpdateWithoutPrompt") == "1")
-                {
-                    updateWithoutPrompt = true;
-                }
-                Update.CheckForUpdates(updateWithoutPrompt);
+                Update.CheckForUpdates(true);
+            }
+            else if (GetRegistryValue("SkipUpdateCheck") != "1")
+            {
+                Update.CheckForUpdates();
             }
         }
 
