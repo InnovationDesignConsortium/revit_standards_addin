@@ -2288,7 +2288,7 @@ namespace RevitDataValidator
             var jsonWebToken = GenerateJwtToken();
             if (string.IsNullOrEmpty(jsonWebToken))
             {
-                Utils.Log("JwtToken is empty", LogLevel.Error);
+                Utils.Log("JwtToken is empty. Does this computer have .NET 8 installed?", LogLevel.Error);
                 return null;
             }
 

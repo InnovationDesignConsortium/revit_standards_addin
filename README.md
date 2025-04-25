@@ -7,7 +7,7 @@ The Revit Standards Addin is a project that enables firms to control, deploy, an
 - A Github-based, central management approach to manage these rules across an organization
 
 ## Prerequisites
-There are four components required to use this application.
+These components required to use this application.
 1. A **Github repository** and the **Revit Standards Github App** installed on your repository
     
     OR
@@ -16,6 +16,7 @@ There are four components required to use this application.
 
 1. A couple of custom **Environment Variables** on each workstation
 1. The **Revit Standards Addin**
+1. .NET 8 installed on the computer
 
 ## Setup and Deployment
 Below are instructions to set up and deploy each component across an organization.
