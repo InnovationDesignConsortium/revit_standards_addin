@@ -126,8 +126,6 @@
     <ROW Component="NLog.dll_1" ComponentId="{521096D4-D77E-4DE0-8A79-FFBDEADB6F3F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="NLog.dll_1"/>
     <ROW Component="NLog.dll_2" ComponentId="{8ECFD5EA-8480-47A6-9DD6-34917E1EC554}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="NLog.dll_2"/>
     <ROW Component="NLog.dll_3" ComponentId="{FE5FBCDF-CD62-47C0-AF71-4F5CD6C97BF0}" Directory_="RevitDataValidator_Dir" Attributes="0" KeyPath="NLog.dll_3"/>
-    <ROW Component="Nice3point.Revit.Extensions.dll_2" ComponentId="{90A4BF01-4412-455E-A3E5-41A1D09330B3}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="Nice3point.Revit.Extensions.dll_2"/>
-    <ROW Component="Nice3point.Revit.Extensions.dll_3" ComponentId="{94F20FBC-49D2-4FB1-93A6-5CB7B6FC2761}" Directory_="RevitDataValidator_Dir" Attributes="256" KeyPath="Nice3point.Revit.Extensions.dll_3"/>
     <ROW Component="Nice3point.Revit.Toolkit.dll" ComponentId="{095658F0-3F5E-400E-80C1-3B2236A6042B}" Directory_="RevitDataValidator_1_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll"/>
     <ROW Component="Nice3point.Revit.Toolkit.dll_1" ComponentId="{355145AB-D3F3-446C-8FAC-098D841EE3F1}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll_1"/>
     <ROW Component="Nice3point.Revit.Toolkit.dll_2" ComponentId="{D01A0A90-8DD0-43F8-8123-1983EAE869FC}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="256" KeyPath="Nice3point.Revit.Toolkit.dll_2"/>
@@ -2017,7 +2015,6 @@
     <ROW File="Octokit.dll_2" Component_="Octokit.dll_2" FileName="Octokit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Octokit.dll" SelfReg="false"/>
     <ROW File="Nice3point.Revit.Toolkit.dll_1" Component_="Nice3point.Revit.Toolkit.dll_1" FileName="NICE3P~1.DLL|Nice3point.Revit.Toolkit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Nice3point.Revit.Toolkit.dll" SelfReg="false"/>
     <ROW File="Nice3point.Revit.Toolkit.dll_2" Component_="Nice3point.Revit.Toolkit.dll_2" FileName="NICE3P~1.DLL|Nice3point.Revit.Toolkit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Nice3point.Revit.Toolkit.dll" SelfReg="false"/>
-    <ROW File="Nice3point.Revit.Extensions.dll_2" Component_="Nice3point.Revit.Extensions.dll_2" FileName="NICE3P~2.DLL|Nice3point.Revit.Extensions.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Nice3point.Revit.Extensions.dll" SelfReg="false"/>
     <ROW File="fetch_windows_amd64.exe" Component_="fetch_windows_amd64.exe" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
     <ROW File="fetch_windows_amd64.exe_1" Component_="fetch_windows_amd64.exe_1" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
     <ROW File="fetch_windows_amd64.exe_2" Component_="fetch_windows_amd64.exe_2" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
@@ -2080,7 +2077,6 @@
     <ROW File="NLog.dll_3" Component_="NLog.dll_3" FileName="NLog.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\NLog.dll" SelfReg="false"/>
     <ROW File="Nice3point.Revit.Toolkit.dll_3" Component_="Nice3point.Revit.Toolkit.dll_3" FileName="NICE3P~1.DLL|Nice3point.Revit.Toolkit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Nice3point.Revit.Toolkit.dll" SelfReg="false"/>
     <ROW File="fetch_windows_amd64.exe_3" Component_="fetch_windows_amd64.exe_3" FileName="FETCH_~1.EXE|fetch_windows_amd64.exe" Attributes="0" SourcePath="install\fetch_windows_amd64.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="Nice3point.Revit.Extensions.dll_3" Component_="Nice3point.Revit.Extensions.dll_3" FileName="NICE3P~2.DLL|Nice3point.Revit.Extensions.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Nice3point.Revit.Extensions.dll" SelfReg="false"/>
     <ROW File="Octokit.dll_3" Component_="Octokit.dll_3" FileName="Octokit.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Octokit.dll" SelfReg="false"/>
     <ROW File="Revit.Async.dll_3" Component_="Revit.Async.dll_3" FileName="REVITA~1.DLL|Revit.Async.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Revit.Async.dll" SelfReg="false"/>
     <ROW File="CsvHelper.dll_3" Component_="CsvHelper.dll_3" FileName="CSVHEL~1.DLL|CsvHelper.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\CsvHelper.dll" SelfReg="false"/>
@@ -2838,7 +2834,6 @@
     <ROW Feature_="MainFeature" Component_="Octokit.dll_2"/>
     <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Toolkit.dll_1"/>
     <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Toolkit.dll_2"/>
-    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Extensions.dll_2"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe_1"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe_2"/>
@@ -2891,7 +2886,6 @@
     <ROW Feature_="MainFeature" Component_="NLog.dll_3"/>
     <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Toolkit.dll_3"/>
     <ROW Feature_="MainFeature" Component_="fetch_windows_amd64.exe_3"/>
-    <ROW Feature_="MainFeature" Component_="Nice3point.Revit.Extensions.dll_3"/>
     <ROW Feature_="MainFeature" Component_="Octokit.dll_3"/>
     <ROW Feature_="MainFeature" Component_="Revit.Async.dll_3"/>
     <ROW Feature_="MainFeature" Component_="CsvHelper.dll_3"/>
