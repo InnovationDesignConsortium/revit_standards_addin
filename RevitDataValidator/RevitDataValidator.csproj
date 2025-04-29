@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">    <PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 		None
 	</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
@@ -6,44 +7,96 @@
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-	<Configurations>2022;2023;2024;2025;2026</Configurations>
+	<Configurations>2022;2023;2024;2025;2026;2022Debug;2023Debug;2024Debug;2025Debug;2026Debug</Configurations>
     <RootNamespace>RevitDataValidator</RootNamespace>
 	<BaseOutputPath>.\bin</BaseOutputPath>
     <OutputType>Library</OutputType>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+<PropertyGroup Condition="$(Configuration) == '2022Debug'">
+ 	<DefineConstants>R2022;PRE_NET_8</DefineConstants>
+	<RevitVersion>2022</RevitVersion>
+	<TargetFramework>net48</TargetFramework>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+</PropertyGroup>
+<PropertyGroup Condition="$(Configuration) == '2023Debug'">
+	<RevitVersion>2023</RevitVersion>
+	<DefineConstants>R2023;PRE_NET_8</DefineConstants>
+	<TargetFramework>net48</TargetFramework>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+</PropertyGroup>
+<PropertyGroup Condition="$(Configuration) == '2024Debug'">
+	<RevitVersion>2024</RevitVersion>
+	<DefineConstants>R2024;PRE_NET_8</DefineConstants>
+	<TargetFramework>net48</TargetFramework>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+</PropertyGroup>
+<PropertyGroup Condition="$(Configuration) == '2025Debug'">
+	<RevitVersion>2025</RevitVersion>
+	<DefineConstants>R2025</DefineConstants>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+</PropertyGroup>
+<PropertyGroup Condition="$(Configuration) == '2026Debug'">
+	<RevitVersion>2026</RevitVersion>
+	<DefineConstants>R2026</DefineConstants>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+</PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2022'">
  	<DefineConstants>R2022;PRE_NET_8</DefineConstants>
 	<RevitVersion>2022</RevitVersion>
 	<TargetFramework>net48</TargetFramework>
+	<DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2023'">
 	<RevitVersion>2023</RevitVersion>
 	<DefineConstants>R2023;PRE_NET_8</DefineConstants>
 	<TargetFramework>net48</TargetFramework>
+	<DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2024'">
 	<RevitVersion>2024</RevitVersion>
 	<DefineConstants>R2024;PRE_NET_8</DefineConstants>
 	<TargetFramework>net48</TargetFramework>
+	<DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2025'">
 	<RevitVersion>2025</RevitVersion>
 	<DefineConstants>R2025</DefineConstants>
 	<TargetFramework>net8.0-windows</TargetFramework>
+	<DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2026'">
 	<RevitVersion>2026</RevitVersion>
 	<DefineConstants>R2026</DefineConstants>
 	<TargetFramework>net8.0-windows</TargetFramework>
+	<DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
 </PropertyGroup>
+
 <ItemGroup>
   <Compile Remove="Samples\**" />
   <EmbeddedResource Remove="Samples\**" />
@@ -134,7 +187,7 @@
     </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == true">
-	  <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx&quot; /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;copy /Y $(ProjectDir)$(TargetName).addin &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\&quot;&#xD;&#xA;copy /Y $(ProjectDir)NLog.config &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetPath) &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetDir)$(TargetName).pdb &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\$(Configuration)\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\Autodesk\Revit $(Configuration)\Revit.exe&quot; &quot;C:\Users\harry\Documents\rvt\$(Configuration).rvt&quot;" />
+	  <Exec Command="setlocal enabledelayedexpansion&#xD;&#xA;set config=$(Configuration)&#xD;&#xA;set modified_config=%25config:debug=%25&#xD;&#xA;echo Modified configuration: !modified_config!&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx&quot; /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;copy /Y $(ProjectDir)$(TargetName).addin &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\&quot;&#xD;&#xA;copy /Y $(ProjectDir)NLog.config &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetPath) &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetDir)$(TargetName).pdb &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\Autodesk\Revit !modified_config!\Revit.exe&quot; &quot;C:\Users\harry\Documents\rvt\!modified_config!.rvt&quot;&#xD;&#xA;" />
   </Target>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="dotnet restore $(SolutionDir)" />

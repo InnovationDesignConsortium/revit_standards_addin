@@ -463,6 +463,7 @@ namespace RevitDataValidator
                     PdfPath = parameterPack.PDF
                 });
             }
+            Utils.currentPropertyViewModelName = name;
         }
 
         private void SetRuleDatas()
@@ -530,41 +531,22 @@ namespace RevitDataValidator
             {
                 instanceParameters = new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
                     .Where(q => q != null)
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && Utils.IsParameterValid(q)) };
                 typeParameters = new List<Parameter> { Utils.doc.GetElement(Utils.doc.ActiveView.GetTypeId()).Parameters.Cast<Parameter>()
                     .Where(q => q != null)
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)) };
+                    .FirstOrDefault(q => q.Definition.Name == parameterName && Utils.IsParameterValid(q)) };
             }
             else
             {
-                instanceParameters = Utils.selectedIds.ConvertAll(w =>
-                Utils.doc.GetElement(w).Parameters.
-                    Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
-                typeParameters = Utils.selectedIds.ConvertAll(w =>
-                    Utils.doc.GetElement(Utils.doc.GetElement(w).GetTypeId()).Parameters.
-                        Cast<Parameter>().FirstOrDefault(q => q.Definition.Name == parameterName && IsParameterValid(q)));
+                instanceParameters = Utils.selectedElementParameters.Where(q => q.Definition.Name == parameterName).ToList();
+                typeParameters = Utils.selectedTypeParameters.Where(q => q.Definition.Name == parameterName).ToList();
             }
             parameters.AddRange(instanceParameters);
             parameters.AddRange(typeParameters);
             return parameters;
         }
 
-        private bool IsParameterValid(Parameter p)
-        {
-            if (p.Definition is InternalDefinition id &&
-                id.BuiltInParameter != BuiltInParameter.INVALID)
-            {
-                var typeid = id.GetParameterTypeId();
-                return typeid != ParameterTypeId.ScheduleLevelParam &&
-                    typeid != ParameterTypeId.ScheduleBaseLevelParam &&
-                    typeid != ParameterTypeId.ScheduleTopLevelParam;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
+       
         private string GetParameterValue(string parameterName)
         {
             if (Utils.doc == null)
@@ -583,9 +565,8 @@ namespace RevitDataValidator
             }
             else
             {
-                foreach (var id in Utils.selectedIds)
+                foreach (var element in Utils.selectedElements)
                 {
-                    var element = Utils.doc.GetElement(id);
                     var parameter = Utils.GetParameter(element, parameterName);
                     if (parameter == null)
                         continue;

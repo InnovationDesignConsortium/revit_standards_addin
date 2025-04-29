@@ -54,7 +54,10 @@ namespace RevitDataValidator
             }
             else
             {
-                DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+                if (cboParameterPack.SelectedItem?.ToString() != Utils.currentPropertyViewModelName)
+                {
+                    DataContext = new PropertyViewModel(cboParameterPack.SelectedItem.ToString());
+                }
             }
 
             Element element;

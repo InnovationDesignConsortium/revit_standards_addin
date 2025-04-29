@@ -104,6 +104,12 @@ namespace RevitDataValidator
         public static UpdaterId DataValidationUpdaterId;
         public static string gitRuleFilePath;
 
+        public static IEnumerable<Element> selectedElements = new List<Element>();
+        public static IEnumerable<Parameter> selectedElementParameters = new List<Parameter>();
+        public static IEnumerable<Parameter> selectedTypeParameters = new List<Parameter>();
+
+        public static string currentPropertyViewModelName;
+        
         public static void ReloadRules(bool forceReload)
         {
             var newFilename = Utils.GetFileName(Utils.doc);
@@ -2011,7 +2017,7 @@ namespace RevitDataValidator
             parameters.AddRange(element.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
             if (parameters.Any())
             {
-                var internalDuplicates = new List<string> { "Level", "Design Option", "View Template" };
+                var internalDuplicates = new List<string> { "Type Name" , "Level", "Design Option", "View Template" };
                 if ((parameters.Count() > 1 && !internalDuplicates.Contains(parameters.First().Definition.Name)) ||
                     (parameters.Count() > 2 && internalDuplicates.Contains(parameters.First().Definition.Name)))
                 {
@@ -2362,6 +2368,22 @@ namespace RevitDataValidator
             {
                 Utils.LogException("Failed to generate JwtToken", ex);
                 return null;
+            }
+        }
+
+        public static bool IsParameterValid(Parameter p)
+        {
+            if (p.Definition is InternalDefinition id &&
+                id.BuiltInParameter != BuiltInParameter.INVALID)
+            {
+                var typeid = id.GetParameterTypeId();
+                return typeid != ParameterTypeId.ScheduleLevelParam &&
+                    typeid != ParameterTypeId.ScheduleBaseLevelParam &&
+                    typeid != ParameterTypeId.ScheduleTopLevelParam;
+            }
+            else
+            {
+                return true;
             }
         }
     }
