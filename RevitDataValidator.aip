@@ -184,9 +184,7 @@
     <ROW File="Markdig.dll" Component_="Markdig.dll" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Markdig.dll" SelfReg="false"/>
     <ROW File="Flee.dll" Component_="Flee.dll" FileName="Flee.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Flee.dll" SelfReg="false"/>
     <ROW File="Markdig.dll_2" Component_="Markdig.dll_2" FileName="Markdig.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Markdig.dll" SelfReg="false"/>
-    <ROW File="RevitDataValidator.pdb" Component_="RevitDataValidator.dll" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2023\RevitDataValidator.pdb" SelfReg="false"/>
     <ROW File="Flee.dll_1" Component_="Flee.dll_1" FileName="Flee.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2024\Flee.dll" SelfReg="false"/>
-    <ROW File="RevitDataValidator.pdb_1" Component_="RevitDataValidator.dll_2" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2024\RevitDataValidator.pdb" SelfReg="false"/>
     <ROW File="System.Collections.Immutable.dll" Component_="System.Collections.Immutable.dll" FileName="SYSTEM~1.DLL|System.Collections.Immutable.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\System.Collections.Immutable.dll" SelfReg="false"/>
     <ROW File="Microsoft.CodeAnalysis.CSharp.dll" Component_="Microsoft.CodeAnalysis.CSharp.dll" FileName="MICROS~1.DLL|Microsoft.CodeAnalysis.CSharp.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Microsoft.CodeAnalysis.CSharp.dll" SelfReg="false"/>
     <ROW File="Microsoft.CodeAnalysis.CSharp.Scripting.dll" Component_="Microsoft.CodeAnalysis.CSharp.Scripting.dll" FileName="MICROS~2.DLL|Microsoft.CodeAnalysis.CSharp.Scripting.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2023\Microsoft.CodeAnalysis.CSharp.Scripting.dll" SelfReg="false"/>
@@ -1401,7 +1399,6 @@
     <ROW File="NLog.config_1" Component_="InPlaceFamilyCheck.cs_1" FileName="NLOG~1.CON|NLog.config" Attributes="0" SourcePath="RevitDataValidator\NLog.config" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin" Component_="RevitDataValidator.addin" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
     <ROW File="RevitDataValidator.dll_1" Component_="RevitDataValidator.dll_1" FileName="REVITD~1.DLL|RevitDataValidator.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\RevitDataValidator.dll" SelfReg="false"/>
-    <ROW File="RevitDataValidator.pdb_2" Component_="RevitDataValidator.dll_1" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2025\RevitDataValidator.pdb" SelfReg="false"/>
     <ROW File="NLog.config_2" Component_="InPlaceFamilyCheck.cs_2" FileName="NLOG~1.CON|NLog.config" Attributes="0" SourcePath="RevitDataValidator\NLog.config" SelfReg="false"/>
     <ROW File="contourLabelsElevBaseType1.0.0.json_2" Component_="contourLabelsElevBaseType1.0.0.json" FileName="CONTOU~1.JSO|contourLabelsElevBaseType-1.0.0.json" Attributes="0" SourcePath="install\2024\enums\contourLabelsElevBaseType-1.0.0.json" SelfReg="false"/>
     <ROW File="rebarGeometryType1.0.0.json_2" Component_="contourLabelsElevBaseType1.0.0.json" FileName="REBARG~1.JSO|rebarGeometryType-1.0.0.json" Attributes="0" SourcePath="install\2024\enums\rebarGeometryType-1.0.0.json" SelfReg="false"/>
@@ -2065,7 +2062,6 @@
     <ROW File="RevitValidatorInstaller.runtimecon_2_fig.json" Component_="InPlaceFamilyCheck.cs" FileName="REVITV~1.JSO|RevitValidatorInstaller.runtimeconfig.json" Attributes="0" SourcePath="RevitValidatorInstaller\bin\Debug\net8.0\RevitValidatorInstaller.runtimeconfig.json" SelfReg="false"/>
     <ROW File="RevitDataValidator.addin_3" Component_="RevitDataValidator.addin_1" FileName="REVITD~1.ADD|RevitDataValidator.addin" Attributes="0" SourcePath="RevitDataValidator\RevitDataValidator.addin" SelfReg="false"/>
     <ROW File="RevitDataValidator.dll_3" Component_="RevitDataValidator.dll_3" FileName="REVITD~1.DLL|RevitDataValidator.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\RevitDataValidator.dll" SelfReg="false"/>
-    <ROW File="RevitDataValidator.pdb_3" Component_="RevitDataValidator.dll_3" FileName="REVITD~1.PDB|RevitDataValidator.pdb" Attributes="0" SourcePath="RevitDataValidator\bin\2026\RevitDataValidator.pdb" SelfReg="false"/>
     <ROW File="NLog.config_3" Component_="NLog.config" FileName="NLOG~1.CON|NLog.config" Attributes="0" SourcePath="RevitDataValidator\NLog.config" SelfReg="false"/>
     <ROW File="Flee.dll_3" Component_="Flee.dll_3" FileName="Flee.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Flee.dll" SelfReg="false"/>
     <ROW File="Microsoft.CodeAnalysis.dll_3" Component_="Microsoft.CodeAnalysis.dll_3" FileName="MICROS~1.DLL|Microsoft.CodeAnalysis.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2026\Microsoft.CodeAnalysis.dll" SelfReg="false"/>
