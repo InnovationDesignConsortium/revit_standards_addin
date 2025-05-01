@@ -61,7 +61,7 @@
 	<RevitVersion>2022</RevitVersion>
 	<TargetFramework>net48</TargetFramework>
 	<DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2023'">
@@ -69,7 +69,7 @@
 	<DefineConstants>R2023;PRE_NET_8</DefineConstants>
 	<TargetFramework>net48</TargetFramework>
 	<DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2024'">
@@ -77,7 +77,7 @@
 	<DefineConstants>R2024;PRE_NET_8</DefineConstants>
 	<TargetFramework>net48</TargetFramework>
 	<DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2025'">
@@ -85,7 +85,7 @@
 	<DefineConstants>R2025</DefineConstants>
 	<TargetFramework>net8.0-windows</TargetFramework>
 	<DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration) == '2026'">
@@ -93,23 +93,8 @@
 	<DefineConstants>R2026</DefineConstants>
 	<TargetFramework>net8.0-windows</TargetFramework>
 	<DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2022|AnyCPU'">
-  <DebugType>none</DebugType>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2023|AnyCPU'">
-  <DebugType>none</DebugType>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2024|AnyCPU'">
-  <DebugType>none</DebugType>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2025|AnyCPU'">
-  <DebugType>none</DebugType>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2026|AnyCPU'">
-  <DebugType>none</DebugType>
 </PropertyGroup>
 
 <ItemGroup>
