@@ -19,7 +19,7 @@ namespace RevitDataValidator
 
         public static long GetValue(this ElementId elementId)
         {
-#if REVIT2023 || REVIT2022 || REVIT2021 || REVIT2020 || REVIT2019 || REVIT2018 || REVIT2017
+#if R2023 || R2022
             return elementId.IntegerValue;
 #else
             return elementId.Value;
@@ -49,7 +49,7 @@ namespace RevitDataValidator
     {
         public static ElementId New(long value)
         {
-#if REVIT2023 || REVIT2022 || REVIT2021 || REVIT2020 || REVIT2019 || REVIT2018 || REVIT2017
+#if R2023 || R2022
             return new ElementId((int)value);
 #else
             return new ElementId(value);
