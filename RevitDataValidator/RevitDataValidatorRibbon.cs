@@ -274,11 +274,6 @@ namespace RevitDataValidator
         {
             Utils.currentPropertyViewModelName = null;
             Utils.selectedIds = e.GetSelectedElements().ToList();
-            var doc = e.GetDocument();
-            Utils.selectedElements = Utils.selectedIds.Select(doc.GetElement);
-            Utils.selectedElementParameters = Utils.selectedElements.Select(q => q.Parameters.Cast<Parameter>()).SelectMany(q => q).Where(Utils.IsParameterValid);
-            var selectedTypes = Utils.selectedElements.Select(q => doc.GetElement(q.GetTypeId()));
-            Utils.selectedTypeParameters = selectedTypes.Select(q => q.Parameters.Cast<Parameter>()).SelectMany(q => q).Where(Utils.IsParameterValid);
             Utils.SetupPane();
         }
 

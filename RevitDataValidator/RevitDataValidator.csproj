@@ -96,6 +96,21 @@
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
 </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2022|AnyCPU'">
+  <DebugType>none</DebugType>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2023|AnyCPU'">
+  <DebugType>none</DebugType>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2024|AnyCPU'">
+  <DebugType>none</DebugType>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2025|AnyCPU'">
+  <DebugType>none</DebugType>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='2026|AnyCPU'">
+  <DebugType>none</DebugType>
+</PropertyGroup>
 
 <ItemGroup>
   <Compile Remove="Samples\**" />

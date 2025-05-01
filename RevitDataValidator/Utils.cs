@@ -104,10 +104,6 @@ namespace RevitDataValidator
         public static UpdaterId DataValidationUpdaterId;
         public static string gitRuleFilePath;
 
-        public static IEnumerable<Element> selectedElements = new List<Element>();
-        public static IEnumerable<Parameter> selectedElementParameters = new List<Parameter>();
-        public static IEnumerable<Parameter> selectedTypeParameters = new List<Parameter>();
-
         public static string currentPropertyViewModelName;
         
         public static void ReloadRules(bool forceReload)

@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using Newtonsoft.Json;
 using RevitDataValidator.Classes;
 using System;
@@ -110,11 +111,65 @@ namespace RevitDataValidator
 
             PackData = new ObservableCollection<PackData>();
 
+            var parameterValues = new Dictionary<string, List<string>>();
+            var selectedElements = new UIDocument(Utils.doc).Selection.GetElementIds().Select(q => Utils.doc.GetElement(q)).ToList();
+
+            if (!selectedElements.Any())
+            {
+                selectedElements.Add(Utils.doc.ActiveView);
+            }
+
+            // get all parameters in all packs for this set
+            var allParameterNamesInThisPackSet = new List<string>();
             foreach (var packName in packNames)
             {
                 var parameterPack = Utils.parameterUIData.ParameterPacks.Find(q => q.Name == packName);
                 if (packName == OTHER)
+                {
                     parameterPack = packOthers;
+                }
+                allParameterNamesInThisPackSet.AddRange(parameterPack.Parameters);
+            }
+
+            var dictParameterInfo = new Dictionary<string, ParameterInfo>();
+
+            foreach (var selectedElement in selectedElements)
+            {
+                var allParams = new List<Parameter>();
+                var selectedElementParameters = selectedElement.Parameters.Cast<Parameter>()
+                    .Where(q => allParameterNamesInThisPackSet.Contains(q.Definition.Name) && Utils.IsParameterValid(q));
+                var selectedTypeParameters = Utils.doc.GetElement(selectedElement.GetTypeId()).Parameters.Cast<Parameter>().
+                    Where(q => allParameterNamesInThisPackSet.Contains(q.Definition.Name) && Utils.IsParameterValid(q));
+                allParams.AddRange(selectedElementParameters);
+                allParams.AddRange(selectedTypeParameters);
+                foreach (var param in allParams)
+                {
+                    if (dictParameterInfo.ContainsKey(param.Definition.Name))
+                    {
+                        var pi = dictParameterInfo[param.Definition.Name];
+                        pi.Values.Add(param.AsValueString());
+                        pi.Parameters.Add(param);
+                    }
+                    else
+                    {
+                        var p = new ParameterInfo
+                        {
+                            StorageType = param.StorageType,
+                            Values = new List<string> { param.AsValueString() },
+                            Parameters = new List<Parameter> { param }
+                        };
+                        dictParameterInfo.Add(param.Definition.Name, p);
+                    }
+                }
+            }
+
+            foreach (var packName in packNames)
+            {
+                var parameterPack = Utils.parameterUIData.ParameterPacks.Find(q => q.Name == packName);
+                if (packName == OTHER)
+                {
+                    parameterPack = packOthers;
+                }
 
                 if (parameterPack == null)
                 {
@@ -125,9 +180,17 @@ namespace RevitDataValidator
                 var packParameters = new ObservableCollection<IStateParameter>();
                 foreach (string pname in parameterPack.Parameters)
                 {
-                    var parameters = GetParameter(pname).Where(q => q != null).ToList();
+                    if (!dictParameterInfo.TryGetValue(pname, out ParameterInfo pinfo))
+                    {
+                        continue;
+                    }
+                    if (pinfo == null)
+                    {
+                        continue;
+                    }
+                    var parameters = pinfo.Parameters;
                     bool foundRule = false;
-                    if (parameters.Any())
+                    if (pinfo.Values.Any())
                     {
                         foreach (var rule in Utils.allParameterRules.Where(q => !q.Disabled))
                         {
@@ -142,9 +205,9 @@ namespace RevitDataValidator
                                 {
                                     choices = Utils.GetChoicesFromList(element, rule)
                                         .ConvertAll(q => new StringInt(q.Name, 0));
-                                    if (choices.Count == 0 || !choices.Select(q => q.String).Contains(parameters.First().AsString()))
+                                    if (choices.Count == 0 || !choices.Select(q => q.String).Contains(pinfo.Values.First()))
                                     {
-                                        foreach (var parameter in parameters.Where(q => q != null))
+                                        foreach (var parameter in pinfo.Parameters.Where(q => q != null))
                                         {
                                             if (parameter.AsValueString() != "")
                                             {
@@ -165,7 +228,7 @@ namespace RevitDataValidator
                                     }
                                     choices = keyValues.ConvertAll(q => new StringInt(q[0], 0));
                                 }
-                                var paramValue = GetParameterValue(pname);
+                                var paramValue = GetParameterValue(pinfo.Values);
                                 var selected = choices.Find(q => q.String == paramValue);
                                 if (parameters.Any(q => q != null))
                                 {
@@ -188,7 +251,7 @@ namespace RevitDataValidator
                         if (parameters?.Count > 0 && parameters[0] != null)
                         {
                             var parameter = parameters[0];
-                            var value = GetParameterValue(pname);
+                            var value = GetParameterValue(pinfo.Values);
                             if (parameter.StorageType == StorageType.Integer &&
                                 parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
                             {
@@ -517,83 +580,8 @@ namespace RevitDataValidator
                         .OrderBy(q => q.String).ToList();
         }
 
-        private List<Parameter> GetParameter(string parameterName)
+        private string GetParameterValue(List<string> values)
         {
-            if (Utils.doc == null)
-            {
-                return null;
-            }
-
-            var parameters = new List<Parameter>();
-            var instanceParameters = new List<Parameter>();
-            var typeParameters = new List<Parameter>();
-            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
-            {
-                instanceParameters = new List<Parameter> { Utils.doc.ActiveView.Parameters.Cast<Parameter>()
-                    .Where(q => q != null)
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && Utils.IsParameterValid(q)) };
-                typeParameters = new List<Parameter> { Utils.doc.GetElement(Utils.doc.ActiveView.GetTypeId()).Parameters.Cast<Parameter>()
-                    .Where(q => q != null)
-                    .FirstOrDefault(q => q.Definition.Name == parameterName && Utils.IsParameterValid(q)) };
-            }
-            else
-            {
-                instanceParameters = Utils.selectedElementParameters.Where(q => q.Definition.Name == parameterName).ToList();
-                typeParameters = Utils.selectedTypeParameters.Where(q => q.Definition.Name == parameterName).ToList();
-            }
-            parameters.AddRange(instanceParameters);
-            parameters.AddRange(typeParameters);
-            return parameters;
-        }
-
-       
-        private string GetParameterValue(string parameterName)
-        {
-            if (Utils.doc == null)
-            {
-                return null;
-            }
-
-            var parameters = new List<Parameter>();
-            if (Utils.selectedIds == null || Utils.selectedIds.Count == 0)
-            {
-                var viewParam = Utils.GetParameter(Utils.doc.ActiveView, parameterName);
-                if (viewParam != null)
-                {
-                    parameters.Add(viewParam);
-                }
-            }
-            else
-            {
-                foreach (var element in Utils.selectedElements)
-                {
-                    var parameter = Utils.GetParameter(element, parameterName);
-                    if (parameter == null)
-                        continue;
-                    parameters.Add(parameter);
-                }
-            }
-
-            var values = new List<string>();
-            foreach (var parameter in parameters)
-            {
-                if (parameter.StorageType == StorageType.ElementId)
-                {
-                    var id = parameter.AsElementId();
-                    if (id == ElementId.InvalidElementId)
-                    {
-                        values.Add("None");
-                    }
-                    else
-                    {
-                        values.Add(Utils.doc.GetElement(id).Name);
-                    }
-                }
-                else
-                {
-                    values.Add(parameter.AsValueString());
-                }
-            }
             var valuesDistinct = values.Distinct().ToList();
             if (valuesDistinct.Count == 1)
             {
