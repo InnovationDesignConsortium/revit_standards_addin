@@ -189,7 +189,4 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == true">
 	  <Exec Command="setlocal enabledelayedexpansion&#xD;&#xA;set config=$(Configuration)&#xD;&#xA;set modified_config=%25config:debug=%25&#xD;&#xA;echo Modified configuration: !modified_config!&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\harry\Documents\Boost Your BIM\BoostYourBIM.pfx&quot; /fd SHA256 /p $(CodeSignPassword) /v $(TargetPath)&#xD;&#xA;&#xD;&#xA;mkdir &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;copy /Y $(ProjectDir)$(TargetName).addin &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\&quot;&#xD;&#xA;copy /Y $(ProjectDir)NLog.config &quot;&quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetPath) &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;copy /Y $(TargetDir)$(TargetName).pdb &quot;$(LocalAppData)\..\Roaming\autodesk\revit\Addins\!modified_config!\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&quot;C:\Program Files\Autodesk\Revit !modified_config!\Revit.exe&quot; &quot;C:\Users\harry\Documents\rvt\!modified_config!.rvt&quot;&#xD;&#xA;" />
   </Target>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet restore $(SolutionDir)" />
-  </Target>
 </Project>
