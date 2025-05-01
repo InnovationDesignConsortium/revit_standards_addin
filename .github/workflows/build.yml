@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: windows-2022
-    continue-on-error: true
     permissions:
       contents: write
       pull-requests: write
@@ -21,12 +20,6 @@ jobs:
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.1
       - uses: actions/checkout@v4
-      - name: Restore Packages 2023
-        run: nuget restore RevitDataValidator.sln
-        env:
-          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
-      - name: Build 2023
-        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
       - name: Restore Packages 2024
         run: nuget restore RevitDataValidator.sln
         env:
@@ -45,6 +38,12 @@ jobs:
           NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2026
       - name: Build 2026
         run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2026
+      - name: Restore Packages 2023
+        run: nuget restore RevitDataValidator.sln
+        env:
+          NUGET_RESTORE_MSBUILD_ARGS: /p:Configuration=2023
+      - name: Build 2023
+        run: msbuild RevitDataValidator.sln -t:rebuild -property:Configuration=2023
       - name: Create Code Signing Certificate
         run: |
           mkdir certificate
