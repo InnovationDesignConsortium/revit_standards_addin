@@ -315,6 +315,11 @@ namespace RevitDataValidator
             var uiapp = new UIApplication(app);
             var pane = uiapp.GetDockablePane(Utils.paneId);
 
+            if (pane == null || !pane.IsShown())
+            {
+                return;
+            }
+
             Utils.propertiesPanel.SaveTextBoxValues();
 
             Element element = null;
