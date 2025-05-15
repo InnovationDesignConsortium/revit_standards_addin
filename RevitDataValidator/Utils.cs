@@ -1293,6 +1293,11 @@ namespace RevitDataValidator
                         break;
                     }
                     var paramValue = GetParamAsString(parameter);
+                    if (parameter.StorageType == StorageType.ElementId &&
+                        parameter.Definition.Name.Contains("LEVEL", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        paramValue = Regex.Replace(paramValue, "^Temp. ", String.Empty);
+                    }
                     if (paramValue == null || !Regex.IsMatch(paramValue, p.Value))
                     {
                         pass = false;
@@ -1305,7 +1310,7 @@ namespace RevitDataValidator
                     var parameter = element.get_Parameter(BuiltInParameter.ELEM_PARTITION_PARAM);
                     if (parameter.IsReadOnly)
                     {
-                        Log($"Workset parameter is readonly for {GetElementInfo(element)}", LogLevel.Warn);
+                        Log($"Workset parameter is readonly for {GetElementInfo(element)} cannot set to {workset.Name}", LogLevel.Warn);
                     }
                     else
                     {
