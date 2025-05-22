@@ -257,6 +257,7 @@ namespace RevitDataValidator
                         }
                         if (conflictingRule == null)
                         {
+                            DisableByDefaultRulesRequireName(parameterRule);
                             parameterRule.Guid = Guid.NewGuid();
                             Utils.allParameterRules.Add(parameterRule);
                         }
@@ -290,6 +291,7 @@ namespace RevitDataValidator
 
                     if (conflictingRule == null)
                     {
+                        DisableByDefaultRulesRequireName(worksetRule);
                         worksetRule.Guid = Guid.NewGuid();
                         RegisterWorksetRule(worksetRule);
                         Utils.allWorksetRules.Add(worksetRule);
@@ -304,6 +306,13 @@ namespace RevitDataValidator
             SetupPane();
         }
 
+        private static void DisableByDefaultRulesRequireName(BaseRule rule)
+        {
+            if (rule.RuleName == null && rule.DisableByDefault)
+            {
+                Log("Rule file error - All rules that are disabled by default must have a 'Rule Name'.", LogLevel.Error);
+            }
+        }
         public static void SetupPane()
         {
             var doc = Utils.doc;
@@ -1298,6 +1307,11 @@ namespace RevitDataValidator
                         break;
                     }
                     var paramValue = GetParamAsString(parameter);
+                    if (parameter.StorageType == StorageType.ElementId &&
+                        parameter.Definition.Name.Contains("LEVEL", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        paramValue = Regex.Replace(paramValue, "^Temp. ", String.Empty);
+                    }
                     if (paramValue == null || !Regex.IsMatch(paramValue, p.Value))
                     {
                         pass = false;
@@ -1310,7 +1324,7 @@ namespace RevitDataValidator
                     var parameter = element.get_Parameter(BuiltInParameter.ELEM_PARTITION_PARAM);
                     if (parameter.IsReadOnly)
                     {
-                        Log($"Workset parameter is readonly for {GetElementInfo(element)}", LogLevel.Warn);
+                        Log($"Workset parameter is readonly for {GetElementInfo(element)} cannot set to {workset.Name}", LogLevel.Warn);
                     }
                     else
                     {
