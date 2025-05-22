@@ -1308,7 +1308,7 @@ namespace RevitDataValidator
                     }
                     var paramValue = GetParamAsString(parameter);
                     if (parameter.StorageType == StorageType.ElementId &&
-                        parameter.Definition.Name.Contains("LEVEL", StringComparison.CurrentCultureIgnoreCase))
+                        parameter.Definition.Name.ToUpper().Contains("LEVEL"))
                     {
                         paramValue = Regex.Replace(paramValue, "^Temp. ", String.Empty);
                     }
