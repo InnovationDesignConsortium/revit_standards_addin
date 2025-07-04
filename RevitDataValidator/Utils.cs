@@ -508,13 +508,13 @@ namespace RevitDataValidator
                             {
                                 if (i == 0)
                                 {
-                                    rule.FilterParameter = csv[0];
-                                    rule.ParameterName = csv[1];
-                                    rule.DrivenParameters = csv.Parser.Record.ToList().Skip(2).ToList();
+                                    rule.FilterParameter = csv[0].Trim();
+                                    rule.ParameterName = csv[1].Trim();
+                                    rule.DrivenParameters = csv.Parser.Record.ToList().Skip(2).Select(q => q.Trim()).ToList();
                                 }
                                 else
                                 {
-                                    listData.Add(csv.Parser.Record.ToList());
+                                    listData.Add(csv.Parser.Record.ToList().Select(q => q.Trim()).ToList());
                                 }
                                 i++;
                             }
