@@ -155,12 +155,14 @@
     <ROW Component="RevitValidatorInstaller.exe_3" ComponentId="{D3C85EBF-ED7C-466E-96FB-44C57C5F36DC}" Directory_="RevitDataValidator_Dir" Attributes="256" KeyPath="RevitValidatorInstaller.exe_3"/>
     <ROW Component="System.Collections.Immutable.dll" ComponentId="{5870434D-871E-49A2-BCC4-6BAA6FE946AE}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll"/>
     <ROW Component="System.Collections.Immutable.dll_1" ComponentId="{10B45995-977C-4CB9-859E-B1C8A6BD5CE8}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll_1"/>
+    <ROW Component="System.Collections.Immutable.dll_2" ComponentId="{6A07BB9E-9E82-4FF4-BDB2-279FFD1DE6DA}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="System.Collections.Immutable.dll_2"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll" ComponentId="{73469280-EE7F-453D-8A46-D2224EB45EF6}" Directory_="CreateJsonWebToken_2_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll_1" ComponentId="{8D87DEEE-7DD6-4CCE-8DA2-C5BE988C0D73}" Directory_="CreateJsonWebToken_1_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll_1"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll_2" ComponentId="{F326D0F9-1060-4457-B391-B31DBE6FC22E}" Directory_="CreateJsonWebToken_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll_2"/>
     <ROW Component="System.IdentityModel.Tokens.Jwt.dll_3" ComponentId="{A4977140-B64C-4EAE-B710-5DDEC2F94648}" Directory_="CreateJsonWebToken_3_Dir" Attributes="0" KeyPath="System.IdentityModel.Tokens.Jwt.dll_3"/>
     <ROW Component="System.Reflection.Metadata.dll" ComponentId="{B9C2ABB6-7887-42DC-B1B4-55A2C9A02596}" Directory_="BoostYourBIMTerrificTools_6_Dir" Attributes="0" KeyPath="System.Reflection.Metadata.dll"/>
     <ROW Component="System.Reflection.Metadata.dll_1" ComponentId="{E228ED76-D75A-43F6-8674-7A736195580F}" Directory_="BoostYourBIMTerrificTools_7_Dir" Attributes="0" KeyPath="System.Reflection.Metadata.dll_1"/>
+    <ROW Component="System.Reflection.Metadata.dll_2" ComponentId="{745F7FFF-34FB-488A-8C8C-393402EA0B54}" Directory_="RevitDataValidator_1_Dir" Attributes="0" KeyPath="System.Reflection.Metadata.dll_2"/>
     <ROW Component="alternateUnits1.0.0.json" ComponentId="{AE814464-8382-4177-9CD4-11667E3E7DD8}" Directory_="enums_Dir" Attributes="0" KeyPath="alternateUnits1.0.0.json" Type="0"/>
     <ROW Component="alternateUnits1.0.0.json_1" ComponentId="{DFBB4C1D-286E-4734-BCEE-383FCB98846E}" Directory_="enums_1_Dir" Attributes="0" KeyPath="alternateUnits1.0.0.json_1" Type="0"/>
     <ROW Component="contourLabelsElevBaseType1.0.0.json" ComponentId="{1123D76A-02B3-4B4B-81BF-412D1F448279}" Directory_="enums_2_Dir" Attributes="0" KeyPath="contourLabelsElevBaseType1.0.0.json_2" Type="0"/>
@@ -2687,6 +2689,8 @@
     <ROW File="wrappingAtEndsParam1.0.0.json_3" Component_="stairsTrisertypeNosingPlacement2.0.0.json" FileName="WRAPPI~3.JSO|wrappingAtEndsParam-1.0.0.json" Attributes="0" SourcePath="install\2024\enums\wrappingAtEndsParam-1.0.0.json" SelfReg="false"/>
     <ROW File="wrappingAtInsertsParam2.0.0.json_3" Component_="stairsTrisertypeNosingPlacement2.0.0.json" FileName="WRAPPI~4.JSO|wrappingAtInsertsParam-2.0.0.json" Attributes="0" SourcePath="install\2024\enums\wrappingAtInsertsParam-2.0.0.json" SelfReg="false"/>
     <ROW File="yzJustification1.0.0.json_3" Component_="stairsTrisertypeNosingPlacement2.0.0.json" FileName="YZJUST~2.JSO|yzJustification-1.0.0.json" Attributes="0" SourcePath="install\2024\enums\yzJustification-1.0.0.json" SelfReg="false"/>
+    <ROW File="System.Reflection.Metadata.dll_2" Component_="System.Reflection.Metadata.dll_2" FileName="SYSTEM~1.DLL|System.Reflection.Metadata.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\System.Reflection.Metadata.dll" SelfReg="false"/>
+    <ROW File="System.Collections.Immutable.dll_2" Component_="System.Collections.Immutable.dll_2" FileName="SYSTEM~2.DLL|System.Collections.Immutable.dll" Attributes="0" SourcePath="RevitDataValidator\bin\2025\System.Collections.Immutable.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -2896,6 +2900,8 @@
     <ROW Feature_="MainFeature" Component_="Microsoft.IdentityModel.Logging.dll_3"/>
     <ROW Feature_="MainFeature" Component_="System.IdentityModel.Tokens.Jwt.dll_3"/>
     <ROW Feature_="MainFeature" Component_="stairsTrisertypeNosingPlacement2.0.0.json"/>
+    <ROW Feature_="MainFeature" Component_="System.Reflection.Metadata.dll_2"/>
+    <ROW Feature_="MainFeature" Component_="System.Collections.Immutable.dll_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="InstallIcon.exe" SourcePath="install\InstallIcon.ico" Index="0"/>
