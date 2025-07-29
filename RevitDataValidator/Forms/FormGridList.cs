@@ -11,7 +11,7 @@ namespace RevitDataValidator.Forms
     public partial class FormGridList : System.Windows.Forms.Form
     {
         private const string PARAM = "PARAM";
-
+        private const int ComboBoxColumnIndex = 3;
         public FormGridList(List<RuleFailure> failures)
         {
             InitializeComponent();
@@ -249,6 +249,13 @@ namespace RevitDataValidator.Forms
             var paramName = cbo.Name.Replace(prefix, "");
             foreach (var row in dataGridView1.SelectedRows.Cast<DataGridViewRow>())
             {
+                if (row.Cells[ComboBoxColumnIndex] is DataGridViewComboBoxCell dc)
+                {
+                    if (dc.Items.Count == 0)
+                    {
+                        SetComboBoxValues(row);
+                    }
+                }
                 row.Cells[PARAM + paramName].Value = value;
             }
         }
@@ -395,14 +402,8 @@ namespace RevitDataValidator.Forms
             dataGridView1.SelectAll();
         }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void SetComboBoxValues(DataGridViewRow row)
         {
-            if (e.RowIndex == -1)
-            {
-                return;
-            }
-            var row = dataGridView1.Rows[e.RowIndex];
-            var col = dataGridView1.Columns[e.ColumnIndex];
             var elementId = ElementIdUtils.New(int.Parse(row.Cells["Id"].Value.ToString()));
             var element = Utils.doc.GetElement(elementId);
             var rule = Utils.allParameterRules.First(q => q.Guid.ToString() == row.Cells["RuleGuid"].Value.ToString());
@@ -423,7 +424,7 @@ namespace RevitDataValidator.Forms
             {
                 dataSource.Add("");
             }
-            if (dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewComboBoxCell dgvcbc)
+            if (row.Cells[ComboBoxColumnIndex] is DataGridViewComboBoxCell dgvcbc)
             {
                 dgvcbc.Items.Clear();
                 foreach (object itemToAdd in dataSource)
@@ -431,6 +432,20 @@ namespace RevitDataValidator.Forms
                     dgvcbc.Items.Add(itemToAdd);
                 }
             }
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex == -1)
+            {
+                return;
+            }
+            SetComboBoxValues(dataGridView1.Rows[e.RowIndex]);
+        }
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            Utils.Log($"{Text} {e.Exception.Message} ", LogLevel.Error);
         }
     }
 }
