@@ -9,6 +9,7 @@ using Markdig;
 using Markdig.Helpers;
 using Markdig.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
@@ -2234,7 +2235,7 @@ namespace RevitDataValidator
 
         public static void GetEnvironmentVariableData()
         {
-            LOCAL_FILE_PATH = GetEnvironmentVariable(LOCALPATH_ENV);
+            LOCAL_FILE_PATH = GetEnvironmentVariableOrRegistryData(LOCALPATH_ENV);
             if (!string.IsNullOrEmpty(LOCAL_FILE_PATH))
             {
                 Log($"{LOCALPATH_ENV} = {LOCAL_FILE_PATH}", LogLevel.Info);
@@ -2245,13 +2246,13 @@ namespace RevitDataValidator
             }
             else
             {
-                GIT_ENTERPRISE_SERVER_URL = GetEnvironmentVariable(SERVER_ENV);
+                GIT_ENTERPRISE_SERVER_URL = GetEnvironmentVariableOrRegistryData(SERVER_ENV);
                 if (!string.IsNullOrEmpty(GIT_ENTERPRISE_SERVER_URL))
                 {
                     Log($"{SERVER_ENV} = {GIT_ENTERPRISE_SERVER_URL}", LogLevel.Info);
                 }
 
-                GIT_OWNER = GetEnvironmentVariable(OWNER_ENV);
+                GIT_OWNER = GetEnvironmentVariableOrRegistryData(OWNER_ENV);
                 if (GIT_OWNER == null)
                 {
                     Log($"Environment variable {OWNER_ENV} is empty", LogLevel.Error);
@@ -2261,7 +2262,7 @@ namespace RevitDataValidator
                     Log($"{OWNER_ENV} = {GIT_OWNER}", LogLevel.Info);
                 }
 
-                GIT_REPO = GetEnvironmentVariable(REPO_ENV);
+                GIT_REPO = GetEnvironmentVariableOrRegistryData(REPO_ENV);
                 if (string.IsNullOrEmpty(GIT_REPO))
                 {
                     Log($"Environment variable {REPO_ENV} is empty", LogLevel.Error);
@@ -2271,7 +2272,7 @@ namespace RevitDataValidator
                     Log($"{REPO_ENV} = {GIT_REPO}", LogLevel.Info);
                 }
 
-                var git_pat = GetEnvironmentVariable(PAT_ENV);
+                var git_pat = GetEnvironmentVariableOrRegistryData(PAT_ENV);
                 if (string.IsNullOrEmpty(git_pat))
                 {
                     tokenFromGithubApp = GetGithubTokenFromApp(GIT_OWNER);
@@ -2284,7 +2285,7 @@ namespace RevitDataValidator
             }
         }
 
-        private static string GetEnvironmentVariable(string name)
+        public static string GetEnvironmentVariableOrRegistryData(string name)
         {
             var ret = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine);
             if (ret != null)
@@ -2292,7 +2293,49 @@ namespace RevitDataValidator
                 return ret;
             }
             ret = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
-            return ret == null ? "" : ret.ToString();
+            if (ret != null)
+            {
+                return ret;
+            }
+            ret = GetRegistryValue(name);
+
+            return ret ?? "";
+        }
+
+        private static string GetRegistryValue(string name)
+        {
+            var machine = GetRegistryValueByKey(Registry.LocalMachine, name);
+            if (machine != null)
+            {
+                return machine;
+            }
+            var currentUser = GetRegistryValueByKey(Registry.CurrentUser, name);
+            if (currentUser != null)
+            {
+                return currentUser;
+            }
+            return null;
+        }
+
+        private static string GetRegistryValueByKey(RegistryKey keyType, string name)
+        {
+            const string REGISTRY_PATH = "Software\\Innovation Design Consortium\\Revit Data Validator";
+            using (var key = keyType.OpenSubKey(REGISTRY_PATH))
+            {
+                if (key == null)
+                {
+                    return null;
+                }
+
+                var o = key.GetValue(name);
+                if (o == null)
+                {
+                    return null;
+                }
+
+                Log($"GetRegistryValueByKey {keyType} {name} {o}", LogLevel.Info);
+                return o.ToString();
+            }
         }
 
         public static TokenInfo GetGithubTokenFromApp(string owner)

@@ -12,7 +12,7 @@ These components required to use this application.
     
     OR
 
-    A set of local files and an associated Environment Variable
+    A set of local files and an associated Environment Variables or registry keys
 
 1. A couple of custom **Environment Variables** on each workstation
 1. The **Revit Standards Addin**
@@ -22,8 +22,8 @@ These components required to use this application.
 Below are instructions to set up and deploy each component across an organization.
 1. Create an empty Github repository. It can be Public, but the application was designed to work with a Private repository.This repository is where you will store your rules and configuration files and any other referenced files.  Client permision to access the rules in Revit,  is handled by the **"Revit Standards Github App"**, so users of the addin don't need to have access to the repo to read and execute the rules. You can start with a set of sample files by cloning [this repo](https://github.com/InnovationDesignConsortium/revit_standards_addin_rule_sample/tree/main). Alternatively, you can create the folder structure and files from scratch using the samples as a guide. There are very few files required to get this up and running.
 1. Install the [RevitStandardsGithubApp](https://github.com/apps/revitstandardsgithubapp/installations/new) and give it access to your repo. More on [installing Github apps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party#installing-a-github-app). The RevitStandardsGithubApp needs read access so it can read the rules and configuration files.
-1. As an alternative to storing the config files on GitHub, you can store the configuration and files locally. To do this, set the environment variable `RevitStandardsAddinFilePath` with the full path to the folder where the files will be stored. If this is done, no other environment variables need to be set.
-1. Each workstation using this application MUST have the following Environment Variables configured to direct the Revit addin to the Github repo from step 1. 
+1. As an alternative to storing the config files on GitHub, you can store the configuration and files locally. To do this, set the environment variable or registry key `RevitStandardsAddinFilePath` with the full path to the folder where the files will be stored. If this is done, no other environment variables need to be set.
+1. Each workstation using this application MUST have the following Environment Variables or registry keys configured to direct the Revit addin to the Github repo from step 1. 
 
     `RevitStandardsAddinGitOwner`: owner of the repo where the rules and JSON are saved, such as InnovationDesignConsortium  
     `RevitStandardsAddinGitRepo`: name of the repo where the rules and JSON are stored, such as PrivateRepoTest which is the test repo at https://github.com/InnovationDesignConsortium/PrivateRepoTest
@@ -32,18 +32,16 @@ Below are instructions to set up and deploy each component across an organizatio
 
     ![image](https://github.com/user-attachments/assets/022232f8-361d-4ae6-95bb-3bffa6675d9e)
 
-   Additional Environment Variables that MAY be used are:
+   Additional Environment Variables or registry keys that MAY be used are:
 
     `RevitStandardsAddinGitServerUrl`: the URL for a Github Enterprise server account, if it exists.  
     `RevitStandardsAddinGitPat`: the Personal Access Token that can be used instead of installing the Github App.
 
 1. Install the [latest release](https://github.com/InnovationDesignConsortium/revit_standards_addin/releases) of the Revit addin on each user's workstation using the provided MSI. 
-1. Registry keys are used for some settings of the tool. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked first. If no data is found, then `Computer\HKEY_CURRENT_USER\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked. The currently implemented options are:
+1. When Registry keys or environment variables are used, the system environment variables are checked first, then user environment varialbes, then `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked, and finally `Computer\HKEY_CURRENT_USER\SOFTWARE\Innovation Design Consortium\Revit Data Validator` is checked. The currently implemented options are:
     1. `ShowPropertiesPanelOnStartup` if this is set to "1" then the Properties Panel will be shown at startup. If the value is missing or has any other value, the Panel will not be shown on startup.
     1. `SkipUpdateCheck` if this is set to "1" then there will be no check during Revit startup to see if a newer version of the tool is available
     1. `UpdateWithoutPrompt` if this is set to "1" then the tool will automatically update without any user prompt when Revit exits if a new version is available 
-
-NOTE: The environment variables can be System or User variables. System variables are checked first, if they do not exist then User variables will be used.
 
 ### Software Updates
 The Revit addin is designed to notify a user of updates and prompt to update itself when Revit is closed. 

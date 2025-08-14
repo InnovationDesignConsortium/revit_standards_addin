@@ -38,7 +38,7 @@ namespace RevitDataValidator
             }
             LogManager.Configuration = logConfig;
 
-            var registryShowPropertiesPanelOnStartup = GetRegistryValue("ShowPropertiesPanelOnStartup");
+            var registryShowPropertiesPanelOnStartup = Utils.GetEnvironmentVariableOrRegistryData("ShowPropertiesPanelOnStartup");
             ShowPropertiesPanelOnStartup = registryShowPropertiesPanelOnStartup == null || registryShowPropertiesPanelOnStartup == "1";
 
             Utils.Log($"Revit version: {Application.ControlledApplication.VersionNumber}", LogLevel.Info);
@@ -127,50 +127,13 @@ namespace RevitDataValidator
             }) as PushButton;
             showLogButton.AvailabilityClassName = "RevitDataValidator.CommandIsAlwaysAvailable";
 
-            if (GetRegistryValue("UpdateWithoutPrompt") == "1")
+            if (Utils.GetEnvironmentVariableOrRegistryData("UpdateWithoutPrompt") == "1")
             {
                 Update.CheckForUpdates(true);
             }
-            else if (GetRegistryValue("SkipUpdateCheck") != "1")
+            else if (Utils.GetEnvironmentVariableOrRegistryData("SkipUpdateCheck") != "1")
             {
                 Update.CheckForUpdates();
-            }
-        }
-
-        private const string REGISTRY_PATH = "Software\\Innovation Design Consortium\\Revit Data Validator";
-
-        private string GetRegistryValue(string name)
-        {
-            var machine = GetRegistryValueByKey(Registry.LocalMachine, name);
-            if (machine != null)
-            {
-                return machine;
-            }
-            var currentUser = GetRegistryValueByKey(Registry.CurrentUser, name);
-            if (currentUser != null)
-            {
-                return currentUser;
-            }
-            return null;
-        }
-
-        private string GetRegistryValueByKey(RegistryKey keyType, string name)
-        {
-            using (var key = keyType.OpenSubKey(REGISTRY_PATH))
-            {
-                if (key == null)
-                {
-                    return null;
-                }
-
-                var o = key.GetValue(name);
-                if (o == null)
-                {
-                    return null;
-                }
-
-                Utils.Log($"GetRegistryValueByKey {keyType} {name} {o}", LogLevel.Info);
-                return o.ToString();
             }
         }
 
