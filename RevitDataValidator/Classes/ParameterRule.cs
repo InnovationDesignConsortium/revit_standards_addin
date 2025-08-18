@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -60,6 +61,7 @@ namespace RevitDataValidator
         [JsonProperty("Is Value Required")]
         public bool IsValueRequired { get; set; }
 
+        public Guid FailureGuid { get; set; }
 
         public override string ToString()
         {

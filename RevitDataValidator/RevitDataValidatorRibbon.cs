@@ -1,11 +1,12 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
-using Microsoft.Win32;
+using Newtonsoft.Json;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 using Revit.Async;
+using RevitDataValidator.Classes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,8 @@ namespace RevitDataValidator
 
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
+
+            LoadCustomFailures();
 
             LogManager.Configuration = new XmlLoggingConfiguration(Path.Combine(Utils.dllPath, "NLog.config"));
             var logConfig = LogManager.Configuration;
@@ -134,6 +137,65 @@ namespace RevitDataValidator
             else if (Utils.GetEnvironmentVariableOrRegistryData("SkipUpdateCheck") != "1")
             {
                 Update.CheckForUpdates();
+            }
+        }
+
+        public void LoadCustomFailures()
+        {
+            Utils.GetEnvironmentVariableData();
+
+            var path = "Standards/RevitStandardsPanel/CustomFailures.json";
+
+            string json = null;
+            if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
+            {
+                var localpath = Path.Combine(Utils.LOCAL_FILE_PATH, path);
+                if (File.Exists(localpath))
+                {
+                    json = File.ReadAllText(localpath);
+                }
+            }
+            else
+            {
+                var data = Utils.GetGitData(Octokit.ContentType.File, path);
+                if (data == null)
+                {
+                    Utils.Log($"No git data at {path}", LogLevel.Warn);
+                    return;
+                }
+                json = data.Content;
+            }
+
+            if (json == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var failures = JsonConvert.DeserializeObject<CustomFailureWrapper>(json, new JsonSerializerSettings
+                {
+                    Error = Utils.HandleDeserializationError,
+                    MissingMemberHandling = MissingMemberHandling.Error
+                });
+                foreach (var customFailure in failures.CustomFailures)
+                {
+                    var failureId = new FailureDefinitionId(customFailure.FailureGuid);
+                    try
+                    {
+                        FailureDefinition.CreateFailureDefinition(
+                                new FailureDefinitionId(customFailure.FailureGuid),
+                                FailureSeverity.Error,
+                                customFailure.Message);
+                        Utils.CustomFailures.Add(customFailure.FailureGuid, failureId);
+                    }
+                    catch
+                    { }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.LogException(ex.Message, ex);
             }
         }
 

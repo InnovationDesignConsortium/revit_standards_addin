@@ -38,6 +38,7 @@ namespace RevitDataValidator
 {
     public static class Utils
     {
+        public static Dictionary<Guid, FailureDefinitionId> CustomFailures = new Dictionary<Guid, FailureDefinitionId>();        
         public static string dialogIdShowing = "";
         public static ControlledApplication app;
         public static string PRODUCT_NAME = "Revit Standards Addin";
@@ -614,7 +615,14 @@ namespace RevitDataValidator
             }
             else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
             {
-                rule.FailureId = genericFailureId;
+                if (CustomFailures.TryGetValue(rule.FailureGuid, out var failure))
+                {
+                    rule.FailureId = failure;
+                }
+                else
+                {
+                    rule.FailureId = genericFailureId;
+                }
             }
             return true;
         }
@@ -839,7 +847,14 @@ namespace RevitDataValidator
                         failureMessage.SetFailingElements(ids.ToList());
                         if (doc.IsModifiable)
                         {
-                            doc.PostFailure(failureMessage);
+                            try
+                            {
+                                var key = doc.PostFailure(failureMessage);
+                            }
+                            catch (Exception ex)
+                            {
+                                Utils.LogException(ex.Message, ex);
+                            }
                         }
                     }
                 }
