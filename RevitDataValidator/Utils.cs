@@ -100,7 +100,7 @@ namespace RevitDataValidator
 
         private const string RULE_FILE_NAME = "rules.md";
         private const string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
-        public const string RULE_DEFAULT_MESSAGE = "This action was prevented by a rule set up by your company administrator using the IDC Revit Standards Addin. Expand the list below for details about the affected elements or contact your company administrator for more information.";
+        public const string RULE_DEFAULT_MESSAGE = "This action was prevented by a rule set up by your company administrator using the IDC Revit Standards Addin.";
 
         public static FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
@@ -456,15 +456,22 @@ namespace RevitDataValidator
                 if (rule.Categories != null)
                 {
                     var builtInCats = Utils.GetBuiltInCats(rule);
+                    var filter = new ElementMulticategoryFilter(builtInCats);
                     UpdaterRegistry.AddTrigger(
                         DataValidationUpdaterId,
                         Utils.doc,
-                        new ElementMulticategoryFilter(builtInCats),
+                        filter,
                         Element.GetChangeTypeAny());
+                    UpdaterRegistry.AddTrigger(
+                        DataValidationUpdaterId,
+                        doc,
+                        filter,
+                        Element.GetChangeTypeElementAddition());
                 }
                 else if (rule.ElementClasses != null)
                 {
                     var types = Utils.GetRuleTypes(rule);
+                    var elementMulticlassFilter = new ElementMulticlassFilter(types);
                     if (types.Count > 0)
                     {
                         try
@@ -472,7 +479,7 @@ namespace RevitDataValidator
                             UpdaterRegistry.AddTrigger(
                                 DataValidationUpdaterId,
                                 Utils.doc,
-                                new ElementMulticlassFilter(types),
+                                elementMulticlassFilter,
                                 Element.GetChangeTypeAny());
                         }
                         catch
@@ -483,7 +490,7 @@ namespace RevitDataValidator
                         UpdaterRegistry.AddTrigger(
                             DataValidationUpdaterId,
                             Utils.doc,
-                            new ElementMulticlassFilter(types),
+                            elementMulticlassFilter,
                             Element.GetChangeTypeElementAddition());
                     }
                 }
@@ -888,17 +895,56 @@ namespace RevitDataValidator
                         SetParam(parameterString.Parameter, parameterString.NewValue);
                     }
                 }
-                if (ruleFailures.Count != 0)
-                {
-                    var form = new FormGridList(ruleFailures);
-                    form.Show();
-                }
+
+                ShowErrorFormOrPostError(ruleFailures);
 
                 if (started)
                 {
                     t.Commit();
                 }
             }
+        }
+
+        public static void ShowErrorFormOrPostError(List<RuleFailure> ruleFailures)
+        {
+            if (ruleFailures.Count == 0)
+            {
+                return;
+            }
+            
+            var familyNameRuleFailures = ruleFailures.Where(q => q.Rule.ParameterName == "Family Name");
+            if (familyNameRuleFailures.Any())
+            {
+                var grouping = familyNameRuleFailures.GroupBy(q => q.Rule.RuleName);
+                foreach (var g in grouping)
+                {
+                    var rule = g;
+                    var failures = familyNameRuleFailures.Where(q => q.Rule.RuleName == g.Key);
+                    var familySymbols = failures.Select(q => doc.GetElement(q.ElementId))
+                        .Where(q => q is FamilySymbol)
+                        .Select(q => q as FamilySymbol);
+                    var failureMessage = new FailureMessage(failures.First().Rule.FailureId);
+                    failureMessage.SetFailingElements(familySymbols.Select(q => q.Id).ToList());
+                    if (doc.IsModifiable)
+                    {
+                        doc.PostFailure(failureMessage);
+                    }
+                    else
+                    {
+                        var td = new TaskDialog("Error")
+                        {
+                            MainInstruction = failureMessage.GetDescriptionText(),
+                            MainContent = string.Join(Environment.NewLine, failureMessage.GetFailingElements().Select(q => doc.GetElement(q)).Select(q => GetElementInfo(q)))
+                        };
+                        td.Show();
+                    }
+                }
+            }
+            else
+            {
+                var form = new FormGridList(ruleFailures);
+                form.Show();
+            }            
         }
 
         public static List<Type> GetRuleTypes(ParameterRule rule)
@@ -2047,7 +2093,16 @@ namespace RevitDataValidator
             if (e == null) return null;
 
             var parameters = e.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name).ToList();
-            var element = e.Document.GetElement(e.GetTypeId());
+            Element element = null;
+            if (e is FamilySymbol fs)
+            {
+                element = fs;
+            }
+            else
+            {
+                element = e.Document.GetElement(e.GetTypeId());
+            }
+
             if (element == null)
             {
                 return null;
@@ -2084,6 +2139,14 @@ namespace RevitDataValidator
             if (e.Category != null)
             {
                 ret += e.Category.Name + ":";
+            }
+            if (e is Family family)
+            {
+                ret += family.Name + ":";
+            }
+            if (e is FamilySymbol fs)
+            {
+                ret += fs.Family.Name + ":";
             }
             if (e is FamilyInstance fi)
             {

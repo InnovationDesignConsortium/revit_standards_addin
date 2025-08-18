@@ -347,12 +347,7 @@ namespace RevitDataValidator
                     Utils.eventHandlerWithParameterObject.Raise(
                         parametersToSet.ConvertAll(q => new ParameterObject(new List<Parameter> { q.Parameter }, q.NewValue)));
                 }
-
-                if (ruleFailures.Count != 0)
-                {
-                    FormGridList form = new FormGridList(ruleFailures);
-                    form.Show();
-                }
+                Utils.ShowErrorFormOrPostError(ruleFailures);
             }
         }
 
