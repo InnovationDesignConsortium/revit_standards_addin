@@ -326,7 +326,7 @@ namespace RevitDataValidator.Forms
                     var item = new ParameterObject(parameters, value?.ToString());
                     parameterObjects.Add(item);
                 }
-                var failuresForThisId = Utils.GetFailures(id, parameterStrings, WhenToRun.Realtime, out _).Where(q => q.Rule.ParameterName == parameter).ToList();
+                var failuresForThisId = Utils.GetFailures(id, parameterStrings, WhenToRun.Realtime).Where(q => q.Rule.ParameterName == parameter).ToList();
                 if (failuresForThisId.Count != 0)
                 {
                     failures.AddRange(failuresForThisId);

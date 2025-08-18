@@ -888,12 +888,8 @@ namespace RevitDataValidator
                 var ruleFailures = new List<RuleFailure>();
                 foreach (ElementId id in addedAndModifiedIds)
                 {
-                    var failures = GetFailures(id, null, whenToRun, out List<ParameterString> parametersToSet);
+                    var failures = GetFailures(id, null, whenToRun);
                     ruleFailures.AddRange(failures);
-                    foreach (var parameterString in parametersToSet)
-                    {
-                        SetParam(parameterString.Parameter, parameterString.NewValue);
-                    }
                 }
 
                 ShowErrorFormOrPostError(ruleFailures);
@@ -1783,6 +1779,12 @@ namespace RevitDataValidator
                     Log($"Rule Not Implmented {rule.RuleName}", LogLevel.Error);
                 }
             }
+
+            foreach (var v in parametersToSet)
+            {
+                SetParam(v.Parameter, v.NewValue);
+            }
+
             return null;
         }
 
@@ -1811,10 +1813,9 @@ namespace RevitDataValidator
             };
         }
 
-        public static List<RuleFailure> GetFailures(ElementId id, List<ParameterString> inputParameterValues, WhenToRun whenToRun, out List<ParameterString> parametersToSet)
+        public static List<RuleFailure> GetFailures(ElementId id, List<ParameterString> inputParameterValues, WhenToRun whenToRun)
         {
             var ret = new List<RuleFailure>();
-            parametersToSet = new List<ParameterString>();
             foreach (var rule in allParameterRules.Where(q =>
                 !q.Disabled &&
                 q.WhenToRun.Contains(whenToRun)))
@@ -1823,17 +1824,19 @@ namespace RevitDataValidator
                     rule,
                     id,
                     inputParameterValues,
-                    out List<ParameterString> thisRuleParametersToSet,
+                    out _,
                     out List<ParameterString> thisRuleParametersToSetForFormatRules
                     );
-                parametersToSet.AddRange(thisRuleParametersToSet);
 
                 if (thisRuleParametersToSetForFormatRules.Count != 0)
                 {
                     var td = GetTaskDialogForFormatRenaming(rule, thisRuleParametersToSetForFormatRules);
                     if (td.Show() == Autodesk.Revit.UI.TaskDialogResult.Ok)
                     {
-                        parametersToSet.AddRange(thisRuleParametersToSetForFormatRules);
+                        foreach (var v in thisRuleParametersToSetForFormatRules)
+                        {
+                            SetParam(v.Parameter, v.NewValue);
+                        }
                     }
                     else
                     {
