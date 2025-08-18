@@ -433,7 +433,14 @@ namespace RevitDataValidator
                             ms.Seek(0, SeekOrigin.Begin);
                             Assembly assembly = Assembly.Load(ms.ToArray());
                             var type = assembly.GetType(rule.CustomCode);
-                            Utils.dictCustomCode[rule.CustomCode] = type;
+                            if (type == null)
+                            {
+                                Log($"The class name in the rule's source code file must match the file name '{rule.CustomCode}'", LogLevel.Error);
+                            }
+                            else
+                            {
+                                Utils.dictCustomCode[rule.CustomCode] = type;
+                            }
                         }
                         else
                         {
