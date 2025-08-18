@@ -99,7 +99,7 @@ namespace RevitDataValidator
 
         private const string RULE_FILE_NAME = "rules.md";
         private const string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
-        public const string RULE_DEFAULT_MESSAGE = "This is not allowed. (A default error message is given because the rule registered after Revit startup)";
+        public const string RULE_DEFAULT_MESSAGE = "This action was prevented by a rule set up by your company administrator using the IDC Revit Standards Addin. Expand the list below for details about the affected elements or contact your company administrator for more information.";
 
         public static FailureDefinitionId genericFailureId;
         public static UpdaterId DataValidationUpdaterId;
