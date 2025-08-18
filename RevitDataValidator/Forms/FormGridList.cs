@@ -124,7 +124,9 @@ namespace RevitDataValidator.Forms
                         var multiTextbox = new System.Windows.Forms.TextBox
                         {
                             Location = new System.Drawing.Point() { X = multiUiX, Y = labelY },
-                            Name = prefix + group.Key
+                            Name = prefix + group.Key,
+                            Width = 250,
+                            Anchor = AnchorStyles.Right | AnchorStyles.Left,
                         };
                         multiTextbox.TextChanged += MultiTextbox_TextChanged;
                         panel1.Controls.Add(multiTextbox);
@@ -163,7 +165,8 @@ namespace RevitDataValidator.Forms
                             DataSource = dataSource,
                             DropDownStyle = ComboBoxStyle.DropDownList,
                             Name = prefix + group.Key,
-                            Width = 350
+                            Width = 250,
+                            Anchor = AnchorStyles.Right | AnchorStyles.Left,                            
                         };
                         multiCbo.SelectedIndexChanged += MultiCbo_SelectedIndexChanged;
                         panel1.Controls.Add(multiCbo);
@@ -173,7 +176,8 @@ namespace RevitDataValidator.Forms
                             Name = PARAM + group.Key,
                             HeaderText = group.Key,
                             ToolTipText = rule.UserMessage,
-                            FlatStyle = FlatStyle.Flat
+                            FlatStyle = FlatStyle.Flat,
+                            DataSource = dataSource
                         };
                         dataGridView1.Columns.Add(cbo);
                     }
