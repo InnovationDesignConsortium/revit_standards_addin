@@ -140,16 +140,14 @@ namespace RevitDataValidator
             }
         }
 
-        public void LoadCustomFailures()
+        private void LoadCustomFailures()
         {
             Utils.GetEnvironmentVariableData();
-
-            var path = "Standards/RevitStandardsPanel/CustomFailures.json";
 
             string json = null;
             if (!string.IsNullOrEmpty(Utils.LOCAL_FILE_PATH))
             {
-                var localpath = Path.Combine(Utils.LOCAL_FILE_PATH, path);
+                var localpath = Path.Combine(Utils.LOCAL_FILE_PATH, Utils.CUSTOM_FAILURE_FILE_PATH);
                 if (File.Exists(localpath))
                 {
                     json = File.ReadAllText(localpath);
@@ -157,10 +155,10 @@ namespace RevitDataValidator
             }
             else
             {
-                var data = Utils.GetGitData(Octokit.ContentType.File, path);
+                var data = Utils.GetGitData(Octokit.ContentType.File, Utils.CUSTOM_FAILURE_FILE_PATH);
                 if (data == null)
                 {
-                    Utils.Log($"No git data at {path}", LogLevel.Warn);
+                    Utils.Log($"No git data at {Utils.CUSTOM_FAILURE_FILE_PATH}", LogLevel.Info);
                     return;
                 }
                 json = data.Content;

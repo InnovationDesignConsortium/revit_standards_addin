@@ -100,6 +100,7 @@ namespace RevitDataValidator
 
         private const string RULE_FILE_NAME = "rules.md";
         private const string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
+        public const string CUSTOM_FAILURE_FILE_PATH = "Standards/RevitStandardsPanel/CustomFailures.json";
         public const string RULE_DEFAULT_MESSAGE = "This action was prevented by a rule set up by your company administrator using the IDC Revit Standards Addin.";
 
         public static FailureDefinitionId genericFailureId;
@@ -1185,7 +1186,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                if (!path.EndsWith(PARAMETER_PACK_FILE_NAME))
+                if (!path.EndsWith(PARAMETER_PACK_FILE_NAME) && !(path == CUSTOM_FAILURE_FILE_PATH))
                 {
                     LogException("GetGitData", ex);
                 }
@@ -2163,8 +2164,8 @@ namespace RevitDataValidator
         {
             var td = new TaskDialog("Error")
             {
-                MainInstruction = s + Environment.NewLine + ex.Message,
-                MainContent = string.Join(Environment.NewLine, SplitAfterSlash(ex.StackTrace))
+                MainInstruction = s,
+                MainContent = SplitAfterSlash(ex.Message) + Environment.NewLine + string.Join(Environment.NewLine, SplitAfterSlash(ex.StackTrace))
             };
             td.Show();
 
@@ -2184,7 +2185,7 @@ namespace RevitDataValidator
             for (var i = 0; i < input.Length; i++)
             {
                 length++;
-                if ((input[i] == '/' || input[i] == '\\') && length >= 60)
+                if ((input[i] == '/' || input[i] == '\\') && length >= 40)
                 {
                     result.Add(input.Substring(startIndex, length));
                     startIndex = i + 1;
