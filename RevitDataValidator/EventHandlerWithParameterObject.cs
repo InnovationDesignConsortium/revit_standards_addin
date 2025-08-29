@@ -100,7 +100,7 @@ namespace RevitDataValidator
                                     }
                                 }
                             }
-                            else if (parameter.StorageType == StorageType.Double)
+                            else if (parameter.StorageType == StorageType.Double && args.Value.ToString() != "")
                             {
                                 if (UnitFormatUtils.TryParse(Utils.doc.GetUnits(), parameter.Definition.GetDataType(), args.Value.ToString(), out double dparsed, out string parseFailureMessage))
                                 {
