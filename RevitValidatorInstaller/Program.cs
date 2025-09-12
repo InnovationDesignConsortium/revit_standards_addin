@@ -62,38 +62,38 @@ internal class Program
             }
         }
 
-        var versions = new List<string> { "2023", "2024", "2025", "2026", "2027" };
-        var dir = Path.GetDirectoryName(dllPath);
-        var addinsFolder = Path.GetDirectoryName(dir);
-        var revitversion = new DirectoryInfo(dir).Name;
+        //var versions = new List<string> { "2023", "2024", "2025", "2026", "2027" };
+        //var dir = Path.GetDirectoryName(dllPath);
+        //var addinsFolder = Path.GetDirectoryName(dir);
+        //var revitversion = new DirectoryInfo(dir).Name;
 
-        foreach (var version in versions)
-        {
-            dir = dllPath.Replace(revitversion, version);
-            if (Directory.Exists(dir))
-            {
-                foreach (var file in Directory.GetFiles(dir))
-                {
-                    try
-                    {
-                        File.Delete(file);
-                        Logger.Info("Deleted " + file);
-                    }
-                    catch { }
-                }
-            }
-            var addinsFolderWithVersion = Path.Combine(addinsFolder, version);
-            var addinFile = Path.Combine(addinsFolderWithVersion, "RevitDataValidator.addin");
-            if (File.Exists(addinFile))
-            {
-                try
-                {
-                    File.Delete(addinFile);
-                    Logger.Info($"Deleted {addinFile}");
-                }
-                catch { }
-            }
-        }
+        //foreach (var version in versions)
+        //{
+        //    dir = dllPath.Replace(revitversion, version);
+        //    if (Directory.Exists(dir))
+        //    {
+        //        foreach (var file in Directory.GetFiles(dir))
+        //        {
+        //            try
+        //            {
+        //                File.Delete(file);
+        //                Logger.Info("Deleted " + file);
+        //            }
+        //            catch { }
+        //        }
+        //    }
+        //    var addinsFolderWithVersion = Path.Combine(addinsFolder, version);
+        //    var addinFile = Path.Combine(addinsFolderWithVersion, "RevitDataValidator.addin");
+        //    if (File.Exists(addinFile))
+        //    {
+        //        try
+        //        {
+        //            File.Delete(addinFile);
+        //            Logger.Info($"Deleted {addinFile}");
+        //        }
+        //        catch { }
+        //    }
+        //}
 
         if (File.Exists(filename))
         {
