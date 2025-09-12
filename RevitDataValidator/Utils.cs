@@ -114,6 +114,11 @@ namespace RevitDataValidator
             foreach (var config in configs)
             {
                 var ruleFileInfo = GetFileContents(RULE_FILE_NAME, config.PathToStandardsFiles);
+                if (ruleFileInfo.Contents == null)
+                {
+                    continue;
+                }
+
                 var document = Markdown.Parse(ruleFileInfo.Contents);
                 var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
                 foreach (var block in codeblocks)

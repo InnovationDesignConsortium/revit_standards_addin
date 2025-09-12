@@ -138,11 +138,11 @@ namespace RevitDataValidator
                 var allParams = new List<Parameter>();
                 var selectedElementParameters = selectedElement.Parameters.Cast<Parameter>()
                     .Where(q => allParameterNamesInThisPackSet.Contains(q.Definition.Name) && Utils.IsParameterValid(q));
-                var selectedTypeParameters = Utils.doc.GetElement(selectedElement.GetTypeId()).Parameters.Cast<Parameter>().
+                var selectedTypeParameters = Utils.doc.GetElement(selectedElement.GetTypeId())?.Parameters.Cast<Parameter>().
                     Where(q => allParameterNamesInThisPackSet.Contains(q.Definition.Name) && Utils.IsParameterValid(q));
                 allParams.AddRange(selectedElementParameters);
                 allParams.AddRange(selectedTypeParameters);
-                foreach (var param in allParams)
+                foreach (var param in allParams.Where(q => q != null))
                 {
                     if (dictParameterInfo.ContainsKey(param.Definition.Name))
                     {
