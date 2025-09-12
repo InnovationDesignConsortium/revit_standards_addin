@@ -38,7 +38,7 @@ namespace RevitDataValidator
 {
     public static class Utils
     {
-        public static Dictionary<Guid, FailureDefinitionId> CustomFailures = new Dictionary<Guid, FailureDefinitionId>();        
+        public static Dictionary<string, FailureDefinitionId> CustomFailures = new Dictionary<string, FailureDefinitionId>();
         public static string dialogIdShowing = "";
         public static ControlledApplication app;
         public static string PRODUCT_NAME = "Revit Standards Addin";
@@ -100,7 +100,6 @@ namespace RevitDataValidator
 
         private const string RULE_FILE_NAME = "rules.md";
         private const string PARAMETER_PACK_FILE_NAME = "parameterpacks.json";
-        public const string CUSTOM_FAILURE_FILE_PATH = "Standards/RevitStandardsPanel/CustomFailures.json";
         public const string RULE_DEFAULT_MESSAGE = "This action was prevented by a rule set up by your company administrator using the IDC Revit Standards Addin.";
 
         public static FailureDefinitionId genericFailureId;
@@ -108,7 +107,71 @@ namespace RevitDataValidator
         public static string gitRuleFilePath;
 
         public static string currentPropertyViewModelName;
-        
+
+        public static void RegisterCustomFailures()
+        {
+            var configs = GetConfigs();
+            foreach (var config in configs)
+            {
+                var ruleFileInfo = GetFileContents(RULE_FILE_NAME, config.PathToStandardsFiles);
+                var document = Markdown.Parse(ruleFileInfo.Contents);
+                var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
+                foreach (var block in codeblocks)
+                {
+                    var lines = block.Lines.Cast<StringLine>().Select(q => q.ToString()).ToList();
+                    var json = string.Concat(lines.Where(q => !q.StartsWith("//")).ToList());
+                    RuleData rules;
+                    try
+                    {
+                        rules = JsonConvert.DeserializeObject<RuleData>(json, new JsonSerializerSettings
+                        {
+                            Error = HandleDeserializationError,
+                            MissingMemberHandling = MissingMemberHandling.Error
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException("RuleData JsonConvert.DeserializeObject", ex);
+                        continue;
+                    }
+                    if (rules != null)
+                    {
+                        if (rules.ParameterRules != null)
+                        {
+                            foreach (var pr in rules.ParameterRules)
+                            {
+                                var failureId = new FailureDefinitionId(Guid.NewGuid());
+                                var message = pr.UserMessage;
+                                if (string.IsNullOrEmpty(message))
+                                {
+                                    message = RULE_DEFAULT_MESSAGE;
+                                }
+                                try
+                                {
+                                    FailureDefinition.CreateFailureDefinition(
+                                       failureId,
+                                       FailureSeverity.Error,
+                                       message);
+                                    var ruleIdentifier = MakeRuleIdentifier(ruleFileInfo, pr);
+                                    CustomFailures.Add(ruleIdentifier, failureId);
+                                    Log($"Registered custom failure: {ruleIdentifier} {failureId.Guid} {message}", LogLevel.Info);
+                                }
+                                catch
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string MakeRuleIdentifier(RuleFileInfo ruleFileInfo, ParameterRule rule)
+        {
+            var v = ruleFileInfo.Url ?? ruleFileInfo.Filename;
+            return v + rule.RuleName;
+        }
+
         public static void ReloadRules(bool forceReload)
         {
             var newFilename = Utils.GetFileName(Utils.doc);
@@ -196,7 +259,6 @@ namespace RevitDataValidator
 
             MarkdownDocument document = Markdown.Parse(ruleFileInfo.Contents);
             Utils.Log($"Parsed markdown with {document.Count} sections", LogLevel.Trace);
-            var descendents = document.Descendants();
             var codeblocks = document.Descendants<FencedCodeBlock>().ToList();
             if (codeblocks.Count == 0)
             {
@@ -316,6 +378,7 @@ namespace RevitDataValidator
                 Log("Rule file error - All rules that are disabled by default must have a 'Rule Name'.", LogLevel.Error);
             }
         }
+
         public static void SetupPane()
         {
             var doc = Utils.doc;
@@ -600,37 +663,13 @@ namespace RevitDataValidator
                 return false;
             }
 
-            if (Utils.doc == null)
+            if (CustomFailures.TryGetValue(MakeRuleIdentifier(ruleFileInfo, rule), out var failureId))
             {
-                var failureId = new FailureDefinitionId(Guid.NewGuid());
-                var message = rule.UserMessage;
-                if (string.IsNullOrEmpty(message))
-                {
-                    message = RULE_DEFAULT_MESSAGE;
-                }
-                try
-                {
-                    FailureDefinition.CreateFailureDefinition(
-                        failureId,
-                        FailureSeverity.Error,
-                        message);
-                }
-                catch
-                {
-                    return false;
-                }
                 rule.FailureId = failureId;
             }
-            else // https://forums.autodesk.com/t5/revit-ideas/api-allow-failuredefinition-createfailuredefinition-during/idi-p/12544647
+            else
             {
-                if (CustomFailures.TryGetValue(rule.FailureGuid, out var failure))
-                {
-                    rule.FailureId = failure;
-                }
-                else
-                {
-                    rule.FailureId = genericFailureId;
-                }
+                rule.FailureId = genericFailureId;
             }
             return true;
         }
@@ -740,10 +779,9 @@ namespace RevitDataValidator
             return false;
         }
 
-        private static string GetGitFileNamesFromConfig()
+        private static List<StandardsConfig> GetConfigs()
         {
             Utils.GetEnvironmentVariableData();
-            var projectName = Utils.GetFileName();
 
             var path = "Standards/RevitStandardsPanel/Config.json";
 
@@ -776,8 +814,15 @@ namespace RevitDataValidator
                 Error = Utils.HandleDeserializationError,
                 MissingMemberHandling = MissingMemberHandling.Error
             });
+            return configs.StandardsConfig;
+        }
 
-            foreach (var config in configs.StandardsConfig)
+        private static string GetGitFileNamesFromConfig()
+        {
+            var configs = GetConfigs();
+            var projectName = Utils.GetFileName();
+
+            foreach (var config in configs)
             {
                 foreach (var regex in config.RvtFullPathRegex)
                 {
@@ -908,7 +953,7 @@ namespace RevitDataValidator
             {
                 return;
             }
-            
+
             var familyNameRuleFailures = ruleFailures.Where(q => q.Rule.ParameterName == "Family Name");
             if (familyNameRuleFailures.Any())
             {
@@ -941,7 +986,7 @@ namespace RevitDataValidator
             {
                 var form = new FormGridList(ruleFailures);
                 form.Show();
-            }            
+            }
         }
 
         public static List<Type> GetRuleTypes(ParameterRule rule)
@@ -1186,7 +1231,7 @@ namespace RevitDataValidator
             }
             catch (Exception ex)
             {
-                if (!path.EndsWith(PARAMETER_PACK_FILE_NAME) && !(path == CUSTOM_FAILURE_FILE_PATH))
+                if (!path.EndsWith(PARAMETER_PACK_FILE_NAME))
                 {
                     LogException("GetGitData", ex);
                 }
@@ -2114,7 +2159,7 @@ namespace RevitDataValidator
             parameters.AddRange(element.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
             if (parameters.Any())
             {
-                var internalDuplicates = new List<string> { "Type Name" , "Level", "Design Option", "View Template" };
+                var internalDuplicates = new List<string> { "Type Name", "Level", "Design Option", "View Template" };
                 if ((parameters.Count() > 1 && !internalDuplicates.Contains(parameters.First().Definition.Name)) ||
                     (parameters.Count() > 2 && internalDuplicates.Contains(parameters.First().Definition.Name)))
                 {
