@@ -974,7 +974,7 @@ namespace RevitDataValidator
                     failureMessage.SetFailingElements(familySymbols.Select(q => q.Id).ToList());
                     if (doc.IsModifiable)
                     {
-                        doc.PostFailure(failureMessage);
+                        new FormGridList(ruleFailures).Show();
                     }
                     else
                     {

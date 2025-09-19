@@ -49,6 +49,27 @@ namespace RevitDataValidator
                                 {
                                     parameter.Element.Name = typeNameValue;
                                 }
+                                else if (parameter.Definition.Name == "Family Name")
+                                {
+                                    if (args.Value is string familyName)
+                                    {
+                                        if (parameter.Element is FamilySymbol fs &&
+                                            fs.Family.Name != familyName)
+                                        {
+                                            fs.Family.Name = familyName;
+                                        }
+                                        else if (parameter.Element is Family f &&
+                                            f.Name != familyName)
+                                        {
+                                            f.Name = familyName;
+                                        }
+                                        else if (parameter.Element is FamilyInstance fi &&
+                                            fi.Symbol.Family.Name != familyName)
+                                        {
+                                            fi.Symbol.Family.Name = familyName;
+                                        }
+                                    }
+                                }
                                 continue;
                             }
 
