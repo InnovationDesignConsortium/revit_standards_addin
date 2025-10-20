@@ -336,8 +336,7 @@ namespace RevitDataValidator.Forms
                     failures.AddRange(failuresForThisId);
                 }
             }
-            if (failures.Count(q => q.FailureType == FailureType.PreventDuplicates) > 1 ||
-                failures.Any(q => q.FailureType != FailureType.PreventDuplicates))
+            if (failures.Any())
             {
                 var td = new Autodesk.Revit.UI.TaskDialog("Errors")
                 {
