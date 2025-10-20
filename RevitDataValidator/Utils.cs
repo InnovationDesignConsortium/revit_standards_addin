@@ -2159,8 +2159,9 @@ namespace RevitDataValidator
 
             if (element == null)
             {
-                return null;
+                element = e;
             }
+
             parameters.AddRange(element.Parameters.Cast<Parameter>().Where(q => q?.Definition?.Name == name));
             if (parameters.Any())
             {
