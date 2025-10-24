@@ -22,15 +22,15 @@ namespace RevitDataValidator.Forms
                 {
                     TableName = "ResolveErrorsTable"
                 };
-                dataTable.Columns.Add("Category");
-                dataTable.Columns.Add("Family");
-                dataTable.Columns.Add("Name");
-                dataTable.Columns.Add("Parameter");
-                dataTable.Columns.Add("Id");
-                dataTable.Columns.Add("Message");
-                dataTable.Columns.Add("RuleName");
-                dataTable.Columns.Add("IsValueRequired");
-                dataTable.Columns.Add("RuleGuid");
+                dataTable.Columns.Add("Category-b29938af");
+                dataTable.Columns.Add("Family-b29938af");
+                dataTable.Columns.Add("Name-b29938af");
+                dataTable.Columns.Add("Parameter-b29938af");
+                dataTable.Columns.Add("Id-b29938af");
+                dataTable.Columns.Add("Message-b29938af");
+                dataTable.Columns.Add("RuleName-b29938af");
+                dataTable.Columns.Add("IsValueRequired-b29938af");
+                dataTable.Columns.Add("RuleGuid-b29938af");
 
                 var rulesByParameterName = failures.GroupBy(q => q.Rule.ParameterName);
                 foreach (var group in rulesByParameterName)
@@ -48,18 +48,18 @@ namespace RevitDataValidator.Forms
                 {
                     var dataRow = dataTable.NewRow();
                     var element = Utils.doc.GetElement(ruleFailure.ElementId);
-                    dataRow["Category"] = element.Category.Name;
-                    dataRow["Name"] = element.Name;
-                    dataRow["Id"] = ElementIdExtension.GetValue(element.Id).ToString();
-                    dataRow["Message"] = ruleFailure.Rule.UserMessage;
-                    dataRow["RuleName"] = ruleFailure.Rule.RuleName;
-                    dataRow["Parameter"] = ruleFailure.Rule.ParameterName;
-                    dataRow["IsValueRequired"] = ruleFailure.Rule.IsValueRequired;
-                    dataRow["RuleGuid"] = ruleFailure.Rule.Guid;
+                    dataRow["Category-b29938af"] = element.Category.Name;
+                    dataRow["Name-b29938af"] = element.Name;
+                    dataRow["Id-b29938af"] = ElementIdExtension.GetValue(element.Id).ToString();
+                    dataRow["Message-b29938af"] = ruleFailure.Rule.UserMessage;
+                    dataRow["RuleName-b29938af"] = ruleFailure.Rule.RuleName;
+                    dataRow["Parameter-b29938af"] = ruleFailure.Rule.ParameterName;
+                    dataRow["IsValueRequired-b29938af"] = ruleFailure.Rule.IsValueRequired;
+                    dataRow["RuleGuid-b29938af"] = ruleFailure.Rule.Guid;
 
                     if (element is FamilyInstance fi)
                     {
-                        dataRow["Family"] = fi.Symbol.Family.Name;
+                        dataRow["Family-b29938af"] = fi.Symbol.Family.Name;
                         hasFamily = true;
                     }
                     foreach (var group in rulesByParameterName)
@@ -73,15 +73,15 @@ namespace RevitDataValidator.Forms
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "Id",
+                    DataPropertyName = "Id-b29938af",
                     HeaderText = "Id",
-                    Name = "Id",
+                    Name = "Id-b29938af",
                     ReadOnly = true,
                 });
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "Category",
+                    DataPropertyName = "Category-b29938af",
                     HeaderText = "Category",
                     ReadOnly = true,
                 });
@@ -90,7 +90,7 @@ namespace RevitDataValidator.Forms
                 {
                     dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                     {
-                        DataPropertyName = "Family",
+                        DataPropertyName = "Family-b29938af",
                         HeaderText = "Family",
                         ReadOnly = true,
                     });
@@ -98,7 +98,7 @@ namespace RevitDataValidator.Forms
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "Name",
+                    DataPropertyName = "Name-b29938af",
                     HeaderText = "Name",
                     ReadOnly = true,
                 });
@@ -185,7 +185,7 @@ namespace RevitDataValidator.Forms
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "Message",
+                    DataPropertyName = "Message-b29938af",
                     HeaderText = "Rule",
                     ReadOnly = true,
                 });
@@ -200,32 +200,32 @@ namespace RevitDataValidator.Forms
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "RuleName",
-                    Name = "RuleName",
+                    DataPropertyName = "RuleName-b29938af",
+                    Name = "RuleName-b29938af",
                     ReadOnly = true,
                     Visible = false
                 });
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "Parameter",
-                    Name = "Parameter",
+                    DataPropertyName = "Parameter-b29938af",
+                    Name = "Parameter-b29938af",
                     ReadOnly = true,
                     Visible = true
                 });
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "IsValueRequired",
-                    Name = "IsValueRequired",
+                    DataPropertyName = "IsValueRequired-b29938af",
+                    Name = "IsValueRequired-b29938af",
                     ReadOnly = true,
                     Visible = false
                 });
 
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    DataPropertyName = "RuleGuid",
-                    Name = "RuleGuid",
+                    DataPropertyName = "RuleGuid-b29938af",
+                    Name = "RuleGuid-b29938af",
                     ReadOnly = true,
                     Visible = false
                 });
@@ -290,14 +290,14 @@ namespace RevitDataValidator.Forms
             var failures = new List<RuleFailure>();
             foreach (var row in dataGridView1.Rows.Cast<DataGridViewRow>())
             {
-                var idValue = row.Cells["Id"].Value;
+                var idValue = row.Cells["Id-b29938af"].Value;
                 var id = ElementIdUtils.New(int.Parse(idValue.ToString()));
                 var element = Utils.doc.GetElement(id);
                 var cells = row.Cells;
-                var ruleName = cells["RuleName"].Value?.ToString();
+                var ruleName = cells["RuleName-b29938af"].Value?.ToString();
 
                 var reasonForException = row.Cells["Exception"].Value?.ToString();
-                var parameter = row.Cells["Parameter"].Value.ToString();
+                var parameter = row.Cells["Parameter-b29938af"].Value.ToString();
                 if (!string.IsNullOrEmpty(reasonForException?.ToString()))
                 {
                     Utils.Log($"{ruleName}|EXCEPTION|{Utils.GetElementInfo(element)}|{parameter}|{reasonForException}", LogLevel.Warn);
@@ -317,7 +317,7 @@ namespace RevitDataValidator.Forms
                     }
                     var value = row.Cells[col.Name].Value;
 
-                    var isValueRequired = bool.Parse(row.Cells["IsValueRequired"].Value.ToString());
+                    var isValueRequired = bool.Parse(row.Cells["IsValueRequired-b29938af"].Value.ToString());
                     if (isValueRequired && value == null)
                     {
                         Autodesk.Revit.UI.TaskDialog.Show("Error", "Must select a value for all elements");
@@ -361,14 +361,14 @@ namespace RevitDataValidator.Forms
                 return;
 
             var row = dataGridView1.Rows[dataGridView1.CurrentCell.RowIndex];
-            var cell = row.Cells["Id"];
+            var cell = row.Cells["Id-b29938af"];
             var id = ElementIdUtils.New(int.Parse(cell.Value.ToString()));
             var idList = new List<ElementId> { id };
 
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 var ids = dataGridView1.SelectedRows.Cast<DataGridViewRow>()
-                    .Select(q => ElementIdUtils.New(int.Parse(q.Cells["Id"].Value.ToString())))
+                    .Select(q => ElementIdUtils.New(int.Parse(q.Cells["Id-b29938af"].Value.ToString())))
                     .ToList();
                 idList = ids;
             }
@@ -388,7 +388,7 @@ namespace RevitDataValidator.Forms
                 for (int c = 0; c < dataGridView1.ColumnCount; c++)
                 {
                     var col = dataGridView1.Columns[c];
-                    if (col.Name != PARAM + row.Cells["Parameter"].Value &&
+                    if (col.Name != PARAM + row.Cells["Parameter-b29938af"].Value &&
                         col.Name.StartsWith(PARAM)
                         )
                     {
@@ -407,9 +407,9 @@ namespace RevitDataValidator.Forms
 
         private void SetComboBoxValues(DataGridViewRow row)
         {
-            var elementId = ElementIdUtils.New(int.Parse(row.Cells["Id"].Value.ToString()));
+            var elementId = ElementIdUtils.New(int.Parse(row.Cells["Id-b29938af"].Value.ToString()));
             var element = Utils.doc.GetElement(elementId);
-            var rule = Utils.allParameterRules.First(q => q.Guid.ToString() == row.Cells["RuleGuid"].Value.ToString());
+            var rule = Utils.allParameterRules.First(q => q.Guid.ToString() == row.Cells["RuleGuid-b29938af"].Value.ToString());
             var dataSource = new List<string>();
             if (rule.ListOptions != null)
             {
