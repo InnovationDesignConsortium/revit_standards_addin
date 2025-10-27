@@ -324,6 +324,10 @@ namespace RevitDataValidator.Forms
                         return;
                     }
 
+                    if (value is DBNull)
+                    {
+                        value = "";
+                    }
                     parameterStrings.Add(new ParameterString(element.LookupParameter(thisColumnParameterName), value?.ToString()));
 
                     var parameters = new List<Parameter> { Utils.GetParameter(element, thisColumnParameterName) };
