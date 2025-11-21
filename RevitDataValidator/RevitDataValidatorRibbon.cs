@@ -24,6 +24,8 @@ namespace RevitDataValidator
             RevitTask.Initialize(Application);
             RevitTask.RegisterGlobal(new CustomRuleExternalEventHandler());
 
+            Utils.startup = true;
+
             var dll = typeof(Ribbon).Assembly.Location;
             Utils.dllPath = Path.GetDirectoryName(dll);
 
@@ -138,6 +140,8 @@ namespace RevitDataValidator
             {
                 Update.CheckForUpdates();
             }
+
+            Utils.startup = false;
         }
 
         private void SetPaneVisibilityOnStartup(object sender, ViewActivatedEventArgs e)

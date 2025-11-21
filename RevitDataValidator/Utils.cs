@@ -80,6 +80,7 @@ namespace RevitDataValidator
         public static List<ElementId> idsTriggered = new List<ElementId>();
         private static TokenInfo token_for_GIT_CODE_REPO_OWNER = null;
         public const double eps = 1.0e-5;
+        public static bool startup;
 
         private static readonly Dictionary<BuiltInCategory, List<BuiltInCategory>> CatToHostCatMap = new Dictionary<BuiltInCategory, List<BuiltInCategory>>()
     {
@@ -707,7 +708,7 @@ namespace RevitDataValidator
                     {
                         Log($"File not found: {fullpath}", LogLevel.Warn);
                     }
-                    else
+                    else if (!startup)
                     {
                         Log($"File not found: {fullpath}", LogLevel.Error);
                     }
@@ -732,7 +733,7 @@ namespace RevitDataValidator
                     {
                         Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Warn);
                     }
-                    else
+                    else if (!startup)
                     {
                         Log($"File not found: {ruleInfoFilePath}/{fileName}", LogLevel.Error);
                     }
