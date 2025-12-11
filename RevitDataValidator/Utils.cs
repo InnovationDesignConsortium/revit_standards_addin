@@ -1429,7 +1429,9 @@ namespace RevitDataValidator
                     {
                         paramValue = Regex.Replace(paramValue, "^Temp. ", String.Empty);
                     }
-                    if (paramValue == null || !Regex.IsMatch(paramValue, p.Value))
+
+                    if (!DoesRegexMatch(paramValue, p.Value) && 
+                        !DoesRegexMatch(parameter.AsValueString(), p.Value))
                     {
                         pass = false;
                         break;
@@ -1457,6 +1459,16 @@ namespace RevitDataValidator
                     }
                 }
             }
+        }
+
+        private static bool DoesRegexMatch(string input, string pattern)
+        {
+            if (input == null || pattern == null)
+            {
+                return false;
+            }
+            var match = Regex.IsMatch(input, pattern);
+            return match;
         }
 
         public static IEnumerable<ElementId> RunCustomRule(ParameterRule rule, List<ElementId> addedAndModifiedIds)
