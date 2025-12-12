@@ -89,12 +89,14 @@ namespace RevitDataValidator
                                 var dataType = parameter.Definition.GetDataType();
                                 if (dataType == SpecTypeId.Int.Integer)
                                 {
-                                    if (int.TryParse(args.Value.ToString(), out int i) &&
-                                        i != parameter.AsInteger())
+                                    if (int.TryParse(args.Value.ToString(), out int i))
                                     {
-                                        parameter.Set(i);
+                                        if (i != parameter.AsInteger())
+                                        {
+                                            parameter.Set(i);
+                                        }
                                     }
-                                    else
+                                    else if (args.Value.ToString() != "")
                                     {
                                         TaskDialog.Show("Error", "Enter a valid integer");
                                     }

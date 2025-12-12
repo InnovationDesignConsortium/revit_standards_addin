@@ -260,15 +260,18 @@ namespace RevitDataValidator
                                 if (value == "Yes")
                                     boolValue = true;
 
-                                packParameters.Add(
-                                   new BoolStateParameter
-                                   {
-                                       Name = pname,
-                                       Parameters = parameters,
-                                       IsEnabled = !parameters.First().IsReadOnly && !isElementType,
-                                       Value = boolValue
-                                   }
-                                   );
+                                var boolParam = new BoolStateParameter
+                                {
+                                    Name = pname,
+                                    Parameters = parameters,
+                                    IsEnabled = !parameters.First().IsReadOnly && !isElementType,
+                                    Value = boolValue
+                                };
+                                if (isElementType)
+                                {
+                                    boolParam.ToolTipText = "Type Parameters are read only";
+                                }
+                                packParameters.Add(boolParam);
                             }
                             else if (parameter.StorageType == StorageType.Integer &&
                                 parameter.AsValueString() != parameter.AsInteger().ToString())
@@ -319,14 +322,19 @@ namespace RevitDataValidator
                                 if (choices.Count != 0)
                                 {
                                     var selected = choices.Find(q => q.Long == parameter.AsInteger());
-                                    packParameters.Add(new ChoiceStateParameter
+                                    var choiceParam = new ChoiceStateParameter
                                     {
                                         Parameters = parameters,
                                         Name = pname,
                                         IsEnabled = !parameters[0].IsReadOnly && !isElementType,
                                         Choices = choices,
                                         SelectedChoice = selected
-                                    });
+                                    };
+                                    if (isElementType)
+                                    {
+                                        choiceParam.ToolTipText = "Type Parameters are read only";
+                                    }
+                                    packParameters.Add(choiceParam);
                                 }
                             }
                             else if (parameter.StorageType == StorageType.ElementId)
@@ -489,14 +497,19 @@ namespace RevitDataValidator
                                             {
                                                 selected = choices.Find(q => q.String == value);
                                             }
-                                            packParameters.Add(new ChoiceStateParameter
+                                            var choiceParam = new ChoiceStateParameter
                                             {
                                                 Parameters = parameters,
                                                 IsEnabled = !parameters[0].IsReadOnly && !isElementType,
                                                 Name = pname,
                                                 Choices = choices,
                                                 SelectedChoice = selected
-                                            });
+                                            };
+                                            if (isElementType)
+                                            {
+                                                choiceParam.ToolTipText = "Type Parameters are read only";
+                                            }
+                                            packParameters.Add(choiceParam);
                                         }
                                         catch (Exception ex)
                                         {
