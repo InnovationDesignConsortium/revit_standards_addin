@@ -251,6 +251,7 @@ namespace RevitDataValidator
                         if (parameters?.Count > 0 && parameters[0] != null)
                         {
                             var parameter = parameters[0];
+                            var isElementType = parameter.Element is ElementType;
                             var value = GetParameterValue(pinfo.Values);
                             if (parameter.StorageType == StorageType.Integer &&
                                 parameter.Definition.GetDataType() == SpecTypeId.Boolean.YesNo)
@@ -264,7 +265,7 @@ namespace RevitDataValidator
                                    {
                                        Name = pname,
                                        Parameters = parameters,
-                                       IsEnabled = !parameters.First().IsReadOnly,
+                                       IsEnabled = !parameters.First().IsReadOnly && !isElementType,
                                        Value = boolValue
                                    }
                                    );
@@ -322,7 +323,7 @@ namespace RevitDataValidator
                                     {
                                         Parameters = parameters,
                                         Name = pname,
-                                        IsEnabled = !parameters[0].IsReadOnly,
+                                        IsEnabled = !parameters[0].IsReadOnly && !isElementType,
                                         Choices = choices,
                                         SelectedChoice = selected
                                     });
@@ -491,7 +492,7 @@ namespace RevitDataValidator
                                             packParameters.Add(new ChoiceStateParameter
                                             {
                                                 Parameters = parameters,
-                                                IsEnabled = !parameters[0].IsReadOnly,
+                                                IsEnabled = !parameters[0].IsReadOnly && !isElementType,
                                                 Name = pname,
                                                 Choices = choices,
                                                 SelectedChoice = selected
@@ -506,7 +507,6 @@ namespace RevitDataValidator
                             }
                             else if (parameter.GetTypeId() != ParameterTypeId.SymbolNameParam)
                             {
-                                var isElementType = parameters[0].Element is ElementType;
                                 var textParameter = new TextStateParameter
                                 {
                                     Name = pname,
