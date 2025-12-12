@@ -13,6 +13,8 @@ namespace RevitDataValidator.Classes
 
         [JsonProperty("properties")]
         public List<Property> Properties { get; set; }
+
+        public List<Enum> @enum { get; set; }
     }
 
     public partial class Property
@@ -23,4 +25,11 @@ namespace RevitDataValidator.Classes
         [JsonProperty("value")]
         public int Value { get; set; }
     }
+
+    public class Enum
+    {
+        public string id { get; set; }
+        public int value { get; set; }
+    }
+
 }

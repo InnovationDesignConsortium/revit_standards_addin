@@ -287,14 +287,21 @@ namespace RevitDataValidator
                                         var enumData = JsonConvert.DeserializeObject<ParameterEnum>(contents, new JsonSerializerSettings
                                         {
                                             Error = Utils.HandleDeserializationError,
-                                            MissingMemberHandling = MissingMemberHandling.Error
+                                            MissingMemberHandling = MissingMemberHandling.Ignore
                                         });
-                                        choices = enumData.Properties.ConvertAll(q => new StringInt(q.Id, q.Value));
+                                        if (enumData.Properties != null)
+                                        { 
+                                            choices = enumData.Properties.ConvertAll(q => new StringInt(q.Id, q.Value));
+                                        }
+                                        else if (enumData.@enum != null)
+                                        {
+                                            choices = enumData.@enum.ConvertAll(q => new StringInt(q.id, q.value));
+                                        }
                                     }
                                 }
                                 else if (typeid == ParameterTypeId.WallKeyRefParam)
                                 {
-                                    foreach (var v in Enum.GetValues(typeof(WallLocationLine)))
+                                    foreach (var v in System.Enum.GetValues(typeof(WallLocationLine)))
                                     {
                                         choices.Add(new StringInt(AddSpacesToSentence(v.ToString(), true), (int)v));
                                     }

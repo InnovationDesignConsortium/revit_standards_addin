@@ -73,7 +73,7 @@ namespace RevitDataValidator
 
             Utils.RegisterCustomFailures();
 
-            foreach (BuiltInCategory bic in Enum.GetValues(typeof(BuiltInCategory)))
+            foreach (BuiltInCategory bic in System.Enum.GetValues(typeof(BuiltInCategory)))
             {
                 if (bic.ToString().Contains("_gbXML_"))
                 {
