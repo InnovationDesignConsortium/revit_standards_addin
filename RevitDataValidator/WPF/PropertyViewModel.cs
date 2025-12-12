@@ -306,6 +306,14 @@ namespace RevitDataValidator
                                         choices.Add(new StringInt(AddSpacesToSentence(v.ToString(), true), (int)v));
                                     }
                                 }
+                                else if (pname == "Workset")
+                                {
+                                    foreach (var workset in new FilteredWorksetCollector(Utils.doc)
+                                        .Where(q => q.Kind == WorksetKind.UserWorkset).OrderBy(q => q.Name))
+                                    {
+                                        choices.Add(new StringInt(workset.Name, workset.Id.IntegerValue));
+                                    }
+                                }
 
                                 if (choices.Count != 0)
                                 {
@@ -460,6 +468,10 @@ namespace RevitDataValidator
                                         {
                                             choices = GetChoices(BuiltInCategory.OST_VolumeOfInterest);
                                             choices.Add(new StringInt("<None>", -1));
+                                        }
+                                        else if (typeid == ParameterTypeId.ElemTypeParam)
+                                        {
+                                            choices.Add(new StringInt(parameter.AsValueString(), parameter.AsElementId().Value));
                                         }
                                     }
                                     if (choices.Count != 0)
