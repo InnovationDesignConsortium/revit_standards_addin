@@ -274,7 +274,7 @@ namespace RevitDataValidator
                                 packParameters.Add(boolParam);
                             }
                             else if (parameter.StorageType == StorageType.Integer &&
-                                parameter.AsValueString() != parameter.AsInteger().ToString())
+                                parameter.AsValueString() != null && parameter.AsValueString() != parameter.AsInteger().ToString())
                             {
                                 var choices = new List<StringInt>();
                                 var typeid = parameter.GetTypeId();
