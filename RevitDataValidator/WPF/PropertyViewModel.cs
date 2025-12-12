@@ -471,7 +471,7 @@ namespace RevitDataValidator
                                         }
                                         else if (typeid == ParameterTypeId.ElemTypeParam)
                                         {
-                                            choices.Add(new StringInt(parameter.AsValueString(), parameter.AsElementId().Value));
+                                            choices.Add(new StringInt(parameter.AsValueString(), ElementIdExtension.GetValue(parameter.AsElementId())));
                                         }
                                     }
                                     if (choices.Count != 0)
