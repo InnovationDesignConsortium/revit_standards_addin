@@ -2584,6 +2584,13 @@ namespace RevitDataValidator
 
         public static bool IsParameterValid(Parameter p)
         {
+            if (p.Element is ViewSheet && 
+                ElementIdExtension.GetValue(p.Id) == (int)BuiltInParameter.VIEWER_SHEET_NUMBER)
+            {
+                // this parameter doesn't contain any data. we want the user to get BuiltInParameter.SHEET_NUMBER instead
+                return false;
+            }
+
             if (p.Definition is InternalDefinition id &&
                 id.BuiltInParameter != BuiltInParameter.INVALID)
             {
