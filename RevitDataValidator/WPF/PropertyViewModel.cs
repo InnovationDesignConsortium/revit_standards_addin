@@ -128,7 +128,10 @@ namespace RevitDataValidator
                 {
                     parameterPack = packOthers;
                 }
-                allParameterNamesInThisPackSet.AddRange(parameterPack.Parameters);
+                if (parameterPack != null)
+                {
+                    allParameterNamesInThisPackSet.AddRange(parameterPack.Parameters);
+                }
             }
 
             var dictParameterInfo = new Dictionary<string, ParameterInfo>();
