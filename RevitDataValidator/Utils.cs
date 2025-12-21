@@ -304,11 +304,28 @@ namespace RevitDataValidator
                 }
             }
 
+            var domainName = "";
+            try
+            {
+                domainName = System.DirectoryServices.ActiveDirectory.Domain.GetComputerDomain()?.Name;
+            }
+            catch (Exception ex)
+            {
+                Utils.Log($"Could not get domain name: {ex.Message}", LogLevel.Info);
+            }
+
             if (parameterRules != null)
             {
                 Utils.Log($"Total of {parameterRules.Count} parameter rules", LogLevel.Trace);
                 foreach (var parameterRule in parameterRules)
                 {
+                    if (parameterRule.Domains != null &&
+                        !parameterRule.Domains.Contains(domainName))
+                    {
+                        Utils.Log($"Skipping parameter rule {parameterRule} because the domain {domainName} not found in {string.Join(",", parameterRule.Domains)}", LogLevel.Info);
+                        continue;
+                    }
+
                     if (parameterRule.DisableByDefault)
                     {
                         parameterRule.Disabled = true;
@@ -344,6 +361,12 @@ namespace RevitDataValidator
                 Utils.Log($"Total of {worksetRules.Count} workset rules", LogLevel.Trace);
                 foreach (var worksetRule in worksetRules)
                 {
+                    if (worksetRule.Domains != null && !worksetRule.Domains.Contains(domainName))
+                    {
+                        Utils.Log($"Skipping workset rule {worksetRule} because the domain {domainName} not found in {string.Join(",", worksetRule.Domains)}", LogLevel.Info);
+                        continue;
+                    }
+
                     if (worksetRule.DisableByDefault)
                     {
                         worksetRule.Disabled = true;

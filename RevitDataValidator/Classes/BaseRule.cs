@@ -11,6 +11,8 @@ namespace RevitDataValidator
         [JsonProperty("Rule Name")]
         public string RuleName { get; set; }
 
+        public List<string> Domains { get; set; }
+
         public bool Disabled {  get; set; }
 
         [JsonProperty("Disable By Default")]

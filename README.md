@@ -162,7 +162,14 @@ The allowable values for "When Run" are `Realtime"`, `"Open"`, `"Save"`, `"SyncT
 
 If this property is set to True then the rule will not run unless the user invokes the Enable Rules command and selects the rule to turn it on. Enabling rules in this manner is a per-session setting. This feature can be used if you want users to be able to turn on a rule for testing or other purpoeses but otherwise you do not want the rule to be active. 
 
-#### List Rules
+3. An optional list of "Domains"
+
+If this property is set, then the rule will only apply if the user's computer belongs to one of the listed domains. The domain for your computer can be found by running the command `wmic computersystem get domain`
+```
+      "Domains":["americas.swk.pra", "americas.swk.prb"],
+```
+
+### List Rules
 This type of rule restricts a Parameter to only values defined in a list. The list of allowed values can be enumerated in the rule file like in this example that restricts the Comments parameter on Walls to only the values "a", "b", or "c".
 
 ```json
