@@ -146,6 +146,7 @@
     <Reference Include="RevitAPIUI">
       <HintPath>c:\Program Files\Autodesk\Revit $(Configuration)\RevitAPIUI.dll</HintPath>
     </Reference>
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Net.Http" />
     <PackageReference Include="Flee">
       <Version>2.0.0</Version>
